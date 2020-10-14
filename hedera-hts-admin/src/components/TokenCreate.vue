@@ -1,0 +1,213 @@
+<template>
+  <v-row justify="center">
+    <v-dialog v-model="dialog" persistent max-width="600px">
+      <v-form ref="form" v-model="valid" lazy-validation>
+        <v-card>
+          <v-card-title>
+            <span class="headline">Create a new Token</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    label="Name*"
+                    :rules="textRules"
+                    v-model="name"
+                    required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="4">
+                  <v-text-field
+                    label="Symbol*"
+                    :rules="textRules"
+                    v-model="symbol"
+                    required
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <v-text-field
+                    label="Decimals*"
+                    required
+                    v-model="decimals"
+                    :rules="numberRules"
+                  ></v-text-field>
+                </v-col>
+                <v-col cols="4">
+                  <v-text-field
+                    label="Initial Supply*"
+                    required
+                    v-model="initialSupply"
+                    :rules="numberRules"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-checkbox
+                    v-model="adminKey"
+                    label="Enable Admin"
+                  ></v-checkbox>
+                </v-col>
+                <v-col cols="6">
+                  <v-checkbox
+                    v-model="wipeKey"
+                    label="Enable Wipe"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-checkbox
+                    v-model="freezeKey"
+                    label="Enable Freeze"
+                    @click="setFreeze"
+                  ></v-checkbox>
+                </v-col>
+                <v-col cols="6">
+                  <v-checkbox
+                    v-model="defaultFreeze"
+                    :disabled="!freezeKey"
+                    label="Default"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-checkbox
+                    v-model="kycKey"
+                    label="Enable KYC"
+                    @click="setKyc"
+                  ></v-checkbox>
+                </v-col>
+                <v-col cols="6">
+                  <v-checkbox
+                    v-model="defaultKYC"
+                    :disabled="!kycKey"
+                    label="Default"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+            </v-container>
+            <small>*indicates required field</small>
+            <br />
+            <small
+              >Admin, KYC, Wipe and Freeze keys will default to a common key if
+              set, they can however be set independently through the API</small
+            >
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="blue darken-1" text @click="dialog = false">
+              Cancel
+            </v-btn>
+            <v-btn
+              color="blue darken-1"
+              text
+              @click="create"
+              :disabled="!valid"
+            >
+              Create
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-form>
+    </v-dialog>
+  </v-row>
+</template>
+<script>
+import { EventBus } from "../eventBus";
+import { createToken } from "../service/createToken";
+import { Ed25519PrivateKey } from "@hashgraph/sdk";
+
+export default {
+  name: "TokenCreate",
+  data: () => ({
+    valid: false,
+    dialog: false,
+    decimals: 0,
+    initialSupply: 0,
+    name: "",
+    symbol: "",
+    defaultFreeze: false,
+    defaultKYC: false,
+    adminKey: false,
+    wipeKey: false,
+    freezeKey: false,
+    kycKey: false,
+    numberRules: [v => v == parseInt(v) || "Plain numeric required"],
+    textRules: [v => !!v || "Input required"]
+  }),
+  created() {
+    EventBus.$on("tokenCreate", () => {
+      this.valid = false;
+      this.decimals = 0;
+      this.initialSupply = 0;
+      this.name = "";
+      this.symbol = "";
+      this.defaultFreeze = false;
+      this.defaultKYC = false;
+      this.adminKey = false;
+      this.wipeKey = false;
+      this.freezeKey = false;
+      this.kycKey = false;
+      this.dialog = true;
+    });
+  },
+  methods: {
+    setFreeze() {
+      if (this.freezeKey === false) {
+        this.defaultFreeze = false;
+      }
+    },
+    setKyc() {
+      if (this.kycKey === false) {
+        this.defaultKYC = false;
+      }
+    },
+    async create() {
+      const privateKey = await Ed25519PrivateKey.generate();
+      const token = {
+        name: this.name,
+        symbol: this.symbol,
+        decimals: this.decimals,
+        initialSupply: this.initialSupply,
+        defaultFreeze: this.defaultFreeze,
+        defaultKYC: this.defaultKYC,
+        adminKey: this.adminKey ? privateKey.toString() : undefined,
+        wipeKey: this.wipeKey ? privateKey.toString() : undefined,
+        freezeKey: this.freezeKey ? privateKey.toString() : undefined,
+        kycKey: this.kycKey ? privateKey.toString() : undefined
+      };
+      const newToken = await createToken(token);
+      if (typeof newToken.tokenId !== "undefined") {
+        console.log("new token " + newToken.tokenId);
+        this.$store.commit("addToken", newToken);
+        this.dialog = false;
+      } else {
+        console.log("Token creation failed");
+      }
+    }
+  }
+};
+</script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+h3 {
+  margin: 40px 0 0;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+</style>
