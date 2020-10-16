@@ -6,7 +6,7 @@
                            color="primary"
       ></v-progress-circular>
     </v-overlay>
-    <div v-if="currentToken">
+    <div v-if="currentTokenId">
       <Accounts />
     </div>
     <div v-else>
@@ -37,8 +37,8 @@ export default {
     Accounts
   },
   computed: {
-    currentToken() {
-      return this.$store.getters.currentToken;
+    currentTokenId() {
+      return this.$store.getters.currentTokenId;
     }
   },
   data: () => ({

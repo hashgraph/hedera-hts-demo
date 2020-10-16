@@ -56,24 +56,21 @@ export async function createToken(token) {
       //TODO: default freeze and kyc status is one of three values
       tokenResponse = {
         tokenId: newTokenId.toString(),
-        token: {
-          tokenId: newTokenId.toString(),
-          symbol: token.symbol,
-          name: token.name,
-          totalSupply: token.initialSupply,
-          decimals: token.decimals,
-          autoRenewAccount: operatorAccount,
-          autoRenewPeriod: "110",
-          defaultFreezeStatus: token.defaultFreezeStatus,
-          defaultKYCStatus: token.defaultKYCStatus,
-          kycKey: token.kycKey,
-          wipeKey: token.wipeKey,
-          freezeKey: token.freezeKey,
-          adminKey: token.adminKey,
-          expiry: "0",
-          isDeleted: false,
-          treasury: operatorAccount
-        }
+        symbol: token.symbol,
+        name: token.name,
+        totalSupply: token.initialSupply,
+        decimals: token.decimals,
+        autoRenewAccount: operatorAccount,
+        autoRenewPeriod: "110",
+        defaultFreezeStatus: token.defaultFreezeStatus,
+        defaultKYCStatus: token.defaultKYCStatus,
+        kycKey: token.kycKey,
+        wipeKey: token.wipeKey,
+        freezeKey: token.freezeKey,
+        adminKey: token.adminKey,
+        expiry: "0",
+        isDeleted: false,
+        treasury: operatorAccount
       };
 
       notifySuccess("token created successfully");
@@ -101,23 +98,20 @@ export async function createTokenFake(token) {
     console.log("create token fake default freeze: " +  token.defaultFreezeStatus);
     tokenResponse = {
       tokenId: newTokenId.toString(),
-      token: {
-        tokenId: newTokenId.toString(),
-        symbol: token.symbol,
-        name: token.name,
-        totalSupply: token.initialSupply,
-        decimals: token.decimals,
-        autoRenewAccount: operatorAccount,
-        autoRenewPeriod: "110",
-        defaultFreezeStatus: token.defaultFreezeStatus,
-        kycKey: token.kycKey,
-        wipeKey: token.wipeKey,
-        freezeKey: token.freezeKey,
-        adminKey: token.adminKey,
-        expiry: "0",
-        isDeleted: false,
-        treasury: operatorAccount
-      }
+      symbol: token.symbol,
+      name: token.name,
+      totalSupply: token.initialSupply,
+      decimals: token.decimals,
+      autoRenewAccount: operatorAccount,
+      autoRenewPeriod: "110",
+      defaultFreezeStatus: token.defaultFreezeStatus,
+      kycKey: token.kycKey,
+      wipeKey: token.wipeKey,
+      freezeKey: token.freezeKey,
+      adminKey: token.adminKey,
+      expiry: "0",
+      isDeleted: false,
+      treasury: operatorAccount
     };
 
     notifySuccess("token created successfully");

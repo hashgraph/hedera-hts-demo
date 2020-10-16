@@ -23,7 +23,8 @@ export async function createAccount() {
     accountId: newAccountId.toString(),
     account: {
       owner: false,
-      privateKey: privateKey.toString()
+      privateKey: privateKey.toString(),
+      tokenRelationships: {}
     }
   };
 }

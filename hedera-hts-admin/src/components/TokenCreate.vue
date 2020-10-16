@@ -183,7 +183,7 @@ export default {
       const newToken = await createTokenFake(token);
       if (typeof newToken.tokenId !== "undefined") {
         console.log("new token " + newToken.tokenId);
-        this.$store.commit("addToken", newToken);
+        this.$store.commit("setToken", newToken);
         this.dialog = false;
       } else {
         console.log("Token creation failed");

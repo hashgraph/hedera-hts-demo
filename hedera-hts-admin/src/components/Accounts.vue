@@ -17,7 +17,6 @@
       <small v-if="accountRelations.length != 0">
         * An amount to wipe can be set through the API, this demo wipes the entire balance.
       </small>
-      <div> {{ accounts }}</div>
     </v-container>
   </div>
 </template>
@@ -35,40 +34,48 @@ export default {
   data: function() {
     return {
       counter: 0,
-      token: this.$store.getters.currentToken,
-      accounts: this.$store.getters.getAccounts
+      tokenId: this.$store.getters.currentTokenId,
+      accounts: this.$store.getters.getAccounts,
+      token: this.$store.getters.getTokens[this.$store.getters.currentTokenId]
     };
+  },
+  watch: {
+    accounts() {
+      console.log("watch accounts");
+      return this.accounts = this.$store.getters.getAccounts;
+    },
+    tokenId() {
+      console.log("watch tokenid");
+      return this.tokenId = this.$store.getters.currentTokenId;
+    },
+    token() {
+      console.log("watch token");
+      return this.token = this.$store.getters.getTokens[this.tokenId];
+    }
   },
   methods: {
     returnToTokens() {
-      this.$store.commit("currentToken", undefined);
+      this.$store.commit("setCurrentTokenId", undefined);
     }
   },
   computed: {
-    accountRelations: function () {
+    accountRelations() {
       console.log("recomputing accounts");
       const tokenAccounts = [];
-      const localToken = this.token;
-      this.accounts.forEach(function (account) {
-        if (typeof account.account.tokenRelationships !== "undefined") {
-          account.account.tokenRelationships.forEach(function (relation) {
-            if (relation.tokenId === localToken.tokenId) {
-              console.dir(account);
-              console.dir(account.account);
-              console.dir(account.account.owner);
-              const accountRelation = {
-                accountId: account.accountId,
-                balance: relation.balance,
-                freezeStatus: relation.freezeStatus,
-                kycStatus: relation.kycStatus,
-                owner: account.account.owner,
-                wipeKey: localToken.wipeKey
-              };
-              tokenAccounts.push(accountRelation);
-            }
-          });
+      const _token = this.token;
+      for (const key in this.accounts) {
+        const account = this.accounts[key];
+        if (typeof account.tokenRelationships !== "undefined") {
+          const relation = account.tokenRelationships[_token.tokenId];
+          if (typeof relation !== 'undefined') {
+            const accountRelation = {
+              accountId: account.accountId,
+              token: _token
+            };
+            tokenAccounts.push(accountRelation);
+          }
         }
-      });
+      }
       return tokenAccounts;
     }
   }

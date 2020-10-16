@@ -143,7 +143,7 @@ export default {
   },
   methods: {
     showAccounts() {
-      this.$store.commit("currentToken", this.token);
+      this.$store.commit("setCurrentTokenId", this.token.tokenId);
     },
     // setDirty() {
     //   this.dirty = true;

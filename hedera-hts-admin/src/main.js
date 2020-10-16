@@ -1,10 +1,11 @@
 import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
-import store from "./store";
+import store from "./store/store";
 import vuetify from "./plugins/vuetify";
 import {EventBus} from "./eventBus"; // path to vuetify export
 
+Vue.config.productionTip = false;
 Vue.config.productionTip = false;
 
 void store.dispatch("setup");

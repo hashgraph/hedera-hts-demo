@@ -30,7 +30,7 @@ export default {
   name: "Header",
   // computed: {
   //   tokenId() {
-  //     return this.$store.getters.currentToken;
+  //     return this.$store.getters.currentTokenId;
   //   }
   // },
   methods: {
@@ -39,8 +39,8 @@ export default {
     },
     nuke() {
       EventBus.$emit("busy",true);
-      localStorage.setItem("accounts", []);
-      localStorage.setItem("tokens", []);
+      localStorage.removeItem("tokens");
+      localStorage.removeItem("accounts");
       notifySuccess("Clearing demo. Please wait");
       this.$store.commit("reset");
       this.$store.dispatch("setup");
