@@ -1,17 +1,22 @@
 <template>
   <div>
+    <v-overlay :value="busy">
+      <v-progress-circular v-if="busy"
+                           indeterminate
+                           color="primary"
+      ></v-progress-circular>
+    </v-overlay>
     <div v-if="currentToken">
       <Accounts />
     </div>
     <div v-else>
       <Tokens />
     </div>
-    {{ currentToken }}
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
       <v-card flat tile width="100%" :class="footerColor">
-        <v-card-text :class="textColor"
-          ><strong>{{ message }}</strong></v-card-text
-        >
+        <v-card-text :class="textColor">
+          <strong>{{ message }}</strong>
+        </v-card-text>
       </v-card>
     </v-footer>
   </div>
@@ -39,9 +44,14 @@ export default {
   data: () => ({
     message: "",
     footerColor: "primary",
-    textColor: "white--text"
+    textColor: "white--text",
+    busy: false
   }),
   created() {
+    EventBus.$on("busy", busy => {
+      this.busy = busy;
+    });
+
     EventBus.$on("notify", notification => {
       this.message = notification.message;
       if (notification.status) {

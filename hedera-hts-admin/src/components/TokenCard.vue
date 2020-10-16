@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title class="justify-center"
-      >{{ token.name }} ({{ token.symbol }})</v-card-title
+      >{{ token.name }} ({{ token.symbol.toUpperCase() }})</v-card-title
     >
     <v-card-text>
       <v-row>
@@ -34,15 +34,13 @@
                       v-model="token.adminKey"
                       disabled
                       label="Admin Key"
-                      @click="setDirty"
                     ></v-checkbox>
                   </v-col>
                   <v-col cols="6">
                     <v-checkbox
                       v-model="token.wipeKey"
-                      :disabled="!token.adminKey"
-                      label="Freeze Key"
-                      @click="setDirty"
+                      disabled
+                      label="Wipe Key"
                     ></v-checkbox>
                   </v-col>
                 </v-row>
@@ -50,35 +48,26 @@
                   <v-col cols="6">
                     <v-checkbox
                       v-model="token.kycKey"
-                      :disabled="!token.adminKey"
+                      disabled
                       label="KYC Key"
-                      @click="setDirty"
                     ></v-checkbox>
                   </v-col>
                   <v-col cols="6">
-                    <v-checkbox
-                      v-model="token.defaultKycStatus"
-                      :disabled="!token.kycKey"
-                      label="Default KYC"
-                      @click="setDirty"
-                    ></v-checkbox>
                   </v-col>
                 </v-row>
                 <v-row>
                   <v-col cols="6">
                     <v-checkbox
                       v-model="token.freezeKey"
-                      :disabled="!token.adminKey"
+                      disabled
                       label="Freeze Key"
-                      @click="setDirty"
                     ></v-checkbox>
                   </v-col>
                   <v-col cols="6">
                     <v-checkbox
-                      v-model="token.defaultFreezeStatus"
-                      :disabled="!token.freezeKey"
+                      v-model="defaultFreezeStatus"
+                      disabled
                       label="Default Freeze"
-                      @click="setDirty"
                     ></v-checkbox>
                   </v-col>
                 </v-row>
@@ -86,7 +75,7 @@
                   <v-col cols="6">
                     <v-checkbox
                       v-model="token.deleted"
-                      :disabled="token.deleted"
+                      :disabled="isDeleted"
                       label="Deleted"
                       @click="setDelete"
                     ></v-checkbox>
@@ -112,12 +101,18 @@
     </v-card-text>
     <v-card-actions class="justify-center">
       <v-btn color="blue darken-1" text @click="showAccounts">
-        View accounts
+        Accounts
       </v-btn>
-      <v-btn color="blue darken-1" :disabled="!this.dirty" text @click="update">
+      <v-btn color="blue darken-1"
+        :disabled="!this.dirty"
+        text
+        @click="updateToken">
         Update
       </v-btn>
-      <v-btn color="red darken-1" :disabled="!this.delete" text @click="update">
+      <v-btn color="red darken-1"
+        :disabled="!this.delete"
+        text
+        @click="deleteToken">
         Delete
       </v-btn>
     </v-card-actions>
@@ -125,36 +120,62 @@
 </template>
 
 <script>
+import {EventBus} from "../eventBus";
+
 export default {
   name: "TokenCard",
   props: {
     token: Object
   },
-  data: () => ({
-    dirty: false,
-    delete: false
-  }),
-  computed: {
-    mirrorURL() {
-      return "https://explorer.kabuto.sh/testnet/id/".concat(
-        this.token.tokenId
-      );
-    }
+  data: function() {
+    return {
+      dirty: false,
+      delete: false,
+      isDeleted: this.token.deleted,
+      defaultFreezeStatus: false,
+      mirrorURL: "https://explorer.kabuto.sh/testnet/id/".concat(
+          this.token.tokenId
+      )
+    };
+  },
+  created() {
+    this.defaultFreezeStatus = (this.token.defaultFreezeStatus === 2);
   },
   methods: {
     showAccounts() {
-      this.$store.commit("currentToken", this.token.tokenId);
+      this.$store.commit("currentToken", this.token);
     },
-    setDirty() {
-      this.dirty = true;
-    },
+    // setDirty() {
+    //   this.dirty = true;
+    // },
     setDelete() {
-      this.delete = true;
+      this.delete = this.token.deleted;
     },
-    update() {
-      //TODO: Update token
+    updateToken() {
+      EventBus.$emit("busy", true);
       //TODO: Update auto renew properties
-      console.log("Update token");
+      //TODO: Update token name
+      //TODO: Update token symbol
+      //TODO: Update treasury
+      //TODO: Update autoRenewAccount
+      //TODO: Update autoRenewPeriod
+      //TODO: Update expiry
+      // const tokenUpdate = {
+      //   tokenId: this.tokenId,
+      //   name: this.token.name,
+      //   symbol: this.token.symbol,
+      //   treasury: this.token.treasury,
+      //   autoRenewAccount: this.token.autoRenewAccount,
+      //   autoRenewPeriod: this.token.autoRenewPeriod,
+      //   expiry: this.token.expiry
+      // };
+      EventBus.$emit("busy", false);
+    },
+    deleteToken() {
+      //TODO: Delete token
+      EventBus.$emit("busy", true);
+      console.log("Delete token");
+      EventBus.$emit("busy", false);
     }
   }
 };

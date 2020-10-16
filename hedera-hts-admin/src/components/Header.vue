@@ -28,11 +28,19 @@ import { notifySuccess } from "../utils";
 import { EventBus } from "../eventBus";
 export default {
   name: "Header",
+  // computed: {
+  //   tokenId() {
+  //     return this.$store.getters.currentToken;
+  //   }
+  // },
   methods: {
     showCreate() {
       EventBus.$emit("tokenCreate", "");
     },
     nuke() {
+      EventBus.$emit("busy",true);
+      localStorage.setItem("accounts", []);
+      localStorage.setItem("tokens", []);
       notifySuccess("Clearing demo. Please wait");
       this.$store.commit("reset");
       this.$store.dispatch("setup");

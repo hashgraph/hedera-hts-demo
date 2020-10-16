@@ -1,5 +1,6 @@
 import { hederaClient } from "./client";
 import { notifyError, notifySuccess } from "../utils";
+import { AccountCreateTransaction } from "@hashgraph/sdk";
 
 const {
   Ed25519PrivateKey,
@@ -8,12 +9,11 @@ const {
 } = require("@hashgraph/sdk");
 
 const operatorAccount = process.env.VUE_APP_OPERATOR_ID;
+let client = hederaClient();
+let tokenResponse = {};
 
 export async function createToken(token) {
-  let client = hederaClient();
-  let tokenResponse = {};
 
-  // const privateKey = await Ed25519PrivateKey.generate();
   try {
     const tx = new TokenCreateTransaction()
       .setName(token.name)
@@ -21,7 +21,6 @@ export async function createToken(token) {
       .setDecimals(token.decimals)
       .setInitialSupply(token.initialSupply)
       .setTreasury(token.treasury)
-      .setFreezeDefault(token.defaultFreezeStatus)
       .setAutorenewaccount(token.autoRenewAccount)
       .setMaxTransactionFee(new Hbar(1));
 
@@ -33,10 +32,18 @@ export async function createToken(token) {
     }
     if (token.freezeKey) {
       tx.setFreezeKey(Ed25519PrivateKey.fromString(token.freezeKey).publicKey);
+      if (token.defaultFreezeStatus)
+        tx.setFreezeDefault(1);
+      else {
+        tx.setFreezeDefault(2);
+      }
+    } else {
+      tx.setFreezeDefault(0);
     }
     if (token.wipeKey) {
       tx.setWipeKey(Ed25519PrivateKey.fromString(token.wipeKey).publicKey);
     }
+
 
     const transactionId = tx.execute(client);
 
@@ -46,7 +53,7 @@ export async function createToken(token) {
       notifyError(transactionReceipt.status.message);
     } else {
       const newTokenId = transactionReceipt.getAccountId();
-
+      //TODO: default freeze and kyc status is one of three values
       tokenResponse = {
         tokenId: newTokenId.toString(),
         token: {
@@ -58,7 +65,7 @@ export async function createToken(token) {
           autoRenewAccount: operatorAccount,
           autoRenewPeriod: "110",
           defaultFreezeStatus: token.defaultFreezeStatus,
-          defaultKycStatus: token.defaultKYC,
+          defaultKYCStatus: token.defaultKYCStatus,
           kycKey: token.kycKey,
           wipeKey: token.wipeKey,
           freezeKey: token.freezeKey,
@@ -76,4 +83,48 @@ export async function createToken(token) {
     notifyError(err.message);
   }
   return tokenResponse;
+}
+
+export async function createTokenFake(token) {
+  try {
+    const privateKey = await Ed25519PrivateKey.generate();
+
+    const transactionId = await new AccountCreateTransaction()
+        .setKey(privateKey.publicKey)
+        .setMaxTransactionFee(new Hbar(1))
+        .setInitialBalance(Hbar.fromTinybar(10))
+        .execute(client);
+
+    const transactionReceipt = await transactionId.getReceipt(client);
+    const newTokenId = transactionReceipt.getAccountId();
+
+    console.log("create token fake default freeze: " +  token.defaultFreezeStatus);
+    tokenResponse = {
+      tokenId: newTokenId.toString(),
+      token: {
+        tokenId: newTokenId.toString(),
+        symbol: token.symbol,
+        name: token.name,
+        totalSupply: token.initialSupply,
+        decimals: token.decimals,
+        autoRenewAccount: operatorAccount,
+        autoRenewPeriod: "110",
+        defaultFreezeStatus: token.defaultFreezeStatus,
+        kycKey: token.kycKey,
+        wipeKey: token.wipeKey,
+        freezeKey: token.freezeKey,
+        adminKey: token.adminKey,
+        expiry: "0",
+        isDeleted: false,
+        treasury: operatorAccount
+      }
+    };
+
+    notifySuccess("token created successfully");
+    return tokenResponse;
+  } catch (err) {
+    console.error(err);
+    notifyError(err.message);
+    return {};
+  }
 }

@@ -11,15 +11,23 @@ export async function getAccountInfo(accountId) {
     // const info = await new AccountInfoQuery()
     await new AccountInfoQuery().setAccountId(accountId).execute(client);
 
-    const tokenRelationship = {
-      balance: "0",
-      freezeStatus: "",
-      kycStatus: "",
-      symbol: "TEST",
-      tokenId: "0.0.101"
-    };
+    const storedTokens = JSON.parse(localStorage.getItem("tokens") || "[]");
+    if (storedTokens.length != 0) {
+      const tokenRelationship = {
+        tokenId: "0.0.1010",
+        balance: "20",
+        freezeStatus: storedTokens[0].token.defaultFreezeStatus,
+      };
+      if (storedTokens[0].token.kycKey) {
+        tokenRelationship.kycStatus = 2;
+      } else {
+        tokenRelationship.kycStatus = 0;
+      }
 
-    tokenRelationships.push(tokenRelationship);
+      tokenRelationship.tokenId = storedTokens[0].tokenId;
+      console.log("setting relationships for " + accountId);
+      tokenRelationships.push(tokenRelationship);
+    }
 
     return tokenRelationships;
   } catch (err) {

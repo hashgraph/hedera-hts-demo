@@ -1,12 +1,11 @@
 import { hederaClient } from "./client";
 import { notifyError } from "../utils";
+import { AccountInfoQuery } from "@hashgraph/sdk";
 const { TokenInfoQuery } = require("@hashgraph/sdk");
-
-// const { AccountInfoQuery } = require("@hashgraph/sdk");
 
 export async function getTokenInfo(token) {
   let client = hederaClient();
-  const tokenResponse = token.token;
+  const tokenResponse = token;
   try {
     // const info = await new AccountInfoQuery()
     // await new AccountInfoQuery().setAccountId(token.tokenId).execute(client);
@@ -14,7 +13,18 @@ export async function getTokenInfo(token) {
       .setTokenId(token.tokenId)
       .execute(client);
 
-    tokenResponse.totalSupply = info.totalSupply;
+    tokenResponse.token.totalSupply = info.totalSupply;
+  } catch (err) {
+    notifyError(err.message);
+  }
+
+  return tokenResponse;
+}
+export async function getTokenInfoFake(token) {
+  let client = hederaClient();
+  const tokenResponse = token;
+  try {
+    await new AccountInfoQuery().setAccountId(token.tokenId).execute(client);
   } catch (err) {
     notifyError(err.message);
   }

@@ -23,7 +23,7 @@ export default {
   },
   data: function() {
     return {
-      counter: 0
+      counter: 0,
     };
   },
   computed: {

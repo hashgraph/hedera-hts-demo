@@ -68,7 +68,7 @@
                 </v-col>
                 <v-col cols="6">
                   <v-checkbox
-                    v-model="defaultFreeze"
+                    v-model="defaultFreezeStatus"
                     :disabled="!freezeKey"
                     label="Default"
                   ></v-checkbox>
@@ -79,15 +79,9 @@
                   <v-checkbox
                     v-model="kycKey"
                     label="Enable KYC"
-                    @click="setKyc"
                   ></v-checkbox>
                 </v-col>
                 <v-col cols="6">
-                  <v-checkbox
-                    v-model="defaultKYC"
-                    :disabled="!kycKey"
-                    label="Default"
-                  ></v-checkbox>
                 </v-col>
               </v-row>
             </v-container>
@@ -119,27 +113,28 @@
 </template>
 <script>
 import { EventBus } from "../eventBus";
-import { createToken } from "../service/createToken";
+import { createTokenFake} from "../service/createToken";
 import { Ed25519PrivateKey } from "@hashgraph/sdk";
 
 export default {
   name: "TokenCreate",
-  data: () => ({
-    valid: false,
-    dialog: false,
-    decimals: 0,
-    initialSupply: 0,
-    name: "",
-    symbol: "",
-    defaultFreeze: false,
-    defaultKYC: false,
-    adminKey: false,
-    wipeKey: false,
-    freezeKey: false,
-    kycKey: false,
-    numberRules: [v => v == parseInt(v) || "Plain numeric required"],
-    textRules: [v => !!v || "Input required"]
-  }),
+  data: function() {
+    return {
+      valid: false,
+      dialog: false,
+      decimals: 0,
+      initialSupply: 0,
+      name: "",
+      symbol: "",
+      defaultFreezeStatus: false,
+      adminKey: false,
+      wipeKey: false,
+      freezeKey: false,
+      kycKey: false,
+      numberRules: [v => v == parseInt(v) || "Plain numeric required"],
+      textRules: [v => !!v || "Input required"]
+    };
+  },
   created() {
     EventBus.$on("tokenCreate", () => {
       this.valid = false;
@@ -147,41 +142,45 @@ export default {
       this.initialSupply = 0;
       this.name = "";
       this.symbol = "";
-      this.defaultFreeze = false;
-      this.defaultKYC = false;
-      this.adminKey = false;
-      this.wipeKey = false;
-      this.freezeKey = false;
-      this.kycKey = false;
+      this.defaultFreezeStatus = false;
+      this.adminKey = true;
+      this.wipeKey = true;
+      this.freezeKey = true;
+      this.kycKey = true;
       this.dialog = true;
     });
   },
   methods: {
     setFreeze() {
       if (this.freezeKey === false) {
-        this.defaultFreeze = false;
-      }
-    },
-    setKyc() {
-      if (this.kycKey === false) {
-        this.defaultKYC = false;
+        this.defaultFreezeStatus = false;
       }
     },
     async create() {
+      EventBus.$emit("busy", true);
       const privateKey = await Ed25519PrivateKey.generate();
+      let _defaultFreezeStatus = 0;
+      if (this.freezeKey) {
+        if (this.defaultFreezeStatus) {
+          _defaultFreezeStatus = 1;
+        } else {
+          _defaultFreezeStatus = 2;
+        }
+      }
+
       const token = {
         name: this.name,
         symbol: this.symbol,
         decimals: this.decimals,
         initialSupply: this.initialSupply,
-        defaultFreeze: this.defaultFreeze,
-        defaultKYC: this.defaultKYC,
+        defaultFreezeStatus: _defaultFreezeStatus,
         adminKey: this.adminKey ? privateKey.toString() : undefined,
         wipeKey: this.wipeKey ? privateKey.toString() : undefined,
         freezeKey: this.freezeKey ? privateKey.toString() : undefined,
-        kycKey: this.kycKey ? privateKey.toString() : undefined
+        kycKey: this.kycKey ? privateKey.toString() : undefined,
+        deleted: false
       };
-      const newToken = await createToken(token);
+      const newToken = await createTokenFake(token);
       if (typeof newToken.tokenId !== "undefined") {
         console.log("new token " + newToken.tokenId);
         this.$store.commit("addToken", newToken);
@@ -189,6 +188,7 @@ export default {
       } else {
         console.log("Token creation failed");
       }
+      EventBus.$emit("busy", false);
     }
   }
 };
