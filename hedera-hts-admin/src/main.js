@@ -3,7 +3,7 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store/store";
 import vuetify from "./plugins/vuetify";
-import {EventBus} from "./eventBus"; // path to vuetify export
+import { EventBus } from "./eventBus"; // path to vuetify export
 
 Vue.config.productionTip = false;
 Vue.config.productionTip = false;
@@ -30,7 +30,5 @@ EventBus.$on("busy", busy => {
     interval = setInterval(() => {
       void store.dispatch("fetch");
     }, 2500);
-  };
+  }
 });
-
-

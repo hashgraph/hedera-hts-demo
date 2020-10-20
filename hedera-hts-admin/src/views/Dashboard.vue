@@ -1,17 +1,20 @@
 <template>
   <div>
     <v-overlay :value="busy">
-      <v-progress-circular v-if="busy"
-                           indeterminate
-                           color="primary"
+      <v-progress-circular
+        v-if="busy"
+        indeterminate
+        color="primary"
       ></v-progress-circular>
     </v-overlay>
-    <div v-if="currentTokenId">
-      <Accounts />
+    <div v-if="showUI === 'admin'">
+      <div v-if="currentTokenId"><Accounts /></div>
+      <div v-else><Tokens /></div>
     </div>
     <div v-else>
-      <Tokens />
+      <Wallet v-bind:walletInstance="showUI" :key="walletKey"/>
     </div>
+    <TokenDetails />
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
       <v-card flat tile width="100%" :class="footerColor">
         <v-card-text :class="textColor">
@@ -25,31 +28,42 @@
 <script>
 import Tokens from "../components/Tokens";
 import Accounts from "../components/Accounts";
-
+import Wallet from "../components/Wallet";
 import { EventBus } from "../eventBus";
+import TokenDetails from "../components/TokenDetails";
 
 let timer;
 
 export default {
   name: "Dashboard",
   components: {
+    TokenDetails,
     Tokens,
-    Accounts
+    Accounts,
+    Wallet
   },
   computed: {
     currentTokenId() {
       return this.$store.getters.currentTokenId;
     }
   },
-  data: () => ({
-    message: "",
-    footerColor: "primary",
-    textColor: "white--text",
-    busy: false
-  }),
+  data: function() {
+    return {
+      message: "",
+      footerColor: "primary",
+      textColor: "white--text",
+      busy: false,
+      showUI: "admin",
+      walletKey: 0
+    }
+  },
   created() {
     EventBus.$on("busy", busy => {
       this.busy = busy;
+    });
+    EventBus.$on("viewChange", ui => {
+      this.showUI = ui;
+      this.walletKey += 1;
     });
 
     EventBus.$on("notify", notification => {

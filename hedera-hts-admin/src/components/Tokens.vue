@@ -4,7 +4,7 @@
       <TokenCreate />
       <v-layout row wrap>
         <v-col cols="4" v-for="token in tokens" :key="token.tokenId">
-          <TokenCard v-bind:token="token"></TokenCard>
+          <TokenCard v-bind:tokenId="token.tokenId"></TokenCard>
         </v-col>
       </v-layout>
     </v-container>
@@ -23,16 +23,14 @@ export default {
   },
   data: function() {
     return {
-      counter: 0,
+      counter: 0
     };
   },
   computed: {
     tokens() {
       if (typeof this.$store.getters.getTokens === "undefined") {
-        console.log("no tokens");
         return {};
       } else {
-        console.log("token count = " + Object.keys(this.$store.getters.getTokens).length);
         return this.$store.getters.getTokens;
       }
     }

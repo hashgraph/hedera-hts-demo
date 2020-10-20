@@ -1,7 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Dashboard from "../views/Dashboard.vue";
-import Accounts from "../components/Accounts";
 Vue.use(VueRouter);
 
 const routes = [
@@ -9,11 +8,6 @@ const routes = [
     path: "/",
     component: Dashboard,
     name: "Dashboard"
-  },
-  {
-    path: "/accounts",
-    component: Accounts,
-    name: "Accounts"
   }
 ];
 

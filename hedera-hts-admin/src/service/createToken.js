@@ -13,7 +13,6 @@ let client = hederaClient();
 let tokenResponse = {};
 
 export async function createToken(token) {
-
   try {
     const tx = new TokenCreateTransaction()
       .setName(token.name)
@@ -32,8 +31,7 @@ export async function createToken(token) {
     }
     if (token.freezeKey) {
       tx.setFreezeKey(Ed25519PrivateKey.fromString(token.freezeKey).publicKey);
-      if (token.defaultFreezeStatus)
-        tx.setFreezeDefault(1);
+      if (token.defaultFreezeStatus) tx.setFreezeDefault(1);
       else {
         tx.setFreezeDefault(2);
       }
@@ -43,7 +41,9 @@ export async function createToken(token) {
     if (token.wipeKey) {
       tx.setWipeKey(Ed25519PrivateKey.fromString(token.wipeKey).publicKey);
     }
-
+    if (token.supplyKey) {
+      tx.setSupplyKey(Ed25519PrivateKey.fromString(token.supplyKey).publicKey);
+    }
 
     const transactionId = tx.execute(client);
 
@@ -68,6 +68,7 @@ export async function createToken(token) {
         wipeKey: token.wipeKey,
         freezeKey: token.freezeKey,
         adminKey: token.adminKey,
+        supplyKey: token.supplyKey,
         expiry: "0",
         isDeleted: false,
         treasury: operatorAccount
@@ -87,15 +88,17 @@ export async function createTokenFake(token) {
     const privateKey = await Ed25519PrivateKey.generate();
 
     const transactionId = await new AccountCreateTransaction()
-        .setKey(privateKey.publicKey)
-        .setMaxTransactionFee(new Hbar(1))
-        .setInitialBalance(Hbar.fromTinybar(10))
-        .execute(client);
+      .setKey(privateKey.publicKey)
+      .setMaxTransactionFee(new Hbar(1))
+      .setInitialBalance(Hbar.fromTinybar(10))
+      .execute(client);
 
     const transactionReceipt = await transactionId.getReceipt(client);
     const newTokenId = transactionReceipt.getAccountId();
 
-    console.log("create token fake default freeze: " +  token.defaultFreezeStatus);
+    console.log(
+      "create token fake default freeze: " + token.defaultFreezeStatus
+    );
     tokenResponse = {
       tokenId: newTokenId.toString(),
       symbol: token.symbol,
@@ -109,6 +112,7 @@ export async function createTokenFake(token) {
       wipeKey: token.wipeKey,
       freezeKey: token.freezeKey,
       adminKey: token.adminKey,
+      supplyKey: token.supplyKey,
       expiry: "0",
       isDeleted: false,
       treasury: operatorAccount

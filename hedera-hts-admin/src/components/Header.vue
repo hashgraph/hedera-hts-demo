@@ -14,10 +14,24 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn text @click="showCreate()">
+    <v-btn text @click="showUI('admin')">
+      Admin
+    </v-btn>
+
+    <v-btn text @click="showUI('wallet1')">
+      Wallet 1
+    </v-btn>
+
+    <v-btn text @click="showUI('wallet2')">
+      Wallet 2
+    </v-btn>
+
+    <v-spacer></v-spacer>
+
+    <v-btn icon @click="showCreate()">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
-    <v-btn text @click="nuke()">
+    <v-btn icon @click="nuke()">
       <v-icon>mdi-nuke</v-icon>
     </v-btn>
   </v-app-bar>
@@ -28,22 +42,21 @@ import { notifySuccess } from "../utils";
 import { EventBus } from "../eventBus";
 export default {
   name: "Header",
-  // computed: {
-  //   tokenId() {
-  //     return this.$store.getters.currentTokenId;
-  //   }
-  // },
   methods: {
     showCreate() {
       EventBus.$emit("tokenCreate", "");
     },
+    showUI(ui) {
+      EventBus.$emit("viewChange", ui);
+    },
     nuke() {
-      EventBus.$emit("busy",true);
+      EventBus.$emit("busy", true);
       localStorage.removeItem("tokens");
       localStorage.removeItem("accounts");
       notifySuccess("Clearing demo. Please wait");
       this.$store.commit("reset");
       this.$store.dispatch("setup");
+      EventBus.$emit("viewChange", "admin");
     }
   }
 };

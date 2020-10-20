@@ -1,6 +1,7 @@
 import { hederaClient } from "./client";
 import { notifyError } from "../utils";
 const { AccountInfoQuery } = require("@hashgraph/sdk");
+import state from "../store/store"
 
 export async function getAccountInfo(accountId) {
   let client = hederaClient();
@@ -11,24 +12,25 @@ export async function getAccountInfo(accountId) {
     // const info = await new AccountInfoQuery()
     await new AccountInfoQuery().setAccountId(accountId).execute(client);
 
-    const storedTokens = JSON.parse(localStorage.getItem("tokens") || "{}");
-    if (Object.keys(storedTokens).length != 0) {
-      const token0 = storedTokens[Object.keys(storedTokens)[0]];
-      const tokenRelationship = {
-        tokenId: "0.0.1010",
-        balance: "20",
-        freezeStatus: token0.defaultFreezeStatus,
-      };
-      if (token0.kycKey) {
-        tokenRelationship.kycStatus = 2;
-      } else {
-        tokenRelationship.kycStatus = 0;
+    // const storedTokens = JSON.parse(localStorage.getItem("tokens") || "{}");
+    const storedTokens = state.getters.getTokens;
+    if (typeof storedTokens !== "undefined") {
+      if (Object.keys(storedTokens).length != 0) {
+        const token0 = storedTokens[Object.keys(storedTokens)[0]];
+        const tokenRelationship = {
+          tokenId: "0.0.1010",
+          balance: "20012",
+          freezeStatus: token0.defaultFreezeStatus
+        };
+        if (token0.kycKey) {
+          tokenRelationship.kycStatus = 2;
+        } else {
+          tokenRelationship.kycStatus = 0;
+        }
+
+        tokenRelationships[token0.tokenId] = tokenRelationship;
       }
-
-      tokenRelationships[token0.tokenId] = tokenRelationship;
-      console.log("setting relationships for " + accountId);
     }
-
     return tokenRelationships;
   } catch (err) {
     notifyError("getAccountInfo " + err.message);

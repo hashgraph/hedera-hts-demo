@@ -4,51 +4,43 @@ import { createAccount } from "../service/createAccount";
 import { getAccountInfo } from "../service/getAccountInfo";
 import { getTokenInfoFake } from "../service/getTokenInfo";
 import { notifySuccess } from "../utils";
-import {EventBus} from "../eventBus";
+import { EventBus } from "../eventBus";
 Vue.use(Vuex);
-
-let storedAccounts = JSON.parse(localStorage.getItem("accounts") || "{}");
-let storedTokens = JSON.parse(localStorage.getItem("tokens") || "{}");
 
 export default new Vuex.Store({
   state: {
     tokens: {},
     accounts: {},
     currentTokenId: undefined,
-    nonce: ''
+    nonce: "",
+    enablePoll: false
   },
   mutations: {
+    setPolling(state, polling) {
+      state.enablePoll = polling;
+    },
     setCurrentTokenId(state, tokenId) {
       state.currentTokenId = tokenId;
       state.nonce = Date.now().toString();
     },
     setTokens(state, tokens) {
-      // console.log("Mutating - set Tokens " + Object.keys(tokens).length);
       state.tokens = tokens;
-      localStorage.setItem("tokens", JSON.stringify(state.tokens));
       state.nonce = Date.now().toString();
     },
     setAccounts(state, accounts) {
-      // console.log("Mutating - set Accounts - " + Object.keys(accounts).length);
       state.accounts = accounts;
-      localStorage.setItem("accounts", JSON.stringify(state.accounts));
       state.nonce = Date.now().toString();
     },
     setAccount(state, account) {
       Vue.set(state.accounts, account.accountId, account);
-      // state.accounts[account.accountId] = account;
-      localStorage.setItem("accounts", JSON.stringify(state.accounts));
       state.nonce = Date.now().toString();
     },
     setToken(state, token) {
       Vue.set(state.tokens, token.tokenId, token);
-      // state.tokens[token.tokenId] = token;
-      localStorage.setItem("tokens", JSON.stringify(state.tokens));
       state.nonce = Date.now().toString();
     },
     reset(state) {
-      storedAccounts = {};
-      storedTokens = {};
+      state.enablePoll = false;
       state.accounts = {};
       state.tokens = {};
       state.currentTokenId = undefined;
@@ -58,19 +50,33 @@ export default new Vuex.Store({
       const tokenId = wipeInstruction.tokenId;
       const account = state.accounts[accountId];
 
-      if (typeof account !== 'undefined') {
+      if (typeof account !== "undefined") {
         const relationship = account.tokenRelationships[tokenId];
-        if (typeof relationship !== 'undefined') {
-          console.info("(wipe) account " + accountId + ", token " + tokenId + " wiped");
+        if (typeof relationship !== "undefined") {
+          console.info(
+            "(wipe) account " + accountId + ", token " + tokenId + " wiped"
+          );
           state.accounts[accountId].tokenRelationships[tokenId].balance = 0;
-          localStorage.setItem("accounts", JSON.stringify(state.accounts));
+          // localStorage.setItem("accounts", JSON.stringify(state.accounts));
           state.nonce = Date.now().toString();
           return;
         } else {
-          console.warn("(wipe) account " + accountId + ", token " + tokenId + " no relation found");
+          console.warn(
+            "(wipe) account " +
+              accountId +
+              ", token " +
+              tokenId +
+              " no relation found"
+          );
         }
       } else {
-        console.warn("(wipe) account " + accountId + ", token " + tokenId + " no account found");
+        console.warn(
+          "(wipe) account " +
+            accountId +
+            ", token " +
+            tokenId +
+            " no account found"
+        );
       }
     },
     freezeAccount(state, freezeInstruction) {
@@ -78,20 +84,40 @@ export default new Vuex.Store({
       const tokenId = freezeInstruction.tokenId;
       const account = state.accounts[accountId];
 
-      if (typeof account !== 'undefined') {
+      if (typeof account !== "undefined") {
         const relationship = account.tokenRelationships[tokenId];
-        if (typeof relationship !== 'undefined') {
+        if (typeof relationship !== "undefined") {
           const freeze = freezeInstruction.freeze ? 1 : 2;
-          console.info("(freeze) account " + accountId + ", token " + tokenId + " (un)freeze=" + freeze);
-          state.accounts[accountId].tokenRelationships[tokenId].freezeStatus = freeze;
-          localStorage.setItem("accounts", JSON.stringify(state.accounts));
+          console.info(
+            "(freeze) account " +
+              accountId +
+              ", token " +
+              tokenId +
+              " (un)freeze=" +
+              freeze
+          );
+          state.accounts[accountId].tokenRelationships[
+            tokenId
+          ].freezeStatus = freeze;
           state.nonce = Date.now().toString();
           return;
         } else {
-          console.warn("(freeze) account " + accountId + ", token " + tokenId + " no relation found");
+          console.warn(
+            "(freeze) account " +
+              accountId +
+              ", token " +
+              tokenId +
+              " no relation found"
+          );
         }
       } else {
-        console.warn("(freeze) account " + accountId + ", token " + tokenId + " no account found");
+        console.warn(
+          "(freeze) account " +
+            accountId +
+            ", token " +
+            tokenId +
+            " no account found"
+        );
       }
     },
     kycAccount(state, kycInstruction) {
@@ -99,20 +125,38 @@ export default new Vuex.Store({
       const tokenId = kycInstruction.tokenId;
       const account = state.accounts[accountId];
 
-      if (typeof account !== 'undefined') {
+      if (typeof account !== "undefined") {
         const relationship = account.tokenRelationships[tokenId];
-        if (typeof relationship !== 'undefined') {
+        if (typeof relationship !== "undefined") {
           const kyc = kycInstruction.kyc ? 1 : 2;
-          console.info("(kyc) account " + accountId + ", token " + tokenId + " (un)kyc=" + kyc);
+          console.info(
+            "(kyc) account " +
+              accountId +
+              ", token " +
+              tokenId +
+              " (un)kyc=" +
+              kyc
+          );
           state.accounts[accountId].tokenRelationships[tokenId].kycStatus = kyc;
-          localStorage.setItem("accounts", JSON.stringify(state.accounts));
           state.nonce = Date.now().toString();
           return;
         } else {
-          console.warn("(kyc) account " + accountId + ", token " + tokenId + " no relation found");
+          console.warn(
+            "(kyc) account " +
+              accountId +
+              ", token " +
+              tokenId +
+              " no relation found"
+          );
         }
       } else {
-        console.warn("(kyc) account " + accountId + ", token " + tokenId + " no account found");
+        console.warn(
+          "(kyc) account " +
+            accountId +
+            ", token " +
+            tokenId +
+            " no account found"
+        );
       }
     }
   },
@@ -130,78 +174,83 @@ export default new Vuex.Store({
       return Object.keys(state.accounts).length || 0;
     },
     getTokens(state) {
-      if (typeof state.tokens === 'undefined') {
+      if (typeof state.tokens === "undefined") {
         return {};
       } else {
         return state.tokens;
       }
     },
     getAccounts(state) {
-      if (typeof state.accounts === 'undefined') {
-        return {}
+      if (typeof state.accounts === "undefined") {
+        return {};
       } else {
         return state.accounts;
       }
     }
   },
   actions: {
-    async setup({ commit }) {
-      if (Object.keys(storedAccounts).length === 0) {
+    async setup({ commit, state }) {
+      commit("setPolling", false);
+      if (Object.keys(state.accounts).length === 0) {
         // set ourselves up
         // create owner account
-        let newAccount = await createAccount();
-        newAccount.account.owner = true;
+        let newAccount = await createAccount("owner");
         commit("setAccount", newAccount);
         // create user 1
-        newAccount = await createAccount();
-        newAccount.account.owner = false;
+        newAccount = await createAccount("wallet1");
         commit("setAccount", newAccount);
         // create user 2
-        newAccount = await createAccount();
-        newAccount.account.owner = false;
+        newAccount = await createAccount("wallet2");
         commit("setAccount", newAccount);
-
-      } else {
-        commit("setTokens", storedTokens);
-        commit("setAccounts", storedAccounts);
       }
       commit("setCurrentTokenId", undefined);
       notifySuccess("Demo Ready");
-      EventBus.$emit("busy",false);
+      EventBus.$emit("busy", false);
+      commit("setPolling", true);
     },
     async fetchAccounts({ commit, state }) {
-      // don't fetch if localstorage has been cleared
-      if (Object.keys(localStorage.getItem("accounts") || {}) === 0) {
+      if (typeof state.accounts === "undefined") {
+        return;
+      }
+      if (Object.keys(state.accounts).length === 0) {
         return;
       }
       for (const key in state.accounts) {
+        if (!state.enablePoll) {
+          return;
+        }
         let account = state.accounts[key];
-        if ((typeof account.tokenRelationships === "undefined")
-            || (Object.keys(account.tokenRelationships).length === 0)) {
-          account.tokenRelationships = await getAccountInfo(
-              account.accountId);
+        if (
+          typeof account.tokenRelationships === "undefined" ||
+          Object.keys(account.tokenRelationships).length === 0
+        ) {
+          account.tokenRelationships = await getAccountInfo(key);
           commit("setAccount", account);
         }
-
       }
     },
     async fetchTokens({ commit, state }) {
-      // don't fetch if localstorage has been cleared
-      if (Object.keys(localStorage.getItem("tokens") || {}) === 0) {
+      if (typeof state.tokens === "undefined") {
         return;
       }
-      if (typeof state.tokens === 'undefined') {
+      if (Object.keys(state.tokens).length === 0) {
         return;
       }
       for (const key in state.tokens) {
+        if (!state.enablePoll) {
+          return;
+        }
         const tokenUpdate = await getTokenInfoFake(state.tokens[key]);
         commit("setToken", tokenUpdate);
       }
     },
-    async fetch({ dispatch }) {
+    async fetch({ dispatch, state }) {
+      if (!state.enablePoll) {
+        return;
+      }
       await dispatch("fetchAccounts");
       await dispatch("fetchTokens");
-    },
+    }
   },
   modules: {}
 });

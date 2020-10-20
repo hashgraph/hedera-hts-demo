@@ -1,5 +1,5 @@
 import { hederaClient } from "./client";
-import {notifyError, notifySuccess } from "../utils";
+import { notifyError, notifySuccess } from "../utils";
 const {
   Ed25519PrivateKey,
   AccountCreateTransaction,
@@ -13,10 +13,10 @@ export async function freezeAccount(freezeInstruction) {
   const privateKey = await Ed25519PrivateKey.generate();
   try {
     const transactionId = await new AccountCreateTransaction()
-        .setKey(privateKey.publicKey)
-        .setMaxTransactionFee(new Hbar(1))
-        .setInitialBalance(Hbar.fromTinybar(10))
-        .execute(client);
+      .setKey(privateKey.publicKey)
+      .setMaxTransactionFee(new Hbar(1))
+      .setInitialBalance(Hbar.fromTinybar(10))
+      .execute(client);
 
     const transactionReceipt = await transactionId.getReceipt(client);
     if (transactionReceipt.status._isError()) {
@@ -25,9 +25,21 @@ export async function freezeAccount(freezeInstruction) {
     }
 
     if (freezeInstruction.freeze) {
-      notifySuccess("Account " + freezeInstruction.accountId + " activity on token " + freezeInstruction.tokenId + " frozen");
+      notifySuccess(
+        "Account " +
+          freezeInstruction.accountId +
+          " activity on token " +
+          freezeInstruction.tokenId +
+          " frozen"
+      );
     } else {
-      notifySuccess("Account " + freezeInstruction.accountId + " activity on token " + freezeInstruction.tokenId + " unfrozen");
+      notifySuccess(
+        "Account " +
+          freezeInstruction.accountId +
+          " activity on token " +
+          freezeInstruction.tokenId +
+          " unfrozen"
+      );
     }
   } catch (err) {
     console.error(err);
@@ -41,10 +53,10 @@ export async function kycAccount(kycInstruction) {
   const privateKey = await Ed25519PrivateKey.generate();
   try {
     const transactionId = await new AccountCreateTransaction()
-        .setKey(privateKey.publicKey)
-        .setMaxTransactionFee(new Hbar(1))
-        .setInitialBalance(Hbar.fromTinybar(10))
-        .execute(client);
+      .setKey(privateKey.publicKey)
+      .setMaxTransactionFee(new Hbar(1))
+      .setInitialBalance(Hbar.fromTinybar(10))
+      .execute(client);
 
     const transactionReceipt = await transactionId.getReceipt(client);
     if (transactionReceipt.status._isError()) {
@@ -53,9 +65,19 @@ export async function kycAccount(kycInstruction) {
     }
 
     if (kycInstruction.kyc) {
-      notifySuccess("KYC granted for account " + kycInstruction.accountId + " and token " + kycInstruction.tokenId);
+      notifySuccess(
+        "KYC granted for account " +
+          kycInstruction.accountId +
+          " and token " +
+          kycInstruction.tokenId
+      );
     } else {
-      notifySuccess("KYC revoked for account " + kycInstruction.accountId + " and token " + kycInstruction.tokenId);
+      notifySuccess(
+        "KYC revoked for account " +
+          kycInstruction.accountId +
+          " and token " +
+          kycInstruction.tokenId
+      );
     }
   } catch (err) {
     console.error(err);
@@ -69,10 +91,10 @@ export async function wipeAccount(wipeInstruction) {
   const privateKey = await Ed25519PrivateKey.generate();
   try {
     const transactionId = await new AccountCreateTransaction()
-        .setKey(privateKey.publicKey)
-        .setMaxTransactionFee(new Hbar(1))
-        .setInitialBalance(Hbar.fromTinybar(10))
-        .execute(client);
+      .setKey(privateKey.publicKey)
+      .setMaxTransactionFee(new Hbar(1))
+      .setInitialBalance(Hbar.fromTinybar(10))
+      .execute(client);
 
     const transactionReceipt = await transactionId.getReceipt(client);
     if (transactionReceipt.status._isError()) {
@@ -80,7 +102,13 @@ export async function wipeAccount(wipeInstruction) {
       return false;
     }
 
-    notifySuccess("Account " + wipeInstruction.accountId + " and token " + wipeInstruction.tokenId + " balance wiped");
+    notifySuccess(
+      "Account " +
+        wipeInstruction.accountId +
+        " and token " +
+        wipeInstruction.tokenId +
+        " balance wiped"
+    );
   } catch (err) {
     console.error(err);
     notifyError(err.message);

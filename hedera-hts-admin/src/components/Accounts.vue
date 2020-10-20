@@ -2,20 +2,25 @@
   <div>
     <v-container>
       <TokenCreate />
-      <div v-if="accountRelations.length != 0">Accounts associated with token {{ token.symbol }}</div>
+      <div v-if="accountRelations.length != 0">
+        Accounts associated with token {{ token.symbol }}
+      </div>
       <div v-else>No Accounts associated with token {{ token.symbol }}</div>
-      <v-btn color="blue darken-1"
-             @click="returnToTokens"
-             text>
+      <v-btn color="blue darken-1" @click="returnToTokens" text>
         return to tokens
       </v-btn>
       <v-layout row wrap>
-        <v-col cols="4" v-for="accountRelation in accountRelations" :key="accountRelation.accountId">
+        <v-col
+          cols="4"
+          v-for="accountRelation in accountRelations"
+          :key="accountRelation.accountId"
+        >
           <AccountCard v-bind:accountRelation="accountRelation"></AccountCard>
         </v-col>
       </v-layout>
       <small v-if="accountRelations.length != 0">
-        * An amount to wipe can be set through the API, this demo wipes the entire balance.
+        * An amount to wipe can be set through the API, this demo wipes the
+        entire balance.
       </small>
     </v-container>
   </div>
@@ -41,16 +46,13 @@ export default {
   },
   watch: {
     accounts() {
-      console.log("watch accounts");
-      return this.accounts = this.$store.getters.getAccounts;
+      return (this.accounts = this.$store.getters.getAccounts);
     },
     tokenId() {
-      console.log("watch tokenid");
-      return this.tokenId = this.$store.getters.currentTokenId;
+      return (this.tokenId = this.$store.getters.currentTokenId);
     },
     token() {
-      console.log("watch token");
-      return this.token = this.$store.getters.getTokens[this.tokenId];
+      return (this.token = this.$store.getters.getTokens[this.tokenId]);
     }
   },
   methods: {
@@ -60,14 +62,13 @@ export default {
   },
   computed: {
     accountRelations() {
-      console.log("recomputing accounts");
       const tokenAccounts = [];
       const _token = this.token;
       for (const key in this.accounts) {
         const account = this.accounts[key];
         if (typeof account.tokenRelationships !== "undefined") {
           const relation = account.tokenRelationships[_token.tokenId];
-          if (typeof relation !== 'undefined') {
+          if (typeof relation !== "undefined") {
             const accountRelation = {
               accountId: account.accountId,
               token: _token

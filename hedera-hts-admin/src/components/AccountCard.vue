@@ -1,78 +1,86 @@
 <template>
-  <v-card
-  :color="cardColor"
-  >
+  <v-card :color="cardColor">
     <v-card-title class="justify-center"
-    ><a :href="mirrorURL" target="_blank">{{ accountRelation.accountId }}</a> {{ owner }}</v-card-title
+      ><a :href="mirrorURL" target="_blank">{{ accountRelation.accountId }}</a>
+      {{ owner }}</v-card-title
     >
-    <v-card-title class="justify-center">Balance {{ relation.balance }}</v-card-title
-    >
+    <v-card-title class="justify-center">Balance {{ balance }}</v-card-title>
     <v-card-text>
       <v-row>
         <v-col cols="6">
-          <v-checkbox v-if="relation.freezeStatus === 0"
-                      label="Frozen"
-                      indeterminate
-                      disabled
+          <v-checkbox
+            v-if="relation.freezeStatus === 0"
+            label="Frozen"
+            indeterminate
+            disabled
           ></v-checkbox>
-          <v-checkbox v-if="relation.freezeStatus === 1"
-                      label="Frozen"
-                      input-value="true"
-                      disabled
+          <v-checkbox
+            v-if="relation.freezeStatus === 1"
+            label="Frozen"
+            input-value="true"
+            disabled
           ></v-checkbox>
-          <v-checkbox v-if="relation.freezeStatus === 2"
-                      label="Frozen"
-                      disabled
+          <v-checkbox
+            v-if="relation.freezeStatus === 2"
+            label="Frozen"
+            disabled
           ></v-checkbox>
         </v-col>
         <v-col cols="6">
-          <v-checkbox v-if="relation.kycStatus === 0"
-                      label="KYCd"
-                      indeterminate
-                      disabled
+          <v-checkbox
+            v-if="relation.kycStatus === 0"
+            label="KYCd"
+            indeterminate
+            disabled
           ></v-checkbox>
-          <v-checkbox v-if="relation.kycStatus === 1"
-                      label="KYCd"
-                      input-value="true"
-                      disabled
+          <v-checkbox
+            v-if="relation.kycStatus === 1"
+            label="KYCd"
+            input-value="true"
+            disabled
           ></v-checkbox>
-          <v-checkbox v-if="relation.kycStatus === 2"
-                      label="KYCd"
-                      disabled
+          <v-checkbox
+            v-if="relation.kycStatus === 2"
+            label="KYCd"
+            disabled
           ></v-checkbox>
         </v-col>
       </v-row>
     </v-card-text>
     <v-card-actions class="justify-center">
-      <v-btn v-if="relation.freezeStatus === 1" color="green darken-1"
+      <v-btn
+        v-if="relation.freezeStatus === 1"
+        color="green darken-1"
         @click="freeze(false)"
         text
       >
         Unfreeze
       </v-btn>
-      <v-btn v-if="relation.freezeStatus === 2" color="red darken-1"
+      <v-btn
+        v-if="relation.freezeStatus === 2"
+        color="red darken-1"
         @click="freeze(true)"
         text
       >
         Freeze
       </v-btn>
-      <v-btn v-if="relation.kycStatus === 1" color="red darken-1"
+      <v-btn
+        v-if="relation.kycStatus === 1"
+        color="red darken-1"
         @click="kyc(false)"
         text
       >
         Revoke KYC
       </v-btn>
-      <v-btn v-if="relation.kycStatus === 2" color="green darken-1"
+      <v-btn
+        v-if="relation.kycStatus === 2"
+        color="green darken-1"
         @click="kyc(true)"
         text
       >
         Grant KYC
       </v-btn>
-      <v-btn v-if="wipeKey"
-        color="red darken-1"
-        @click="wipe"
-        text
-      >
+      <v-btn v-if="wipeKey" color="red darken-1" @click="wipe" text>
         Wipe
       </v-btn>
     </v-card-actions>
@@ -80,33 +88,55 @@
 </template>
 
 <script>
-import {freezeAccount, kycAccount, wipeAccount} from "../service/accountActions";
-import {EventBus} from "../eventBus";
+import {
+  freezeAccount,
+  kycAccount,
+  wipeAccount
+} from "../service/accountActions";
+import { EventBus } from "../eventBus";
+import { amountWithDecimals } from "../utils";
 
 export default {
   name: "AccountCard",
   props: {
-    accountRelation: Object,
+    accountRelation: Object
   },
   data: function() {
-    console.log(this.$store.getters.getAccounts[this.accountRelation.accountId].tokenRelationships[this.accountRelation.token.tokenId].kycStatus);
-    console.log(this.$store.getters.getAccounts[this.accountRelation.accountId].tokenRelationships[this.accountRelation.token.tokenId].freezeStatus);
     return {
       dirty: false,
-      owner: this.$store.getters.getAccounts[this.accountRelation.accountId].owner ? " (Owner)" : "",
-      cardColor: "",
+      owner:
+        this.$store.getters.getAccounts[this.accountRelation.accountId].account
+          .wallet === "owner"
+          ? " (Owner)"
+          : "",
+      cardColor: this.$store.getters.getAccounts[this.accountRelation.accountId].account
+          .wallet === "owner"
+          ? "yellow lighten-4" : "",
       mirrorURL: "https://explorer.kabuto.sh/testnet/id/".concat(
-          this.accountRelation.accountId),
+        this.accountRelation.accountId
+      ),
       nonce: this.$store.getters.nonce,
       tokenId: this.accountRelation.token.tokenId,
-      relation: this.$store.getters.getAccounts[this.accountRelation.accountId].tokenRelationships[this.accountRelation.token.tokenId],
-      wipeKey: this.accountRelation.token.wipeKey,
+      relation: this.$store.getters.getAccounts[this.accountRelation.accountId]
+        .tokenRelationships[this.accountRelation.token.tokenId],
+      wipeKey: this.accountRelation.token.wipeKey
+    };
+  },
+  created() {
+  },
+  computed: {
+    balance() {
+      return amountWithDecimals(
+        this.relation.balance,
+        this.$store.getters.getTokens[this.tokenId].decimals
+      );
     }
   },
   watch: {
     relationWatch() {
-      this.relation = this.$store.getters.getAccounts[this.accountRelation.accountId].tokenRelationships[this.accountRelation.token.tokenId];
-      this.cardColor = this.owner ? "yellow lighten-4" : "";
+      this.relation = this.$store.getters.getAccounts[
+        this.accountRelation.accountId
+      ].tokenRelationships[this.accountRelation.token.tokenId];
     }
   },
   methods: {
@@ -116,7 +146,12 @@ export default {
         accountId: this.accountRelation.accountId,
         tokenId: this.accountRelation.token.tokenId
       };
-      console.log("wiping " + this.accountRelation.accountId + "-" + this.accountRelation.token.tokenId);
+      console.log(
+        "wiping " +
+          this.accountRelation.accountId +
+          "-" +
+          this.accountRelation.token.tokenId
+      );
       if (await wipeAccount(wipeInstruction)) {
         this.$store.commit("wipeAccount", wipeInstruction);
       }
@@ -130,7 +165,12 @@ export default {
         freeze: freezeStatus
       };
       if (await freezeAccount(freezeInstruction)) {
-        console.log("freezing " + this.accountRelation.accountId + "-" + this.accountRelation.token.tokenId);
+        console.log(
+          "freezing " +
+            this.accountRelation.accountId +
+            "-" +
+            this.accountRelation.token.tokenId
+        );
         this.$store.commit("freezeAccount", freezeInstruction);
       }
       EventBus.$emit("busy", false);
@@ -143,7 +183,12 @@ export default {
         kyc: kyc
       };
       if (await kycAccount(kycInstruction)) {
-        console.log("kyc " + this.accountRelation.accountId + "-" + this.accountRelation.token.tokenId);
+        console.log(
+          "kyc " +
+            this.accountRelation.accountId +
+            "-" +
+            this.accountRelation.token.tokenId
+        );
         this.$store.commit("kycAccount", kycInstruction);
       }
       EventBus.$emit("busy", false);

@@ -5,7 +5,7 @@ const {
   Hbar
 } = require("@hashgraph/sdk");
 
-export async function createAccount() {
+export async function createAccount(wallet) {
   let client = hederaClient();
 
   const privateKey = await Ed25519PrivateKey.generate();
@@ -22,7 +22,7 @@ export async function createAccount() {
   return {
     accountId: newAccountId.toString(),
     account: {
-      owner: false,
+      wallet: wallet,
       privateKey: privateKey.toString(),
       tokenRelationships: {}
     }

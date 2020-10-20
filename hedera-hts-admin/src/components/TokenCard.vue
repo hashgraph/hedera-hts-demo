@@ -1,8 +1,14 @@
 <template>
   <v-card>
-    <v-card-title class="justify-center"
-      >{{ token.name }} ({{ token.symbol.toUpperCase() }})</v-card-title
-    >
+    <v-toolbar color="primary" dark>
+      <v-toolbar-title class="white--text"
+        >{{ token.name }} ({{ token.symbol.toUpperCase() }})</v-toolbar-title
+      >
+      <v-spacer></v-spacer>
+      <v-btn icon @click="showDetails">
+        <v-icon color="white">mdi-magnify</v-icon>
+      </v-btn>
+    </v-toolbar>
     <v-card-text>
       <v-row>
         <v-col cols="6">Token Id</v-col>
@@ -16,138 +22,99 @@
       </v-row>
       <v-row>
         <v-col cols="6">Supply</v-col>
-        <v-col cols="6">{{ token.totalSupply }}</v-col>
+        <v-col cols="6">{{ totalSupply }}</v-col>
       </v-row>
       <v-row>
         <v-col cols="6">Treasury</v-col>
         <v-col cols="6">{{ token.treasury }}</v-col>
       </v-row>
-      <v-row>
-        <v-col cols="12">
-          <v-expansion-panels>
-            <v-expansion-panel>
-              <v-expansion-panel-header>More details</v-expansion-panel-header>
-              <v-expansion-panel-content>
-                <v-row>
-                  <v-col cols="6">
-                    <v-checkbox
-                      v-model="token.adminKey"
-                      disabled
-                      label="Admin Key"
-                    ></v-checkbox>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-checkbox
-                      v-model="token.wipeKey"
-                      disabled
-                      label="Wipe Key"
-                    ></v-checkbox>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="6">
-                    <v-checkbox
-                      v-model="token.kycKey"
-                      disabled
-                      label="KYC Key"
-                    ></v-checkbox>
-                  </v-col>
-                  <v-col cols="6">
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="6">
-                    <v-checkbox
-                      v-model="token.freezeKey"
-                      disabled
-                      label="Freeze Key"
-                    ></v-checkbox>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-checkbox
-                      v-model="defaultFreezeStatus"
-                      disabled
-                      label="Default Freeze"
-                    ></v-checkbox>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="6">
-                    <v-checkbox
-                      v-model="token.deleted"
-                      :disabled="isDeleted"
-                      label="Deleted"
-                      @click="setDelete"
-                    ></v-checkbox>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="6">Auto Renew Account</v-col>
-                  <v-col cols="6">{{ token.autoRenewAccount }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="6">Auto Renew Period</v-col>
-                  <v-col cols="6">{{ token.autoRenewPeriod }}</v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="6">Expiry</v-col>
-                  <v-col cols="6">{{ token.expiry }}</v-col>
-                </v-row>
-              </v-expansion-panel-content>
-            </v-expansion-panel>
-          </v-expansion-panels>
-        </v-col>
-      </v-row>
     </v-card-text>
     <v-card-actions class="justify-center">
-      <v-btn color="blue darken-1" text @click="showAccounts">
-        Accounts
+      <v-btn color="blue darken-1" icon @click="showAccounts">
+        <v-icon>mdi-account-multiple</v-icon>
       </v-btn>
-      <v-btn color="blue darken-1"
+      <v-btn
+        :disabled="!this.token.supplyKey"
+        color="blue darken-1"
+        icon
+        @click="mintToken"
+      >
+        <v-icon>mdi-bank-plus</v-icon>
+      </v-btn>
+      <v-btn icon color="blue darken-1" @click="transferToken">
+        <v-icon>mdi-bank-transfer</v-icon>
+      </v-btn>
+      <v-btn
+        icon
+        color="blue darken-1"
         :disabled="!this.dirty"
-        text
-        @click="updateToken">
-        Update
+        @click="updateToken"
+      >
+        <v-icon>mdi-file-document-edit-outline</v-icon>
       </v-btn>
-      <v-btn color="red darken-1"
+      <v-btn
+        color="red darken-1"
         :disabled="!this.delete"
-        text
-        @click="deleteToken">
-        Delete
+        icon
+        @click="deleteToken"
+      >
+        <v-icon>mdi-delete-outline</v-icon>
       </v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
-import {EventBus} from "../eventBus";
+import { EventBus } from "../eventBus";
+import { amountWithDecimals } from "../utils";
 
 export default {
   name: "TokenCard",
   props: {
-    token: Object
+    tokenId: String
   },
   data: function() {
     return {
+      token: {},
       dirty: false,
       delete: false,
-      isDeleted: this.token.deleted,
+      isDeleted: false,
       defaultFreezeStatus: false,
-      mirrorURL: "https://explorer.kabuto.sh/testnet/id/".concat(
-          this.token.tokenId
-      )
+      mirrorURL: "",
+      totalSupply: 0.0
     };
   },
+  watch: {
+    token() {
+      this.token = this.$store.getters.getTokens[this.tokenId];
+      this.mirrorURL = "https://explorer.kabuto.sh/testnet/id/".concat(
+        this.tokenId
+      );
+      this.isDeleted = this.token.deleted;
+      this.totalSupply = amountWithDecimals(
+        this.token.totalSupply,
+        this.token.decimals
+      );
+      this.defaultFreezeStatus = this.token.defaultFreezeStatus === 1;
+    }
+  },
   created() {
-    this.defaultFreezeStatus = (this.token.defaultFreezeStatus === 2);
+    this.token = this.$store.getters.getTokens[this.tokenId];
+    this.defaultFreezeStatus = this.token.defaultFreezeStatus === 1;
   },
   methods: {
-    showAccounts() {
-      this.$store.commit("setCurrentTokenId", this.token.tokenId);
+    mintToken() {
+      console.log("mint");
     },
-    // setDirty() {
-    //   this.dirty = true;
-    // },
+    transferToken() {
+      console.log("transfer");
+    },
+    showDetails() {
+      EventBus.$emit("tokenDetails", this.token);
+    },
+    showAccounts() {
+      this.$store.commit("setCurrentTokenId", this.tokenId);
+    },
     setDelete() {
       this.delete = this.token.deleted;
     },

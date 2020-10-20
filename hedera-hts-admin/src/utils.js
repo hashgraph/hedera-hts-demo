@@ -14,3 +14,7 @@ function notify(status, message) {
     message: message
   });
 }
+
+export function amountWithDecimals(amount, decimals) {
+  return (amount / parseFloat(Math.pow(10, decimals))).toFixed(decimals);
+}

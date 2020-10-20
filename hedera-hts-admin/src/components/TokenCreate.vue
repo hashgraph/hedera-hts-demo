@@ -53,6 +53,17 @@
                 </v-col>
                 <v-col cols="6">
                   <v-checkbox
+                    v-model="supplyKey"
+                    label="Change Supply"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-checkbox v-model="kycKey" label="Enable KYC"></v-checkbox>
+                </v-col>
+                <v-col cols="6">
+                  <v-checkbox
                     v-model="wipeKey"
                     label="Enable Wipe"
                   ></v-checkbox>
@@ -72,16 +83,6 @@
                     :disabled="!freezeKey"
                     label="Default"
                   ></v-checkbox>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col cols="6">
-                  <v-checkbox
-                    v-model="kycKey"
-                    label="Enable KYC"
-                  ></v-checkbox>
-                </v-col>
-                <v-col cols="6">
                 </v-col>
               </v-row>
             </v-container>
@@ -113,7 +114,7 @@
 </template>
 <script>
 import { EventBus } from "../eventBus";
-import { createTokenFake} from "../service/createToken";
+import { createTokenFake } from "../service/createToken";
 import { Ed25519PrivateKey } from "@hashgraph/sdk";
 
 export default {
@@ -127,10 +128,11 @@ export default {
       name: "",
       symbol: "",
       defaultFreezeStatus: false,
-      adminKey: false,
-      wipeKey: false,
-      freezeKey: false,
-      kycKey: false,
+      adminKey: true,
+      wipeKey: true,
+      freezeKey: true,
+      kycKey: true,
+      supplyKey: true,
       numberRules: [v => v == parseInt(v) || "Plain numeric required"],
       textRules: [v => !!v || "Input required"]
     };
@@ -147,6 +149,7 @@ export default {
       this.wipeKey = true;
       this.freezeKey = true;
       this.kycKey = true;
+      this.supplyKey = true;
       this.dialog = true;
     });
   },
@@ -173,11 +176,12 @@ export default {
         symbol: this.symbol,
         decimals: this.decimals,
         initialSupply: this.initialSupply,
-        defaultFreezeStatus: _defaultFreezeStatus,
         adminKey: this.adminKey ? privateKey.toString() : undefined,
-        wipeKey: this.wipeKey ? privateKey.toString() : undefined,
-        freezeKey: this.freezeKey ? privateKey.toString() : undefined,
         kycKey: this.kycKey ? privateKey.toString() : undefined,
+        freezeKey: this.freezeKey ? privateKey.toString() : undefined,
+        wipeKey: this.wipeKey ? privateKey.toString() : undefined,
+        supplyKey: this.supplyKey ? privateKey.toString() : undefined,
+        defaultFreezeStatus: _defaultFreezeStatus,
         deleted: false
       };
       const newToken = await createTokenFake(token);
