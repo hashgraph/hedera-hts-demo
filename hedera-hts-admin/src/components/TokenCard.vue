@@ -24,22 +24,26 @@
         <v-col cols="6">Supply</v-col>
         <v-col cols="6">{{ totalSupply }}</v-col>
       </v-row>
-      <v-row>
-        <v-col cols="6">Treasury</v-col>
-        <v-col cols="6">{{ token.treasury }}</v-col>
-      </v-row>
     </v-card-text>
     <v-card-actions class="justify-center">
       <v-btn color="blue darken-1" icon @click="showAccounts">
         <v-icon>mdi-account-multiple</v-icon>
       </v-btn>
       <v-btn
-        :disabled="!this.token.supplyKey"
-        color="blue darken-1"
-        icon
-        @click="mintToken"
+          :disabled="!this.token.supplyKey"
+          color="blue darken-1"
+          icon
+          @click="mintToken"
       >
         <v-icon>mdi-bank-plus</v-icon>
+      </v-btn>
+      <v-btn
+          :disabled="!this.token.supplyKey"
+          color="red darken-1"
+          icon
+          @click="burnToken"
+      >
+        <v-icon>mdi-bank-minus</v-icon>
       </v-btn>
       <v-btn icon color="blue darken-1" @click="transferToken">
         <v-icon>mdi-bank-transfer</v-icon>
@@ -54,7 +58,7 @@
       </v-btn>
       <v-btn
         color="red darken-1"
-        :disabled="!this.delete"
+        :disabled="this.isDeleted"
         icon
         @click="deleteToken"
       >
@@ -66,7 +70,7 @@
 
 <script>
 import { EventBus } from "../eventBus";
-import { amountWithDecimals } from "../utils";
+import {amountWithDecimals} from "../utils";
 
 export default {
   name: "TokenCard",
@@ -77,46 +81,64 @@ export default {
     return {
       token: {},
       dirty: false,
-      delete: false,
       isDeleted: false,
       defaultFreezeStatus: false,
       mirrorURL: "",
-      totalSupply: 0.0
+      totalSupply: 0.0,
+      interval: undefined,
     };
-  },
-  watch: {
-    token() {
-      this.token = this.$store.getters.getTokens[this.tokenId];
-      this.mirrorURL = "https://explorer.kabuto.sh/testnet/id/".concat(
-        this.tokenId
-      );
-      this.isDeleted = this.token.deleted;
-      this.totalSupply = amountWithDecimals(
-        this.token.totalSupply,
-        this.token.decimals
-      );
-      this.defaultFreezeStatus = this.token.defaultFreezeStatus === 1;
-    }
   },
   created() {
     this.token = this.$store.getters.getTokens[this.tokenId];
     this.defaultFreezeStatus = this.token.defaultFreezeStatus === 1;
+
+    // not clean but can't get VUEX to trigger a watch, this is a quick fix
+    this.interval = setInterval(() => {
+      this.token = this.$store.getters.getTokens[this.tokenId];
+      this.mirrorURL = "https://explorer.kabuto.sh/testnet/id/".concat(
+          this.tokenId
+      );
+      this.isDeleted = this.token.deleted;
+      this.totalSupply = amountWithDecimals(
+          this.token.totalSupply,
+          this.token.decimals
+      );
+      this.defaultFreezeStatus = this.token.defaultFreezeStatus === 1;
+    }, 1000);
   },
+  beforeDestroy() {
+    clearInterval(this.interval);
+  },
+
   methods: {
     mintToken() {
-      console.log("mint");
+      const mint = {
+        operation: "mint",
+        tokenId: this.tokenId
+      };
+      EventBus.$emit("mintBurnDialog", mint);
+    },
+    burnToken() {
+      const burn = {
+        operation: "burn",
+        tokenId: this.tokenId
+      };
+      EventBus.$emit("mintBurnDialog", burn);
     },
     transferToken() {
-      console.log("transfer");
+      const transfer = {
+        operation: "transfer",
+        tokenId: this.tokenId,
+        fixedDestination: "",
+        transferFrom: ""
+      };
+      EventBus.$emit("transferDialog", transfer);
     },
     showDetails() {
       EventBus.$emit("tokenDetails", this.token);
     },
     showAccounts() {
       this.$store.commit("setCurrentTokenId", this.tokenId);
-    },
-    setDelete() {
-      this.delete = this.token.deleted;
     },
     updateToken() {
       EventBus.$emit("busy", true);

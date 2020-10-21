@@ -1,19 +1,30 @@
+import {getAccountDetails} from "../utils";
+
 const { Client } = require("@hashgraph/sdk");
 
+export function hederaClientForUser(user) {
+  let account = getAccountDetails(user);
+  return hederaClientLocal(account.accountId, account.privateKey);
+}
+
 export function hederaClient() {
+
   const operatorPrivateKey = process.env.VUE_APP_OPERATOR_KEY;
   const operatorAccount = process.env.VUE_APP_OPERATOR_ID;
-
   if (
-    typeof operatorPrivateKey === "undefined" ||
-    typeof operatorAccount === "undefined"
+      typeof operatorPrivateKey === "undefined" ||
+      typeof operatorAccount === "undefined"
   ) {
     throw new Error(
-      "environment variables VUE_APP_OPERATOR_KEY and VUE_APP_OPERATOR_ID must be present"
+        "environment variables VUE_APP_OPERATOR_KEY and VUE_APP_OPERATOR_ID must be present"
     );
   }
+  return hederaClientLocal(operatorAccount, operatorPrivateKey);
+}
 
+function hederaClientLocal(operatorAccount, operatorPrivateKey) {
   let client = Client.forTestnet();
+  client.setOperator(operatorAccount, operatorPrivateKey);
   switch (process.env.VUE_APP_NETWORK) {
     case "testnet":
       client = Client.forTestnet();

@@ -14,7 +14,10 @@
     <div v-else>
       <Wallet v-bind:walletInstance="showUI" :key="walletKey"/>
     </div>
-    <TokenDetails />
+    <TokenDetailsDialog />
+    <TokenCreateDialog />
+    <MintBurnDialog />
+    <TransferDialog />
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
       <v-card flat tile width="100%" :class="footerColor">
         <v-card-text :class="textColor">
@@ -30,14 +33,20 @@ import Tokens from "../components/Tokens";
 import Accounts from "../components/Accounts";
 import Wallet from "../components/Wallet";
 import { EventBus } from "../eventBus";
-import TokenDetails from "../components/TokenDetails";
+import TokenDetailsDialog from "../components/TokenDetailsDialog";
+import MintBurnDialog from "../components/MintBurnDialog";
+import TokenCreateDialog from "../components/TokenCreateDialog"
+import TransferDialog from "../components/TransferDialog";
 
 let timer;
 
 export default {
   name: "Dashboard",
   components: {
-    TokenDetails,
+    TransferDialog,
+    MintBurnDialog,
+    TokenDetailsDialog,
+    TokenCreateDialog,
     Tokens,
     Accounts,
     Wallet
@@ -81,7 +90,7 @@ export default {
         this.footerColor = "primary";
       }, 5000);
     });
-  }
+  },
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

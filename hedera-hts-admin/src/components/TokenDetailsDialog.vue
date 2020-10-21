@@ -4,16 +4,16 @@
       <v-card>
         <v-card-title>
           <span class="headline text-center"
-            >{{ token.name }} ({{ token.symbol }})</span
-          >
+            >{{ token.name }} ({{ token.symbol }}) - {{ token.tokenId }}
+          </span>
         </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
               <v-col cols="6"
                 ><v-text-field
-                  label=""
-                  :value="decimals"
+                  label="Decimals"
+                  :value="token.decimals"
                   outlined
                   dense
                   disabled
@@ -21,7 +21,7 @@
               </v-col>
               <v-col cols="6"
                 ><v-text-field
-                  label=""
+                  label="Supply"
                   :value="supply"
                   outlined
                   dense
@@ -30,10 +30,51 @@
               </v-col>
             </v-row>
             <v-row>
+              <v-col cols="6"
+              ><v-text-field
+                  label="Treasury"
+                  :value="token.treasury"
+                  outlined
+                  dense
+                  disabled
+              ></v-text-field>
+              </v-col>
+              <v-col cols="6"
+              ><v-text-field
+                  label="Auto Renew Account"
+                  :value="token.autoRenewAccount"
+                  outlined
+                  dense
+                  disabled
+              ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6"
+              ><v-text-field
+                  label="Auto Renew Period"
+                  :value="autoRenewPeriod"
+                  outlined
+                  dense
+                  disabled
+              ></v-text-field>
+              </v-col>
+              <v-col cols="6"
+              ><v-text-field
+                  label="Expiry"
+                  :value="expiry"
+                  outlined
+                  dense
+                  disabled
+              ></v-text-field>
+              </v-col>
+            </v-row>
+
+            <v-row>
               <v-col cols="6">
                 <v-checkbox
                   v-model="token.adminKey"
-                  label="Enable Admin"
+                  label="Admin"
                   disabled
                 ></v-checkbox>
               </v-col>
@@ -49,14 +90,14 @@
               <v-col cols="6">
                 <v-checkbox
                   v-model="token.kycKey"
-                  label="Enable KYC"
+                  label="KYC"
                   disabled
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
                 <v-checkbox
                   v-model="token.wipeKey"
-                  label="Enable Wipe"
+                  label="Wipe"
                   disabled
                 ></v-checkbox>
               </v-col>
@@ -64,17 +105,28 @@
             <v-row>
               <v-col cols="6">
                 <v-checkbox
-                  v-model="token.freezeKey"
-                  label="Enable Freeze"
-                  disabled
+                    v-model="token.freezeKey"
+                    label="Freeze"
+                    disabled
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
                 <v-checkbox
-                  v-model="defaultFreezeStatus"
-                  disabled
-                  label="Default"
+                    v-model="defaultFreezeStatus"
+                    disabled
+                    label="Default Freeze"
                 ></v-checkbox>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                <v-checkbox
+                    v-model="token.isDeleted"
+                    label="Deleted"
+                    disabled
+                ></v-checkbox>
+              </v-col>
+              <v-col cols="6">
               </v-col>
             </v-row>
           </v-container>
@@ -91,10 +143,10 @@
 </template>
 <script>
 import { EventBus } from "../eventBus";
-import { amountWithDecimals } from "../utils";
+import {amountWithDecimals, localTimeFromSeconds, secondsToParts} from "../utils";
 
 export default {
-  name: "TokenDetails",
+  name: "TokenDetailsDialog",
   data: function() {
     return {
       token: {},
@@ -102,8 +154,9 @@ export default {
       dialog: false,
       initialSupply: 0,
       defaultFreezeStatus: false,
-      decimals: "",
-      supply: 0
+      supply: 0,
+      expiry: 0,
+      autoRenewPeriod: "",
     };
   },
   created() {
@@ -111,9 +164,9 @@ export default {
     EventBus.$on("tokenDetails", function(value) {
       vm.dialog = true;
       vm.token = value;
-      vm.decimals = "Decimals: ".concat(value.decimals);
-      vm.supply =
-        "Supply: " + amountWithDecimals(value.totalSupply, value.decimals);
+      vm.supply = amountWithDecimals(value.totalSupply, value.decimals);
+      vm.expiry = localTimeFromSeconds(value.expiry);
+      vm.autoRenewPeriod = secondsToParts(value.autoRenewPeriod);
     });
   }
 };

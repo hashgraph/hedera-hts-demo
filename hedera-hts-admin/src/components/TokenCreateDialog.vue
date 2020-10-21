@@ -116,9 +116,10 @@
 import { EventBus } from "../eventBus";
 import { createTokenFake } from "../service/createToken";
 import { Ed25519PrivateKey } from "@hashgraph/sdk";
+import { getAccountDetails } from "../utils";
 
 export default {
-  name: "TokenCreate",
+  name: "TokenCreateDialog",
   data: function() {
     return {
       valid: false,
@@ -140,10 +141,10 @@ export default {
   created() {
     EventBus.$on("tokenCreate", () => {
       this.valid = false;
-      this.decimals = 0;
-      this.initialSupply = 0;
-      this.name = "";
-      this.symbol = "";
+      this.decimals = 2;
+      this.initialSupply = 1000;
+      this.name = "test";
+      this.symbol = "test";
       this.defaultFreezeStatus = false;
       this.adminKey = true;
       this.wipeKey = true;
@@ -171,6 +172,7 @@ export default {
         }
       }
 
+      const ownerAccount = getAccountDetails("owner");
       const token = {
         name: this.name,
         symbol: this.symbol,
@@ -182,6 +184,8 @@ export default {
         wipeKey: this.wipeKey ? privateKey.toString() : undefined,
         supplyKey: this.supplyKey ? privateKey.toString() : undefined,
         defaultFreezeStatus: _defaultFreezeStatus,
+        autoRenewAccount: ownerAccount.accountId,
+        treasury: ownerAccount.accountId,
         deleted: false
       };
       const newToken = await createTokenFake(token);

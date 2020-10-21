@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-container>
-      <TokenCreate />
       <v-layout row wrap>
         <v-col cols="4" v-for="token in tokens" :key="token.tokenId">
           <TokenCard v-bind:tokenId="token.tokenId"></TokenCard>
@@ -13,13 +12,11 @@
 
 <script>
 import TokenCard from "../components/TokenCard";
-import TokenCreate from "../components/TokenCreate";
 
 export default {
   name: "Tokens",
   components: {
     TokenCard,
-    TokenCreate
   },
   data: function() {
     return {

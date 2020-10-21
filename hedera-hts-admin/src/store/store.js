@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import createPersistedState from "vuex-persistedstate";
 import { createAccount } from "../service/createAccount";
 import { getAccountInfo } from "../service/getAccountInfo";
 import { getTokenInfoFake } from "../service/getTokenInfo";
@@ -8,6 +9,7 @@ import { EventBus } from "../eventBus";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+  plugins: [createPersistedState()],
   state: {
     tokens: {},
     accounts: {},
@@ -17,6 +19,7 @@ export default new Vuex.Store({
   },
   mutations: {
     setPolling(state, polling) {
+      console.log("polling set to " + polling);
       state.enablePoll = polling;
     },
     setCurrentTokenId(state, tokenId) {
@@ -33,6 +36,7 @@ export default new Vuex.Store({
     },
     setAccount(state, account) {
       Vue.set(state.accounts, account.accountId, account);
+
       state.nonce = Date.now().toString();
     },
     setToken(state, token) {
@@ -40,7 +44,6 @@ export default new Vuex.Store({
       state.nonce = Date.now().toString();
     },
     reset(state) {
-      state.enablePoll = false;
       state.accounts = {};
       state.tokens = {};
       state.currentTokenId = undefined;
@@ -96,10 +99,10 @@ export default new Vuex.Store({
               " (un)freeze=" +
               freeze
           );
-          state.accounts[accountId].tokenRelationships[
-            tokenId
-          ].freezeStatus = freeze;
+          account.tokenRelationships[tokenId].freezeStatus = freeze;
+          Vue.set(state.accounts, accountId, account);
           state.nonce = Date.now().toString();
+          console.log("freezeAccount " + state.accounts[accountId].tokenRelationships[tokenId].freezeStatus);
           return;
         } else {
           console.warn(
@@ -190,23 +193,25 @@ export default new Vuex.Store({
   },
   actions: {
     async setup({ commit, state }) {
-      commit("setPolling", false);
       if (Object.keys(state.accounts).length === 0) {
         // set ourselves up
         // create owner account
         let newAccount = await createAccount("owner");
         commit("setAccount", newAccount);
+        notifySuccess("Setting up demo 1/3 - owner account created");
         // create user 1
         newAccount = await createAccount("wallet1");
         commit("setAccount", newAccount);
+        notifySuccess("Setting up demo 2/3 - first wallet account created");
         // create user 2
         newAccount = await createAccount("wallet2");
         commit("setAccount", newAccount);
+        notifySuccess("Setting up demo 3/3 - second wallet account created");
       }
       commit("setCurrentTokenId", undefined);
       notifySuccess("Demo Ready");
-      EventBus.$emit("busy", false);
       commit("setPolling", true);
+      EventBus.$emit("busy", false);
     },
     async fetchAccounts({ commit, state }) {
       if (typeof state.accounts === "undefined") {
@@ -220,13 +225,9 @@ export default new Vuex.Store({
           return;
         }
         let account = state.accounts[key];
-        if (
-          typeof account.tokenRelationships === "undefined" ||
-          Object.keys(account.tokenRelationships).length === 0
-        ) {
-          account.tokenRelationships = await getAccountInfo(key);
-          commit("setAccount", account);
-        }
+        const accountDetails = await getAccountInfo(key);
+        account.tokenRelationships = accountDetails;
+        commit("setAccount", account);
       }
     },
     async fetchTokens({ commit, state }) {
@@ -246,6 +247,7 @@ export default new Vuex.Store({
     },
     async fetch({ dispatch, state }) {
       if (!state.enablePoll) {
+        console.log("Polling disabled");
         return;
       }
       await dispatch("fetchAccounts");

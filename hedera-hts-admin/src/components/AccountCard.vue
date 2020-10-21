@@ -4,7 +4,8 @@
       ><a :href="mirrorURL" target="_blank">{{ accountRelation.accountId }}</a>
       {{ owner }}</v-card-title
     >
-    <v-card-title class="justify-center">Balance {{ balance }}</v-card-title>
+    <v-card-title class="justify-center">Token Balance: {{ balance }}</v-card-title>
+    <v-card-subtitle class="justify-center">hBar Balance: {{ accountRelation.hbarBalance }}</v-card-subtitle>
     <v-card-text>
       <v-row>
         <v-col cols="6">
@@ -119,10 +120,20 @@ export default {
       tokenId: this.accountRelation.token.tokenId,
       relation: this.$store.getters.getAccounts[this.accountRelation.accountId]
         .tokenRelationships[this.accountRelation.token.tokenId],
-      wipeKey: this.accountRelation.token.wipeKey
+      wipeKey: this.accountRelation.token.wipeKey,
+      interval: undefined
     };
   },
   created() {
+    // not clean but can't get VUEX to trigger a watch, this is a quick fix
+    this.interval = setInterval(() => {
+      this.relation = this.$store.getters.getAccounts[
+          this.accountRelation.accountId
+          ].tokenRelationships[this.accountRelation.token.tokenId];
+    }, 1000);
+  },
+  beforeDestroy() {
+    clearInterval(this.interval);
   },
   computed: {
     balance() {
@@ -132,13 +143,6 @@ export default {
       );
     }
   },
-  watch: {
-    relationWatch() {
-      this.relation = this.$store.getters.getAccounts[
-        this.accountRelation.accountId
-      ].tokenRelationships[this.accountRelation.token.tokenId];
-    }
-  },
   methods: {
     async wipe() {
       EventBus.$emit("busy", true);
@@ -146,12 +150,6 @@ export default {
         accountId: this.accountRelation.accountId,
         tokenId: this.accountRelation.token.tokenId
       };
-      console.log(
-        "wiping " +
-          this.accountRelation.accountId +
-          "-" +
-          this.accountRelation.token.tokenId
-      );
       if (await wipeAccount(wipeInstruction)) {
         this.$store.commit("wipeAccount", wipeInstruction);
       }
@@ -165,12 +163,6 @@ export default {
         freeze: freezeStatus
       };
       if (await freezeAccount(freezeInstruction)) {
-        console.log(
-          "freezing " +
-            this.accountRelation.accountId +
-            "-" +
-            this.accountRelation.token.tokenId
-        );
         this.$store.commit("freezeAccount", freezeInstruction);
       }
       EventBus.$emit("busy", false);

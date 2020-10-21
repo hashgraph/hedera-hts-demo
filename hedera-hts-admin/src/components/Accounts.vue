@@ -1,7 +1,6 @@
 <template>
   <div>
     <v-container>
-      <TokenCreate />
       <div v-if="accountRelations.length != 0">
         Accounts associated with token {{ token.symbol }}
       </div>
@@ -28,13 +27,11 @@
 
 <script>
 import AccountCard from "../components/AccountCard";
-import TokenCreate from "../components/TokenCreate";
 
 export default {
   name: "Accounts",
   components: {
     AccountCard,
-    TokenCreate
   },
   data: function() {
     return {
@@ -70,6 +67,7 @@ export default {
           const relation = account.tokenRelationships[_token.tokenId];
           if (typeof relation !== "undefined") {
             const accountRelation = {
+              hbarBalance: relation.hbarBalance,
               accountId: account.accountId,
               token: _token
             };

@@ -1,5 +1,5 @@
-import { hederaClient } from "./client";
-import { notifyError, notifySuccess } from "../utils";
+import { hederaClientForUser} from "./client";
+import { notifyError, notifySuccess} from "../utils";
 import { AccountCreateTransaction } from "@hashgraph/sdk";
 
 const {
@@ -9,19 +9,22 @@ const {
 } = require("@hashgraph/sdk");
 
 const operatorAccount = process.env.VUE_APP_OPERATOR_ID;
-let client = hederaClient();
 let tokenResponse = {};
+const autoRenewPeriod = 7776000;  // set to default 3 months
 
 export async function createToken(token) {
+  // get private key and account for owner from accounts
+  let client = hederaClientForUser("owner");
   try {
-    const tx = new TokenCreateTransaction()
-      .setName(token.name)
-      .setSymbol(token.symbol.toUpperCase())
-      .setDecimals(token.decimals)
-      .setInitialSupply(token.initialSupply)
-      .setTreasury(token.treasury)
-      .setAutorenewaccount(token.autoRenewAccount)
-      .setMaxTransactionFee(new Hbar(1));
+    const tx = new TokenCreateTransaction();
+    tx.setName(token.name);
+    tx.setSymbol(token.symbol.toUpperCase());
+    tx.setDecimals(token.decimals);
+    tx.setInitialSupply(token.initialSupply);
+    tx.setTreasury(token.treasury);
+    tx.setAutoRenewAccount(token.autoRenewAccount);
+    tx.setMaxTransactionFee(new Hbar(1));
+    tx.setAutoRenewPeriod(autoRenewPeriod);
 
     if (token.adminKey) {
       tx.setAdminKey(Ed25519PrivateKey.fromString(token.adminKey).publicKey);
@@ -52,7 +55,7 @@ export async function createToken(token) {
     if (transactionReceipt.status._isError()) {
       notifyError(transactionReceipt.status.message);
     } else {
-      const newTokenId = transactionReceipt.getAccountId();
+      const newTokenId = transactionReceipt.getTokenId();
       //TODO: default freeze and kyc status is one of three values
       tokenResponse = {
         tokenId: newTokenId.toString(),
@@ -61,29 +64,31 @@ export async function createToken(token) {
         totalSupply: token.initialSupply,
         decimals: token.decimals,
         autoRenewAccount: operatorAccount,
-        autoRenewPeriod: "110",
+        autoRenewPeriod: autoRenewPeriod,
         defaultFreezeStatus: token.defaultFreezeStatus,
-        defaultKYCStatus: token.defaultKYCStatus,
         kycKey: token.kycKey,
         wipeKey: token.wipeKey,
         freezeKey: token.freezeKey,
         adminKey: token.adminKey,
         supplyKey: token.supplyKey,
-        expiry: "0",
+        expiry: "",
         isDeleted: false,
         treasury: operatorAccount
       };
 
       notifySuccess("token created successfully");
     }
+    return tokenResponse;
+
   } catch (err) {
     console.error(err);
     notifyError(err.message);
+    return {};
   }
-  return tokenResponse;
 }
 
 export async function createTokenFake(token) {
+  let client = hederaClientForUser("owner");
   try {
     const privateKey = await Ed25519PrivateKey.generate();
 
@@ -96,9 +101,7 @@ export async function createTokenFake(token) {
     const transactionReceipt = await transactionId.getReceipt(client);
     const newTokenId = transactionReceipt.getAccountId();
 
-    console.log(
-      "create token fake default freeze: " + token.defaultFreezeStatus
-    );
+    let expiryTime = (new Date().getTime() + (autoRenewPeriod * 1000)) / 1000;
     tokenResponse = {
       tokenId: newTokenId.toString(),
       symbol: token.symbol,
@@ -106,14 +109,14 @@ export async function createTokenFake(token) {
       totalSupply: token.initialSupply,
       decimals: token.decimals,
       autoRenewAccount: operatorAccount,
-      autoRenewPeriod: "110",
+      autoRenewPeriod: autoRenewPeriod,
       defaultFreezeStatus: token.defaultFreezeStatus,
       kycKey: token.kycKey,
       wipeKey: token.wipeKey,
       freezeKey: token.freezeKey,
       adminKey: token.adminKey,
       supplyKey: token.supplyKey,
-      expiry: "0",
+      expiry: expiryTime,
       isDeleted: false,
       treasury: operatorAccount
     };

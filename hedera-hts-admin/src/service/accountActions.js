@@ -28,7 +28,7 @@ export async function freezeAccount(freezeInstruction) {
       notifySuccess(
         "Account " +
           freezeInstruction.accountId +
-          " activity on token " +
+          " on token " +
           freezeInstruction.tokenId +
           " frozen"
       );
@@ -36,7 +36,7 @@ export async function freezeAccount(freezeInstruction) {
       notifySuccess(
         "Account " +
           freezeInstruction.accountId +
-          " activity on token " +
+          " on token " +
           freezeInstruction.tokenId +
           " unfrozen"
       );
