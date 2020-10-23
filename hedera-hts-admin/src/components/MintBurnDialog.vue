@@ -55,6 +55,7 @@
 <script>
 
 import {EventBus} from "../eventBus";
+import {tokenBurn, tokenMint} from "../service/tokenService";
 
 export default {
   name: "MintBurnDialog",
@@ -62,26 +63,32 @@ export default {
     return {
       valid: true,
       dialog: false,
-      quantity: 0,
+      quantity: "",
       operation: "",
       tokenId: "",
       numberRules: [v => v == parseInt(v) || "Plain numeric required"],
     };
   },
   methods: {
-    mint() {
-      console.log("Minting " + this.quantity);
-      this.dialog = false;
+    async mint() {
+      const instruction = {
+        tokenId: this.tokenId,
+        amount: this.quantity
+      };
+      this.dialog = ! await tokenMint(instruction);
     },
-    burn() {
-      console.log("Burning " + this.quantity);
-      this.dialog = false;
+    async burn() {
+      const instruction = {
+        tokenId: this.tokenId,
+        amount: this.quantity
+      };
+      this.dialog = ! await tokenBurn(instruction);
     },
   },
   created() {
     EventBus.$on("mintBurnDialog", operation => {
-      this.valid = true;
-      this.quantity = 0;
+      this.valid = false;
+      this.quantity = "";
       this.tokenId = operation.tokenId;
       this.operation = operation.operation;
       this.dialog = true;

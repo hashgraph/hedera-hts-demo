@@ -114,7 +114,7 @@
 </template>
 <script>
 import { EventBus } from "../eventBus";
-import { createTokenFake } from "../service/createToken";
+import { tokenCreate } from "../service/tokenService";
 import { Ed25519PrivateKey } from "@hashgraph/sdk";
 import { getAccountDetails } from "../utils";
 
@@ -141,10 +141,10 @@ export default {
   created() {
     EventBus.$on("tokenCreate", () => {
       this.valid = false;
-      this.decimals = 2;
-      this.initialSupply = 1000;
-      this.name = "test";
-      this.symbol = "test";
+      this.decimals = "";
+      this.initialSupply = "";
+      this.name = "";
+      this.symbol = "";
       this.defaultFreezeStatus = false;
       this.adminKey = true;
       this.wipeKey = true;
@@ -163,12 +163,12 @@ export default {
     async create() {
       EventBus.$emit("busy", true);
       const privateKey = await Ed25519PrivateKey.generate();
-      let _defaultFreezeStatus = 0;
+      let _defaultFreezeStatus = false;
       if (this.freezeKey) {
         if (this.defaultFreezeStatus) {
-          _defaultFreezeStatus = 1;
+          _defaultFreezeStatus = true;
         } else {
-          _defaultFreezeStatus = 2;
+          _defaultFreezeStatus = false;
         }
       }
 
@@ -188,7 +188,7 @@ export default {
         treasury: ownerAccount.accountId,
         deleted: false
       };
-      const newToken = await createTokenFake(token);
+      const newToken = await tokenCreate(token);
       if (typeof newToken.tokenId !== "undefined") {
         console.log("new token " + newToken.tokenId);
         this.$store.commit("setToken", newToken);

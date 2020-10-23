@@ -143,7 +143,7 @@
 </template>
 <script>
 import { EventBus } from "../eventBus";
-import {amountWithDecimals, localTimeFromSeconds, secondsToParts} from "../utils";
+import { amountWithDecimals, localTimeFromSeconds, secondsToParts } from "../utils";
 
 export default {
   name: "TokenDetailsDialog",

@@ -10,47 +10,23 @@
       <v-row>
         <v-col cols="6">
           <v-checkbox
-            v-if="relation.freezeStatus === 0"
-            label="Frozen"
-            indeterminate
-            disabled
-          ></v-checkbox>
-          <v-checkbox
-            v-if="relation.freezeStatus === 1"
-            label="Frozen"
-            input-value="true"
-            disabled
-          ></v-checkbox>
-          <v-checkbox
-            v-if="relation.freezeStatus === 2"
             label="Frozen"
             disabled
+            :input-value=relation.freezeStatus
           ></v-checkbox>
         </v-col>
         <v-col cols="6">
           <v-checkbox
-            v-if="relation.kycStatus === 0"
-            label="KYCd"
-            indeterminate
-            disabled
-          ></v-checkbox>
-          <v-checkbox
-            v-if="relation.kycStatus === 1"
-            label="KYCd"
-            input-value="true"
-            disabled
-          ></v-checkbox>
-          <v-checkbox
-            v-if="relation.kycStatus === 2"
             label="KYCd"
             disabled
+            :input-value=relation.kycStatus
           ></v-checkbox>
         </v-col>
       </v-row>
     </v-card-text>
     <v-card-actions class="justify-center">
       <v-btn
-        v-if="relation.freezeStatus === 1"
+        v-if="relation.freezeStatus"
         color="green darken-1"
         @click="freeze(false)"
         text
@@ -58,7 +34,7 @@
         Unfreeze
       </v-btn>
       <v-btn
-        v-if="relation.freezeStatus === 2"
+        v-else
         color="red darken-1"
         @click="freeze(true)"
         text
@@ -66,7 +42,7 @@
         Freeze
       </v-btn>
       <v-btn
-        v-if="relation.kycStatus === 1"
+        v-if="relation.kycStatus"
         color="red darken-1"
         @click="kyc(false)"
         text
@@ -74,7 +50,7 @@
         Revoke KYC
       </v-btn>
       <v-btn
-        v-if="relation.kycStatus === 2"
+        v-else
         color="green darken-1"
         @click="kyc(true)"
         text
@@ -89,11 +65,8 @@
 </template>
 
 <script>
-import {
-  freezeAccount,
-  kycAccount,
-  wipeAccount
-} from "../service/accountActions";
+import {tokenGrantKYC, tokenRevokeKYC, tokenFreeze, tokenWipe, tokenUnFreeze} from "../service/tokenService";
+
 import { EventBus } from "../eventBus";
 import { amountWithDecimals } from "../utils";
 
@@ -148,9 +121,11 @@ export default {
       EventBus.$emit("busy", true);
       const wipeInstruction = {
         accountId: this.accountRelation.accountId,
-        tokenId: this.accountRelation.token.tokenId
+        tokenId: this.accountRelation.token.tokenId,
+        amount: this.relation.balance
       };
-      if (await wipeAccount(wipeInstruction)) {
+      console.log(wipeInstruction);
+      if (await tokenWipe(wipeInstruction)) {
         this.$store.commit("wipeAccount", wipeInstruction);
       }
       EventBus.$emit("busy", false);
@@ -160,10 +135,11 @@ export default {
       const freezeInstruction = {
         accountId: this.accountRelation.accountId,
         tokenId: this.accountRelation.token.tokenId,
-        freeze: freezeStatus
       };
-      if (await freezeAccount(freezeInstruction)) {
-        this.$store.commit("freezeAccount", freezeInstruction);
+      if (freezeStatus) {
+        await tokenFreeze(freezeInstruction);
+      } else {
+        await tokenUnFreeze(freezeInstruction);
       }
       EventBus.$emit("busy", false);
     },
@@ -172,16 +148,11 @@ export default {
       const kycInstruction = {
         accountId: this.accountRelation.accountId,
         tokenId: this.accountRelation.token.tokenId,
-        kyc: kyc
       };
-      if (await kycAccount(kycInstruction)) {
-        console.log(
-          "kyc " +
-            this.accountRelation.accountId +
-            "-" +
-            this.accountRelation.token.tokenId
-        );
-        this.$store.commit("kycAccount", kycInstruction);
+      if (kyc) {
+        await tokenGrantKYC(kycInstruction);
+      } else {
+        await tokenRevokeKYC(kycInstruction);
       }
       EventBus.$emit("busy", false);
     }

@@ -68,6 +68,7 @@
 
 import {EventBus} from "../eventBus";
 import {getUserAccounts} from "../utils";
+import { tokenTransfer } from "../service/tokenService";
 
 export default {
   name: "TransferDialog",
@@ -76,7 +77,7 @@ export default {
       accounts: getUserAccounts(),
       valid: false,
       dialog: false,
-      quantity: 0,
+      quantity: "",
       destination: "",
       fixedDestination: "",
       tokenId: "",
@@ -90,19 +91,21 @@ export default {
     }
   },
   methods: {
-    transfer() {
+    async transfer() {
       console.log("transferring " + this.quantity + " to " + this.destination);
-      this.dialog = false;
+      this.dialog = ! await tokenTransfer(this.tokenId, this.user, this.quantity, this.destination);
     },
   },
   created() {
     EventBus.$on("transferDialog", operation => {
+      this.accounts = getUserAccounts();
       this.valid = false;
-      this.quantity = 0;
+      this.quantity = "";
       this.fixedDestination = operation.fixedDestination;
       this.destination = operation.fixedDestination;
       this.tokenId = operation.tokenId;
       this.transferFrom = operation.transferFrom;
+      this.user = operation.user;
       this.dialog = true;
     });
   },

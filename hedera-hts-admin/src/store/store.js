@@ -1,9 +1,9 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
-import { createAccount } from "../service/createAccount";
-import { getAccountInfo } from "../service/getAccountInfo";
-import { getTokenInfoFake } from "../service/getTokenInfo";
+import { accountCreate } from "../service/accountCreate";
+import { accountGetInfo } from "../service/accountGetInfo";
+import { tokenGetInfo } from "../service/tokenService";
 import { notifySuccess } from "../utils";
 import { EventBus } from "../eventBus";
 Vue.use(Vuex);
@@ -196,15 +196,15 @@ export default new Vuex.Store({
       if (Object.keys(state.accounts).length === 0) {
         // set ourselves up
         // create owner account
-        let newAccount = await createAccount("owner");
+        let newAccount = await accountCreate("owner");
         commit("setAccount", newAccount);
         notifySuccess("Setting up demo 1/3 - owner account created");
         // create user 1
-        newAccount = await createAccount("wallet1");
+        newAccount = await accountCreate("wallet1");
         commit("setAccount", newAccount);
         notifySuccess("Setting up demo 2/3 - first wallet account created");
         // create user 2
-        newAccount = await createAccount("wallet2");
+        newAccount = await accountCreate("wallet2");
         commit("setAccount", newAccount);
         notifySuccess("Setting up demo 3/3 - second wallet account created");
       }
@@ -225,7 +225,7 @@ export default new Vuex.Store({
           return;
         }
         let account = state.accounts[key];
-        const accountDetails = await getAccountInfo(key);
+        const accountDetails = await accountGetInfo(key);
         account.tokenRelationships = accountDetails;
         commit("setAccount", account);
       }
@@ -241,7 +241,8 @@ export default new Vuex.Store({
         if (!state.enablePoll) {
           return;
         }
-        const tokenUpdate = await getTokenInfoFake(state.tokens[key]);
+        const token = state.tokens[key];
+        const tokenUpdate = await tokenGetInfo(token);
         commit("setToken", tokenUpdate);
       }
     },

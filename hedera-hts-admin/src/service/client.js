@@ -3,7 +3,7 @@ import {getAccountDetails} from "../utils";
 const { Client } = require("@hashgraph/sdk");
 
 export function hederaClientForUser(user) {
-  let account = getAccountDetails(user);
+  const account = getAccountDetails(user);
   return hederaClientLocal(account.accountId, account.privateKey);
 }
 

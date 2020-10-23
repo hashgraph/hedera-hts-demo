@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <div v-if="accountId">
+{{ accountId }}
       <v-row>
         <v-col cols="6">
           <v-card
@@ -48,39 +49,15 @@
                   <v-row>
                     <v-col cols="6">
                       <v-checkbox
-                          v-if="accountRelation.freezeStatus === 0"
                           label="Frozen"
-                          indeterminate
-                          disabled
-                      ></v-checkbox>
-                      <v-checkbox
-                          v-if="accountRelation.freezeStatus === 1"
-                          label="Frozen"
-                          input-value="true"
-                          disabled
-                      ></v-checkbox>
-                      <v-checkbox
-                          v-if="accountRelation.freezeStatus === 2"
-                          label="Frozen"
+                          :input-value=accountRelation.freezeStatus
                           disabled
                       ></v-checkbox>
                     </v-col>
                     <v-col cols="6">
                       <v-checkbox
-                          v-if="accountRelation.kycStatus === 0"
                           label="KYCd"
-                          indeterminate
-                          disabled
-                      ></v-checkbox>
-                      <v-checkbox
-                          v-if="accountRelation.kycStatus === 1"
-                          label="KYCd"
-                          input-value="true"
-                          disabled
-                      ></v-checkbox>
-                      <v-checkbox
-                          v-if="accountRelation.kycStatus === 2"
-                          label="KYCd"
+                          :input-value=accountRelation.kycStatus
                           disabled
                       ></v-checkbox>
                     </v-col>
@@ -102,7 +79,7 @@
                   <v-btn icon color="blue darken-1" :disabled="!canTransfer" @click="transferToken">
                     <v-icon>mdi-bank-transfer</v-icon>
                   </v-btn>
-                  <v-btn color="red darken-1" text @click="associate(false)">
+                  <v-btn color="red darken-1" text @click="dissociate()">
                     <v-icon>mdi-link-variant-off</v-icon>
                   </v-btn>
                 </v-card-actions>
@@ -111,7 +88,7 @@
               <div v-else>
                 <v-card-text v-if="!currentToken.associated">This token is not associated to this account</v-card-text>
                 <v-card-actions class="justify-end">
-                  <v-btn color="blue darken-1" text @click="associate(true)">
+                  <v-btn color="blue darken-1" text @click="associate()">
                     <v-icon>mdi-link-variant</v-icon>
                   </v-btn>
                 </v-card-actions>
@@ -132,6 +109,7 @@
 
 import {amountWithDecimals, getAccountDetails} from "../utils";
 import {EventBus} from "../eventBus";
+import {tokenAssociate, tokenDissociate} from "../service/tokenService";
 
 export default {
   name: "Wallet",
@@ -171,14 +149,18 @@ export default {
           this.setCurrentToken(this.tokens[walletToken]);
         }
       }
+      this.$forceUpdate();
     }, 1000);
   },
   beforeDestroy() {
     clearInterval(this.interval);
   },
   methods: {
-    associate(makeTheLink) {
-      console.log("associate " + makeTheLink + "-" + this.currentToken.tokenId);
+    associate() {
+      tokenAssociate(this.currentToken.tokenId, this.walletInstance);
+    },
+    dissociate() {
+      tokenDissociate(this.currentToken.tokenId, this.walletInstance);
     },
     transferToken() {
       let transferTo = "";
@@ -190,8 +172,8 @@ export default {
       const transfer = {
         operation: "transfer",
         tokenId: this.currentToken.tokenId,
-        transferFrom: getAccountDetails(this.walletInstance).accountId,
-        fixedDestination: transferTo
+        fixedDestination: transferTo,
+        user: this.walletInstance
       };
       EventBus.$emit("transferDialog", transfer);
     },
@@ -203,9 +185,10 @@ export default {
       this.currentToken = token;
       if (typeof token !== "undefined") {
         this.accountRelation = this.$store.getters.getAccounts[this.accountId].tokenRelationships[token.tokenId];
+        console.log(this.accountRelation);
         if (typeof this.accountRelation !== "undefined") {
           this.balance = amountWithDecimals(this.accountRelation.balance, this.currentToken.decimals);
-          this.canTransfer = (this.accountRelation.kycStatus === 1 && this.accountRelation.freezeStatus === 2);
+          this.canTransfer = (this.accountRelation.kycStatus && ! this.accountRelation.freezeStatus);
         } else {
           this.canTransfer = false;
           this.balance = 0;

@@ -58,7 +58,7 @@
       </v-btn>
       <v-btn
         color="red darken-1"
-        :disabled="this.isDeleted"
+        disabled
         icon
         @click="deleteToken"
       >
@@ -70,7 +70,8 @@
 
 <script>
 import { EventBus } from "../eventBus";
-import {amountWithDecimals} from "../utils";
+import { amountWithDecimals } from "../utils";
+import {tokenDelete} from "../service/tokenService";
 
 export default {
   name: "TokenCard",
@@ -90,7 +91,7 @@ export default {
   },
   created() {
     this.token = this.$store.getters.getTokens[this.tokenId];
-    this.defaultFreezeStatus = this.token.defaultFreezeStatus === 1;
+    this.defaultFreezeStatus = this.token.defaultFreezeStatus;
 
     // not clean but can't get VUEX to trigger a watch, this is a quick fix
     this.interval = setInterval(() => {
@@ -103,7 +104,7 @@ export default {
           this.token.totalSupply,
           this.token.decimals
       );
-      this.defaultFreezeStatus = this.token.defaultFreezeStatus === 1;
+      this.defaultFreezeStatus = this.token.defaultFreezeStatus;
     }, 1000);
   },
   beforeDestroy() {
@@ -130,7 +131,7 @@ export default {
         operation: "transfer",
         tokenId: this.tokenId,
         fixedDestination: "",
-        transferFrom: ""
+        user: "owner"
       };
       EventBus.$emit("transferDialog", transfer);
     },
@@ -160,10 +161,9 @@ export default {
       // };
       EventBus.$emit("busy", false);
     },
-    deleteToken() {
-      //TODO: Delete token
+    async deleteToken() {
       EventBus.$emit("busy", true);
-      console.log("Delete token");
+      await tokenDelete(this.token);
       EventBus.$emit("busy", false);
     }
   }
