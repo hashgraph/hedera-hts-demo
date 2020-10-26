@@ -7,14 +7,22 @@ export function hederaClientForUser(user) {
   return hederaClientLocal(account.accountId, account.privateKey);
 }
 
+function checkProvided(environmentVariable) {
+  if (environmentVariable === null) {
+    return false;
+  }
+  if (typeof environmentVariable === "undefined") {
+    return false;
+  }
+  return true;
+}
+
 export function hederaClient() {
 
   const operatorPrivateKey = process.env.VUE_APP_OPERATOR_KEY;
   const operatorAccount = process.env.VUE_APP_OPERATOR_ID;
-  if (
-      typeof operatorPrivateKey === "undefined" ||
-      typeof operatorAccount === "undefined"
-  ) {
+
+  if (! checkProvided(operatorPrivateKey) || ! checkProvided(operatorAccount)) {
     throw new Error(
         "environment variables VUE_APP_OPERATOR_KEY and VUE_APP_OPERATOR_ID must be present"
     );
@@ -23,35 +31,19 @@ export function hederaClient() {
 }
 
 function hederaClientLocal(operatorAccount, operatorPrivateKey) {
-  let client = Client.forTestnet();
-  client.setOperator(operatorAccount, operatorPrivateKey);
-  switch (process.env.VUE_APP_NETWORK) {
-    case "testnet":
-      client = Client.forTestnet();
-      break;
-    case "mainnet":
-      client = Client.forMainnet();
-      break;
-    case "previewnet":
-      client = Client.forPreviewnet();
-      break;
-    case "custom":
-      if (typeof process.env.VUE_APP_NETWORK_NODES === "undefined") {
-        throw new Error(
-          "VUE_APP_NETWORK_NODES must be set in .env for custom network"
-        );
-      }
-
-      client = Client.fromJson(
-        process.env.VUE_APP_NETWORK_NODES.replaceAll("\\", "")
-      );
-      break;
-    default:
-      throw new Error(
-        "environment variables VUE_APP_NETWORK must be one of testnet, mainne, previewnet or custom"
-      );
+  if (! checkProvided(process.env.VUE_APP_NETWORK)) {
+    throw new Error(
+        "VUE_APP_NETWORK_NODES must be set in .env"
+    );
   }
+  const network = {};
+  network.network = {};
+  network.network[process.env.VUE_APP_NETWORK] = {
+    shard: 0,
+    realm: 0,
+    account: 3,
+  }
+  const client = new Client(network);
   client.setOperator(operatorAccount, operatorPrivateKey);
-
   return client;
 }

@@ -916,8 +916,10 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@hashgraph/sdk@file:../../hedera-sdk-js":
-  version "1.4.1"
+"@hashgraph/sdk@^1.4.2":
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-1.4.2.tgz#aa2fd0283183245d83a91b35a227f966e099cc21"
+  integrity sha512-Emmu3KGKdNyL9pQJSP5t7B96jQQn9Pg4rv/7AwysTOujowt7k/mA6wI+3f4aOIBVwZwBbNvSZSriwlxg0SUjWw==
   dependencies:
     "@grpc/grpc-js" "^1.1.3"
     "@improbable-eng/grpc-web" "^0.13.0"
