@@ -1,4 +1,5 @@
 import { hederaClient } from "./client";
+import {EventBus} from "@/eventBus";
 const {
   Ed25519PrivateKey,
   AccountCreateTransaction,
@@ -19,6 +20,14 @@ export async function accountCreate(wallet) {
 
   const transactionReceipt = await transactionId.getReceipt(client);
   const newAccountId = transactionReceipt.getAccountId();
+
+  const transaction = {
+    id: transactionId,
+    type: "cryptoCreate",
+    inputs: "initialBalance=" + process.env.VUE_APP_INITIAL_BALANCE,
+    outputs: "accountId=" + newAccountId.toString()
+  };
+  EventBus.$emit("addTransaction", transaction);
 
   return {
     accountId: newAccountId.toString(),

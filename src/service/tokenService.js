@@ -10,6 +10,7 @@ import {
     TokenWipeTransaction
 } from "@hashgraph/sdk";
 import BigNumber from "bignumber.js";
+import {EventBus} from "@/eventBus";
 
 const {
     Ed25519PrivateKey,
@@ -99,6 +100,15 @@ export async function tokenCreate(token) {
             notifyError(transactionReceipt.status.message);
         } else {
             const newTokenId = transactionReceipt.getTokenId();
+
+            const transaction = {
+                id: transactionId,
+                type: "tokenCreate",
+                inputs: "Name=" + token.name + ", Symbol=" + token.symbol.toUpperCase() + ", Decimals=" + token.decimals + ", Supply=" + token.initialSupply + ", ...",
+                outputs: "tokenId=" + newTokenId.toString()
+            };
+            EventBus.$emit("addTransaction", transaction);
+
             tokenResponse = {
                 tokenId: newTokenId.toString(),
                 symbol: token.symbol.toUpperCase(),
@@ -145,15 +155,22 @@ async function tokenTransactionWithAmount(client, transaction, instruction, key)
         const transactionReceipt = await transactionId.getReceipt(client);
         if (transactionReceipt.status._isError()) {
             notifyError(transactionReceipt.status.message);
-            return false;
+            return {
+                status: false
+            };
         }
         notifySuccess(instruction.successMessage);
+        return {
+            status: true,
+            transactionId: transactionId
+        };
     } catch (err) {
         console.error(err);
         notifyError(err.message);
-        return false;
+        return {
+            status: false
+        };
     }
-    return true;
 }
 
 async function tokenTransactionWithIdAndAccount(client, transaction, instruction, key) {
@@ -170,16 +187,23 @@ async function tokenTransactionWithIdAndAccount(client, transaction, instruction
         const transactionReceipt = await transactionId.getReceipt(client);
         if (transactionReceipt.status._isError()) {
             notifyError(transactionReceipt.status.message);
-            return false;
+            return {
+                status: false,
+            };
         }
 
         notifySuccess(instruction.successMessage);
+        return {
+            status: true,
+            transactionId: transactionId
+        };
     } catch (err) {
         console.error(err);
         notifyError(err.message);
-        return false;
+        return {
+            status: false,
+        };
     }
-    return true;
 }
 
 export async function tokenBurn(instruction) {
@@ -188,7 +212,16 @@ export async function tokenBurn(instruction) {
     const supplyKey = Ed25519PrivateKey.fromString(token.supplyKey)
     const tx = await new TokenBurnTransaction();
     const client = ownerClient();
-    return await tokenTransactionWithAmount(client, tx, instruction, supplyKey);
+    const result = await tokenTransactionWithAmount(client, tx, instruction, supplyKey);
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenBurn",
+            inputs: "tokenId=" + instruction.tokenId + ", Amount=" + instruction.amount,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
 export async function tokenMint(instruction) {
@@ -197,7 +230,16 @@ export async function tokenMint(instruction) {
     const supplyKey = Ed25519PrivateKey.fromString(token.supplyKey)
     const tx = await new TokenMintTransaction();
     const client = ownerClient();
-    return await tokenTransactionWithAmount(client, tx, instruction, supplyKey);
+    const result = await tokenTransactionWithAmount(client, tx, instruction, supplyKey);
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenMint",
+            inputs: "tokenId=" + instruction.tokenId + ", Amount=" + instruction.amount,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
 export async function tokenWipe(instruction) {
@@ -206,7 +248,16 @@ export async function tokenWipe(instruction) {
     const supplyKey = Ed25519PrivateKey.fromString(token.wipeKey)
     const tx = await new TokenWipeTransaction();
     const client = ownerClient();
-    return await tokenTransactionWithAmount(client, tx, instruction, supplyKey);
+    const result = await tokenTransactionWithAmount(client, tx, instruction, supplyKey);
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenWipe",
+            inputs: "tokenId=" + instruction.tokenId + ", AccountId=" + instruction.accountId + ", Amount=" + instruction.amount,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
 export async function tokenFreeze(instruction) {
@@ -215,7 +266,16 @@ export async function tokenFreeze(instruction) {
     const tx = await new TokenFreezeTransaction();
     instruction.successMessage = "Account " + instruction.accountId + " frozen";
     const client = ownerClient();
-    return tokenTransactionWithIdAndAccount(client, tx, instruction, freezeKey);
+    const result = await tokenTransactionWithIdAndAccount(client, tx, instruction, freezeKey);
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenFreeze",
+            inputs: "tokenId=" + instruction.tokenId + ", AccountId=" + instruction.accountId,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
 export async function tokenUnFreeze(instruction) {
@@ -224,7 +284,16 @@ export async function tokenUnFreeze(instruction) {
     const tx = await new TokenUnfreezeTransaction();
     instruction.successMessage = "Account " + instruction.accountId + " defrosted";
     const client = ownerClient();
-    return tokenTransactionWithIdAndAccount(client, tx, instruction, freezeKey);
+    const result = tokenTransactionWithIdAndAccount(client, tx, instruction, freezeKey);
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenUnFreeze",
+            inputs: "tokenId=" + instruction.tokenId + ", AccountId=" + instruction.accountId,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
 export async function tokenGrantKYC(instruction) {
@@ -233,7 +302,16 @@ export async function tokenGrantKYC(instruction) {
     const tx = await new TokenGrantKycTransaction();
     instruction.successMessage = "Account " + instruction.accountId + " KYC Granted";
     const client = ownerClient();
-    return tokenTransactionWithIdAndAccount(client, tx, instruction, kycKey);
+    const result = tokenTransactionWithIdAndAccount(client, tx, instruction, kycKey);
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenGrantKYC",
+            inputs: "tokenId=" + instruction.tokenId + ", AccountId=" + instruction.accountId,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
 export async function tokenRevokeKYC(instruction) {
@@ -242,11 +320,19 @@ export async function tokenRevokeKYC(instruction) {
     const tx = await new TokenRevokeKycTransaction();
     instruction.successMessage = "Account " + instruction.accountId + " KYC Revoked";
     const client = ownerClient();
-    return tokenTransactionWithIdAndAccount(client, tx, instruction, kycKey);
+    const result = await tokenTransactionWithIdAndAccount(client, tx, instruction, kycKey);
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenRevokeKYC",
+            inputs: "tokenId=" + instruction.tokenId + ", AccountId=" + instruction.accountId,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
-async function tokenAssociationTransaction(transaction, tokenId, user, message) {
-    const account = getAccountDetails(user);
+async function tokenAssociationTransaction(transaction, tokenId, account, user, message) {
     const client = hederaClientForUser(user);
 
     const userKey = Ed25519PrivateKey.fromString(account.privateKey);
@@ -264,26 +350,53 @@ async function tokenAssociationTransaction(transaction, tokenId, user, message) 
         const transactionReceipt = await transactionId.getReceipt(client);
         if (transactionReceipt.status._isError()) {
             notifyError(transactionReceipt.status.message);
-            return false;
+            return {
+                status: false,
+            };
         }
 
         notifySuccess(message);
+        return {
+            status: true,
+            transactionId: transactionId
+        };
     } catch (err) {
         console.error(err);
         notifyError(err.message);
-        return false;
+        return {
+            status: false,
+        };
     }
-    return true;
 }
 
 export async function tokenAssociate(tokenId, user) {
+    const account = getAccountDetails(user);
     const tx = await new TokenAssociateTransaction();
-    return tokenAssociationTransaction(tx, tokenId, user, "token successfully associated");
+    const result = await tokenAssociationTransaction(tx, tokenId, account, user, "token successfully associated");
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenAssociate",
+            inputs: "tokenId=" + tokenId + ", AccountId=" + account.accountId,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
 export async function tokenDissociate(tokenId, user) {
+    const account = getAccountDetails(user);
     const tx = await new TokenDissociateTransaction();
-    return tokenAssociationTransaction(tx, tokenId, user, "token successfully dissociated");
+    const result = await tokenAssociationTransaction(tx, tokenId, account, user, "token successfully dissociated");
+    if (result.status) {
+        const transaction = {
+            id: result.transactionId,
+            type: "tokenDissociate",
+            inputs: "tokenId=" + tokenId + ", AccountId=" + account.accountId,
+        };
+        EventBus.$emit("addTransaction", transaction);
+    }
+    return result.status;
 }
 
 export async function tokenTransfer(tokenId, user, quantity, destination) {
@@ -304,6 +417,12 @@ export async function tokenTransfer(tokenId, user, quantity, destination) {
             return false;
         } else {
             notifySuccess("tokens transferred successfully");
+            const transaction = {
+                id: transactionId,
+                type: "tokenTransfer",
+                inputs: "tokenId=" + tokenId + ", from=" + account.accountId + ", to=" + destination + ", amount=" + quantity,
+            };
+            EventBus.$emit("addTransaction", transaction);
             return true;
         }
 
@@ -334,6 +453,12 @@ export async function tokenDelete(token) {
             return false;
         } else {
             notifySuccess("Token deleted successfully");
+            const transaction = {
+                id: transactionId,
+                type: "tokenDelete",
+                inputs: "tokenId=" + token.tokenId,
+            };
+            EventBus.$emit("addTransaction", transaction);
             return true;
         }
 

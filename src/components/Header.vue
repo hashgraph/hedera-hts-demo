@@ -32,7 +32,10 @@
     <v-btn icon @click="showCreate()">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
-    <v-btn icon @click="nuke()">
+    <v-btn icon @click="showTransactions()">
+      <v-icon>mdi-download-network</v-icon>
+    </v-btn>
+    <v-btn icon color="red" @click="nuke()">
       <v-icon>mdi-nuke</v-icon>
     </v-btn>
   </v-app-bar>
@@ -79,9 +82,14 @@ export default {
     showUI(ui) {
       EventBus.$emit("viewChange", ui);
     },
+    showTransactions() {
+      EventBus.$emit("showTransactions", "");
+    },
     nuke() {
       this.$store.commit("setPolling", false);
       EventBus.$emit("busy", true);
+      EventBus.$emit("nuke","");
+
       notifySuccess("Clearing demo. Please wait");
       setTimeout(() => {
         this.$store.commit("reset");

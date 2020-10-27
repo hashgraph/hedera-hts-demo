@@ -18,6 +18,7 @@
     <TokenCreateDialog />
     <MintBurnDialog />
     <TransferDialog />
+    <TransactionsDrawer />
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
       <v-card flat tile width="100%" :class="footerColor">
         <v-card-text :class="textColor">
@@ -37,12 +38,14 @@ import TokenDetailsDialog from "../components/TokenDetailsDialog";
 import MintBurnDialog from "../components/MintBurnDialog";
 import TokenCreateDialog from "../components/TokenCreateDialog"
 import TransferDialog from "../components/TransferDialog";
+import TransactionsDrawer from "@/components/TransactionsDrawer";
 
 let timer;
 
 export default {
   name: "Dashboard",
   components: {
+    TransactionsDrawer,
     TransferDialog,
     MintBurnDialog,
     TokenDetailsDialog,
