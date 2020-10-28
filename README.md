@@ -16,6 +16,8 @@ The demo enables you to:
 * Transfer from treasury (owner) to users
 * Transfer between users
 
+For convenience, accounts and tokens created during the demo will be persisted to a cookie and will be available when the demo is restarted.
+
 ## Prerequisites
 
 * A preview net account
