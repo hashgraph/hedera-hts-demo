@@ -19,7 +19,6 @@ export default new Vuex.Store({
   },
   mutations: {
     setPolling(state, polling) {
-      console.log("polling set to " + polling);
       state.enablePoll = polling;
     },
     setCurrentTokenId(state, tokenId) {
@@ -56,30 +55,9 @@ export default new Vuex.Store({
       if (typeof account !== "undefined") {
         const relationship = account.tokenRelationships[tokenId];
         if (typeof relationship !== "undefined") {
-          console.info(
-            "(wipe) account " + accountId + ", token " + tokenId + " wiped"
-          );
           state.accounts[accountId].tokenRelationships[tokenId].balance = 0;
-          // localStorage.setItem("accounts", JSON.stringify(state.accounts));
           state.nonce = Date.now().toString();
-          return;
-        } else {
-          console.warn(
-            "(wipe) account " +
-              accountId +
-              ", token " +
-              tokenId +
-              " no relation found"
-          );
         }
-      } else {
-        console.warn(
-          "(wipe) account " +
-            accountId +
-            ", token " +
-            tokenId +
-            " no account found"
-        );
       }
     },
     freezeAccount(state, freezeInstruction) {
@@ -91,36 +69,10 @@ export default new Vuex.Store({
         const relationship = account.tokenRelationships[tokenId];
         if (typeof relationship !== "undefined") {
           const freeze = freezeInstruction.freeze ? 1 : 2;
-          console.info(
-            "(freeze) account " +
-              accountId +
-              ", token " +
-              tokenId +
-              " (un)freeze=" +
-              freeze
-          );
           account.tokenRelationships[tokenId].freezeStatus = freeze;
           Vue.set(state.accounts, accountId, account);
           state.nonce = Date.now().toString();
-          console.log("freezeAccount " + state.accounts[accountId].tokenRelationships[tokenId].freezeStatus);
-          return;
-        } else {
-          console.warn(
-            "(freeze) account " +
-              accountId +
-              ", token " +
-              tokenId +
-              " no relation found"
-          );
         }
-      } else {
-        console.warn(
-          "(freeze) account " +
-            accountId +
-            ", token " +
-            tokenId +
-            " no account found"
-        );
       }
     },
     kycAccount(state, kycInstruction) {
@@ -132,34 +84,9 @@ export default new Vuex.Store({
         const relationship = account.tokenRelationships[tokenId];
         if (typeof relationship !== "undefined") {
           const kyc = kycInstruction.kyc ? 1 : 2;
-          console.info(
-            "(kyc) account " +
-              accountId +
-              ", token " +
-              tokenId +
-              " (un)kyc=" +
-              kyc
-          );
           state.accounts[accountId].tokenRelationships[tokenId].kycStatus = kyc;
           state.nonce = Date.now().toString();
-          return;
-        } else {
-          console.warn(
-            "(kyc) account " +
-              accountId +
-              ", token " +
-              tokenId +
-              " no relation found"
-          );
         }
-      } else {
-        console.warn(
-          "(kyc) account " +
-            accountId +
-            ", token " +
-            tokenId +
-            " no account found"
-        );
       }
     }
   },
@@ -248,7 +175,6 @@ export default new Vuex.Store({
     },
     async fetch({ dispatch, state }) {
       if (!state.enablePoll) {
-        console.log("Polling disabled");
         return;
       }
       await dispatch("fetchAccounts");
