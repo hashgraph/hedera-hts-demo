@@ -15,8 +15,11 @@ The demo enables you to:
 
 ## Prerequisites
 
+* A preview net account
+* Node.js v14.9.0
 * Yarn 1.22.10
 * Docker 
+* Docker compose (optional)
 
 ## Environment files
 
@@ -29,7 +32,25 @@ Edit `.env` and setup the following variables
 * VUE_APP_NETWORK="http://localhost"
 * VUE_APP_INITIAL_BALANCE=1
 
-## gRPCWeb envoy proxy
+## I just want to run it quickly
+
+You can deploy the UI with docker-compose after you have edited the `.env` file above.
+
+Build
+```shell script
+docker-compose build
+```
+
+Run
+```shell script
+docker-compose up
+```
+
+Note: `docker-compose` build is only necessary the first time, or if you make changes to the code or `.env` file to (re)build the images. 
+
+## I want to build it myself
+
+### gRPCWeb envoy proxy
 
 The UI requires a gRPCWeb proxy in order to successfully send transactions to the Hedera network from the UI client.
 
@@ -42,22 +63,22 @@ cd envoy
 
 (Note, the `envoy.yaml` file is currently setup to communicate with `previewNet`)
 
-## Project setup
+### Project setup
 ```
 yarn install
 ```
 
-### Compiles and hot-reloads for development
+#### Compiles and hot-reloads for development
 ```
 yarn serve
 ```
 
-### Compiles and minifies for production
+#### Compiles and minifies for production
 ```
 yarn build
 ```
 
-### Lints and fixes files
+#### Lints and fixes files
 ```
 yarn lint
 ```
@@ -65,6 +86,7 @@ yarn lint
 ## Using the UI
 
 Navigate to the URL output by the `serve` command (e.g. http://localhost:8080/) to access the UI.
+If you are running docker-compose, the url is `http://localhost:8080`.
 
 The Header has links for the following:
 * An admin page where you can manage tokens
