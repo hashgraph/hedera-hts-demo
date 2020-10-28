@@ -1,3 +1,6 @@
+[![GitHub](https://img.shields.io/github/license/hashgraph/hedera-hts-demo)](LICENSE)
+[![Discord](https://img.shields.io/badge/discord-join%20chat-blue.svg)](https://hedera.com/discord)
+
 # Hedera Token Service (HTS) demo
 
 This demo is a user interface written in Javascript (Vue.JS) to illustrate the use of the Hedera Token Service. When first launched, the demo will create three accounts as follows:
