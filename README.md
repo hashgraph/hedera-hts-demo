@@ -1,4 +1,4 @@
-[![GitHub](https://img.shields.io/github/license/hashgraph/hedera-hts-demo)](LICENSE)
+[![GitHub license](https://img.shields.io/github/license/hashgraph/hedera-hts-demo)](https://github.com/hashgraph/hedera-hts-demo/blob/master/LICENSE)
 [![Discord](https://img.shields.io/badge/discord-join%20chat-blue.svg)](https://hedera.com/discord)
 
 # Hedera Token Service (HTS) demo
