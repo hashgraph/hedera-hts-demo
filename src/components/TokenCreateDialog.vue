@@ -22,7 +22,7 @@
                 <v-col cols="4">
                   <v-text-field
                     label="Symbol*"
-                    :rules="textRules"
+                    :rules="textOnlyRules"
                     v-model="symbol"
                     required
                   ></v-text-field>
@@ -32,7 +32,7 @@
                     label="Decimals*"
                     required
                     v-model="decimals"
-                    :rules="numberRules"
+                    :rules="integerRules"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="4">
@@ -40,7 +40,7 @@
                     label="Initial Supply*"
                     required
                     v-model="initialSupply"
-                    :rules="numberRules"
+                    :rules="integerRules"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -134,8 +134,12 @@ export default {
       freezeKey: true,
       kycKey: true,
       supplyKey: true,
-      numberRules: [v => v == parseInt(v) || "Plain numeric required"],
-      textRules: [v => !!v || "Input required"]
+      integerRules: [v => v == parseInt(v) || "Integer required"],
+      textRules: [v => !!v || "Input required"],
+      textOnlyRules: [
+        v => !!v || "Input required",
+        v => /^[a-zA-Z]*$/.test(v) || "Only letters are allowed"
+      ]
     };
   },
   created() {
@@ -190,11 +194,8 @@ export default {
       };
       const newToken = await tokenCreate(token);
       if (typeof newToken.tokenId !== "undefined") {
-        console.log("new token " + newToken.tokenId);
         this.$store.commit("setToken", newToken);
         this.dialog = false;
-      } else {
-        console.log("Token creation failed");
       }
       EventBus.$emit("busy", false);
     }
