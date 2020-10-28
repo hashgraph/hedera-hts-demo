@@ -109,3 +109,17 @@ Clicking on the accounts button (left most) will show which accounts are current
 
 Choosing one of the user accounts in the header allows you to associate or dissociate the account from a token.
 Once associated (and subject to the account being KYCd and unfrozen if appropriate for the token), you can transfer to the other user account.
+
+## Contributing
+
+Contributions are welcome. Please see the [contributing](CONTRIBUTING.md) guide to see how you can get
+involved.
+
+## Code of Conduct
+
+This project is governed by the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). By participating, you are
+expected to uphold this code of conduct. Please report unacceptable behavior to [oss@hedera.com](mailto:oss@hedera.com)
+
+## License
+
+[Apache License 2.0](LICENSE)
