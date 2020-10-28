@@ -8,7 +8,9 @@ export async function accountGetInfo(accountId) {
   try {
     // cycle token relationships
     let tokenRelationships = {};
-    const info = await new AccountInfoQuery().setAccountId(accountId).execute(client);
+    const info = await new AccountInfoQuery()
+      .setAccountId(accountId)
+      .execute(client);
     const hBarBalance = info.balance;
 
     for (let key of info.tokenRelationships.keys()) {
@@ -17,14 +19,13 @@ export async function accountGetInfo(accountId) {
         hbarBalance: hBarBalance.toString(),
         balance: info.tokenRelationships.get(key).balance.toString(),
         freezeStatus: info.tokenRelationships.get(key).freezeStatus,
-        kycStatus: info.tokenRelationships.get(key).kycStatus,
+        kycStatus: info.tokenRelationships.get(key).kycStatus
       };
       tokenRelationships[key] = tokenRelationship;
     }
 
-    return  tokenRelationships;
+    return tokenRelationships;
   } catch (err) {
-    console.log("Get account info = failed, " + err.message);
     notifyError("getAccountInfo " + err.message);
     return undefined;
   }

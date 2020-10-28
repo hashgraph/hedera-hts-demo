@@ -31,7 +31,7 @@ import AccountCard from "../components/AccountCard";
 export default {
   name: "Accounts",
   components: {
-    AccountCard,
+    AccountCard
   },
   data: function() {
     return {

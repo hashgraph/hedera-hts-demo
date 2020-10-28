@@ -4,22 +4,26 @@
       ><a :href="mirrorURL" target="_blank">{{ accountRelation.accountId }}</a>
       {{ owner }}</v-card-title
     >
-    <v-card-title class="justify-center">Token Balance: {{ balance }}</v-card-title>
-    <v-card-subtitle class="justify-center">hBar Balance: {{ accountRelation.hbarBalance }}</v-card-subtitle>
+    <v-card-title class="justify-center"
+      >Token Balance: {{ balance }}</v-card-title
+    >
+    <v-card-subtitle class="justify-center"
+      >hBar Balance: {{ accountRelation.hbarBalance }}</v-card-subtitle
+    >
     <v-card-text>
       <v-row>
         <v-col cols="6">
           <v-checkbox
             label="Frozen"
             disabled
-            :input-value=relation.freezeStatus
+            :input-value="relation.freezeStatus"
           ></v-checkbox>
         </v-col>
         <v-col cols="6">
           <v-checkbox
             label="KYCd"
             disabled
-            :input-value=relation.kycStatus
+            :input-value="relation.kycStatus"
           ></v-checkbox>
         </v-col>
       </v-row>
@@ -33,12 +37,7 @@
       >
         Unfreeze
       </v-btn>
-      <v-btn
-        v-else
-        color="red darken-1"
-        @click="freeze(true)"
-        text
-      >
+      <v-btn v-else color="red darken-1" @click="freeze(true)" text>
         Freeze
       </v-btn>
       <v-btn
@@ -49,12 +48,7 @@
       >
         Revoke KYC
       </v-btn>
-      <v-btn
-        v-else
-        color="green darken-1"
-        @click="kyc(true)"
-        text
-      >
+      <v-btn v-else color="green darken-1" @click="kyc(true)" text>
         Grant KYC
       </v-btn>
       <v-btn v-if="wipeKey" color="red darken-1" @click="wipe" text>
@@ -65,7 +59,13 @@
 </template>
 
 <script>
-import {tokenGrantKYC, tokenRevokeKYC, tokenFreeze, tokenWipe, tokenUnFreeze} from "../service/tokenService";
+import {
+  tokenGrantKYC,
+  tokenRevokeKYC,
+  tokenFreeze,
+  tokenWipe,
+  tokenUnFreeze
+} from "../service/tokenService";
 
 import { EventBus } from "../eventBus";
 import { amountWithDecimals } from "../utils";
@@ -83,9 +83,11 @@ export default {
           .wallet === "owner"
           ? " (Owner)"
           : "",
-      cardColor: this.$store.getters.getAccounts[this.accountRelation.accountId].account
+      cardColor:
+        this.$store.getters.getAccounts[this.accountRelation.accountId].account
           .wallet === "owner"
-          ? "yellow lighten-4" : "",
+          ? "yellow lighten-4"
+          : "",
       mirrorURL: "https://explorer.kabuto.sh/testnet/id/".concat(
         this.accountRelation.accountId
       ),
@@ -101,8 +103,8 @@ export default {
     // not clean but can't get VUEX to trigger a watch, this is a quick fix
     this.interval = setInterval(() => {
       this.relation = this.$store.getters.getAccounts[
-          this.accountRelation.accountId
-          ].tokenRelationships[this.accountRelation.token.tokenId];
+        this.accountRelation.accountId
+      ].tokenRelationships[this.accountRelation.token.tokenId];
     }, 1000);
   },
   beforeDestroy() {
@@ -124,7 +126,6 @@ export default {
         tokenId: this.accountRelation.token.tokenId,
         amount: this.relation.balance
       };
-      console.log(wipeInstruction);
       if (await tokenWipe(wipeInstruction)) {
         this.$store.commit("wipeAccount", wipeInstruction);
       }
@@ -134,7 +135,7 @@ export default {
       EventBus.$emit("busy", true);
       const freezeInstruction = {
         accountId: this.accountRelation.accountId,
-        tokenId: this.accountRelation.token.tokenId,
+        tokenId: this.accountRelation.token.tokenId
       };
       if (freezeStatus) {
         await tokenFreeze(freezeInstruction);
@@ -147,7 +148,7 @@ export default {
       EventBus.$emit("busy", true);
       const kycInstruction = {
         accountId: this.accountRelation.accountId,
-        tokenId: this.accountRelation.token.tokenId,
+        tokenId: this.accountRelation.token.tokenId
       };
       if (kyc) {
         await tokenGrantKYC(kycInstruction);

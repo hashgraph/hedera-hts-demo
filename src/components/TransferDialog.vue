@@ -11,33 +11,33 @@
               <v-row v-if="transferFrom">
                 <v-col cols="12">
                   <v-text-field
-                      label="From"
-                      v-model="transferFrom"
-                      disabled
+                    label="From"
+                    v-model="transferFrom"
+                    disabled
                   ></v-text-field>
                 </v-col>
               </v-row>
               <v-row>
                 <v-col cols="6" v-if="fixedDestination">
                   <v-text-field
-                      label="To"
-                      v-model="fixedDestination"
-                      disabled
+                    label="To"
+                    v-model="fixedDestination"
+                    disabled
                   ></v-text-field>
                 </v-col>
                 <v-col cols="6" v-else>
                   <v-select
-                      :items="accounts"
-                      label="To"
-                      v-model="destination"
+                    :items="accounts"
+                    label="To"
+                    v-model="destination"
                   ></v-select>
                 </v-col>
                 <v-col cols="6">
                   <v-text-field
-                      label="Quantity* (includes decimals, for 100.02 input 10002)"
-                      :rules="numberRules"
-                      v-model="quantity"
-                      required
+                    label="Quantity* (includes decimals, for 100.02 input 10002)"
+                    :rules="integerRules"
+                    v-model="quantity"
+                    required
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -50,10 +50,10 @@
               Cancel
             </v-btn>
             <v-btn
-                color="blue darken-1"
-                text
-                @click="transfer"
-                :disabled="!formValid"
+              color="blue darken-1"
+              text
+              @click="transfer"
+              :disabled="!formValid"
             >
               Transfer
             </v-btn>
@@ -65,9 +65,8 @@
 </template>
 
 <script>
-
-import {EventBus} from "../eventBus";
-import {getUserAccounts} from "../utils";
+import { EventBus } from "../eventBus";
+import { getUserAccounts } from "../utils";
 import { tokenTransfer } from "../service/tokenService";
 
 export default {
@@ -81,20 +80,24 @@ export default {
       destination: "",
       fixedDestination: "",
       tokenId: "",
-      numberRules: [v => v == parseInt(v) || "Plain numeric required"],
-      transferFrom: "",
+      integerRules: [v => v == parseInt(v) || "Integer required"],
+      transferFrom: ""
     };
   },
   computed: {
     formValid() {
-      return this.valid && (this.destination !== "");
+      return this.valid && this.destination !== "";
     }
   },
   methods: {
     async transfer() {
-      console.log("transferring " + this.quantity + " to " + this.destination);
-      this.dialog = ! await tokenTransfer(this.tokenId, this.user, this.quantity, this.destination);
-    },
+      this.dialog = !(await tokenTransfer(
+        this.tokenId,
+        this.user,
+        this.quantity,
+        this.destination
+      ));
+    }
   },
   created() {
     EventBus.$on("transferDialog", operation => {
@@ -108,8 +111,7 @@ export default {
       this.user = operation.user;
       this.dialog = true;
     });
-  },
-
+  }
 };
 </script>
 

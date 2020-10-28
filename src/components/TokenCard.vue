@@ -30,18 +30,18 @@
         <v-icon>mdi-account-multiple</v-icon>
       </v-btn>
       <v-btn
-          :disabled="!this.token.supplyKey"
-          color="blue darken-1"
-          icon
-          @click="mintToken"
+        :disabled="!this.token.supplyKey"
+        color="blue darken-1"
+        icon
+        @click="mintToken"
       >
         <v-icon>mdi-bank-plus</v-icon>
       </v-btn>
       <v-btn
-          :disabled="!this.token.supplyKey"
-          color="red darken-1"
-          icon
-          @click="burnToken"
+        :disabled="!this.token.supplyKey"
+        color="red darken-1"
+        icon
+        @click="burnToken"
       >
         <v-icon>mdi-bank-minus</v-icon>
       </v-btn>
@@ -56,12 +56,7 @@
       >
         <v-icon>mdi-file-document-edit-outline</v-icon>
       </v-btn>
-      <v-btn
-        color="red darken-1"
-        disabled
-        icon
-        @click="deleteToken"
-      >
+      <v-btn color="red darken-1" disabled icon @click="deleteToken">
         <v-icon>mdi-delete-outline</v-icon>
       </v-btn>
     </v-card-actions>
@@ -71,7 +66,7 @@
 <script>
 import { EventBus } from "../eventBus";
 import { amountWithDecimals } from "../utils";
-import {tokenDelete} from "../service/tokenService";
+import { tokenDelete } from "../service/tokenService";
 
 export default {
   name: "TokenCard",
@@ -86,7 +81,7 @@ export default {
       defaultFreezeStatus: false,
       mirrorURL: "",
       totalSupply: 0.0,
-      interval: undefined,
+      interval: undefined
     };
   },
   created() {
@@ -97,12 +92,12 @@ export default {
     this.interval = setInterval(() => {
       this.token = this.$store.getters.getTokens[this.tokenId];
       this.mirrorURL = "https://explorer.kabuto.sh/testnet/id/".concat(
-          this.tokenId
+        this.tokenId
       );
       this.isDeleted = this.token.deleted;
       this.totalSupply = amountWithDecimals(
-          this.token.totalSupply,
-          this.token.decimals
+        this.token.totalSupply,
+        this.token.decimals
       );
       this.defaultFreezeStatus = this.token.defaultFreezeStatus;
     }, 1000);

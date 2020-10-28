@@ -1,28 +1,20 @@
 <template>
-  <v-navigation-drawer
-      v-model="drawer"
-      absolute
-      temporary
-      right
-      width="400px"
-  >
+  <v-navigation-drawer v-model="drawer" absolute temporary right width="400px">
     <v-list-item>
       <v-list-item-content>
-        <v-list-item-title>Transactions</v-list-item-title>
+        <v-list-item-title>Successful Transactions</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
 
     <v-divider></v-divider>
 
     <v-list dense>
-      <div
-          v-for="transaction in transactions"
-          :key="transaction.id"
-          link
-      >
+      <div v-for="transaction in transactions" :key="transaction.id" link>
         <v-list-item>
           <v-list-item-content align="left">
-            <v-list-item-title><strong>{{ transaction.type }}</strong></v-list-item-title>
+            <v-list-item-title
+              ><strong>{{ transaction.type }}</strong></v-list-item-title
+            >
           </v-list-item-content>
         </v-list-item>
         <v-list-item align="left">
@@ -46,14 +38,14 @@
   </v-navigation-drawer>
 </template>
 <script>
-import {EventBus} from "@/eventBus";
+import { EventBus } from "@/eventBus";
 
 export default {
   name: "TransactionsDrawer",
   data: function() {
     return {
       drawer: null,
-      transactions: [],
+      transactions: []
     };
   },
   created() {
@@ -67,9 +59,7 @@ export default {
       this.transactions = [];
     });
   }
-}
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

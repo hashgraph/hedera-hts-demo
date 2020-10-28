@@ -31,42 +31,42 @@
             </v-row>
             <v-row>
               <v-col cols="6"
-              ><v-text-field
+                ><v-text-field
                   label="Treasury"
                   :value="token.treasury"
                   outlined
                   dense
                   disabled
-              ></v-text-field>
+                ></v-text-field>
               </v-col>
               <v-col cols="6"
-              ><v-text-field
+                ><v-text-field
                   label="Auto Renew Account"
                   :value="token.autoRenewAccount"
                   outlined
                   dense
                   disabled
-              ></v-text-field>
+                ></v-text-field>
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="6"
-              ><v-text-field
+                ><v-text-field
                   label="Auto Renew Period"
                   :value="autoRenewPeriod"
                   outlined
                   dense
                   disabled
-              ></v-text-field>
+                ></v-text-field>
               </v-col>
               <v-col cols="6"
-              ><v-text-field
+                ><v-text-field
                   label="Expiry"
                   :value="expiry"
                   outlined
                   dense
                   disabled
-              ></v-text-field>
+                ></v-text-field>
               </v-col>
             </v-row>
 
@@ -105,29 +105,28 @@
             <v-row>
               <v-col cols="6">
                 <v-checkbox
-                    v-model="token.freezeKey"
-                    label="Freeze"
-                    disabled
+                  v-model="token.freezeKey"
+                  label="Freeze"
+                  disabled
                 ></v-checkbox>
               </v-col>
               <v-col cols="6">
                 <v-checkbox
-                    v-model="defaultFreezeStatus"
-                    disabled
-                    label="Default Freeze"
+                  v-model="defaultFreezeStatus"
+                  disabled
+                  label="Default Freeze"
                 ></v-checkbox>
               </v-col>
             </v-row>
             <v-row>
               <v-col cols="6">
                 <v-checkbox
-                    v-model="token.isDeleted"
-                    label="Deleted"
-                    disabled
+                  v-model="token.isDeleted"
+                  label="Deleted"
+                  disabled
                 ></v-checkbox>
               </v-col>
-              <v-col cols="6">
-              </v-col>
+              <v-col cols="6"> </v-col>
             </v-row>
           </v-container>
         </v-card-text>
@@ -143,7 +142,11 @@
 </template>
 <script>
 import { EventBus } from "../eventBus";
-import { amountWithDecimals, localTimeFromSeconds, secondsToParts } from "../utils";
+import {
+  amountWithDecimals,
+  localTimeFromSeconds,
+  secondsToParts
+} from "../utils";
 
 export default {
   name: "TokenDetailsDialog",
@@ -156,7 +159,7 @@ export default {
       defaultFreezeStatus: false,
       supply: 0,
       expiry: 0,
-      autoRenewPeriod: "",
+      autoRenewPeriod: ""
     };
   },
   created() {

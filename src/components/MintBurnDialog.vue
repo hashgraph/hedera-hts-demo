@@ -4,7 +4,9 @@
       <v-form ref="form" v-model="valid" lazy-validation>
         <v-card>
           <v-card-title>
-            <span v-if="operation === 'mint'" class="headline">Mint additional tokens</span>
+            <span v-if="operation === 'mint'" class="headline"
+              >Mint additional tokens</span
+            >
             <span v-else class="headline">Burn tokens</span>
           </v-card-title>
           <v-card-text>
@@ -12,10 +14,10 @@
               <v-row>
                 <v-col cols="12">
                   <v-text-field
-                      label="Quantity* (includes decimals, for 100.02 input 10002)"
-                      :rules="numberRules"
-                      v-model="quantity"
-                      required
+                    label="Quantity* (includes decimals, for 100.02 input 10002)"
+                    :rules="integerRules"
+                    v-model="quantity"
+                    required
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -28,20 +30,20 @@
               Cancel
             </v-btn>
             <v-btn
-                color="blue darken-1"
-                text
-                @click="mint"
-                :disabled="!valid"
-                v-if="operation === 'mint'"
+              color="blue darken-1"
+              text
+              @click="mint"
+              :disabled="!valid"
+              v-if="operation === 'mint'"
             >
               Mint
             </v-btn>
             <v-btn
-                color="blue darken-1"
-                text
-                @click="burn"
-                :disabled="!valid"
-                v-if="operation === 'burn'"
+              color="blue darken-1"
+              text
+              @click="burn"
+              :disabled="!valid"
+              v-if="operation === 'burn'"
             >
               Burn
             </v-btn>
@@ -53,9 +55,8 @@
 </template>
 
 <script>
-
-import {EventBus} from "../eventBus";
-import {tokenBurn, tokenMint} from "../service/tokenService";
+import { EventBus } from "../eventBus";
+import { tokenBurn, tokenMint } from "../service/tokenService";
 
 export default {
   name: "MintBurnDialog",
@@ -66,7 +67,7 @@ export default {
       quantity: "",
       operation: "",
       tokenId: "",
-      numberRules: [v => v == parseInt(v) || "Plain numeric required"],
+      integerRules: [v => v == parseInt(v) || "Integer required"]
     };
   },
   methods: {
@@ -75,15 +76,15 @@ export default {
         tokenId: this.tokenId,
         amount: this.quantity
       };
-      this.dialog = ! await tokenMint(instruction);
+      this.dialog = !(await tokenMint(instruction));
     },
     async burn() {
       const instruction = {
         tokenId: this.tokenId,
         amount: this.quantity
       };
-      this.dialog = ! await tokenBurn(instruction);
-    },
+      this.dialog = !(await tokenBurn(instruction));
+    }
   },
   created() {
     EventBus.$on("mintBurnDialog", operation => {
@@ -93,8 +94,7 @@ export default {
       this.operation = operation.operation;
       this.dialog = true;
     });
-  },
-
+  }
 };
 </script>
 

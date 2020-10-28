@@ -12,7 +12,7 @@
       <div v-else><Tokens /></div>
     </div>
     <div v-else>
-      <Wallet v-bind:walletInstance="showUI" :key="walletKey"/>
+      <Wallet v-bind:walletInstance="showUI" :key="walletKey" />
     </div>
     <TokenDetailsDialog />
     <TokenCreateDialog />
@@ -36,7 +36,7 @@ import Wallet from "../components/Wallet";
 import { EventBus } from "../eventBus";
 import TokenDetailsDialog from "../components/TokenDetailsDialog";
 import MintBurnDialog from "../components/MintBurnDialog";
-import TokenCreateDialog from "../components/TokenCreateDialog"
+import TokenCreateDialog from "../components/TokenCreateDialog";
 import TransferDialog from "../components/TransferDialog";
 import TransactionsDrawer from "@/components/TransactionsDrawer";
 
@@ -67,7 +67,7 @@ export default {
       busy: false,
       showUI: "admin",
       walletKey: 0
-    }
+    };
   },
   created() {
     EventBus.$on("busy", busy => {
@@ -93,7 +93,7 @@ export default {
         this.footerColor = "primary";
       }, 5000);
     });
-  },
+  }
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

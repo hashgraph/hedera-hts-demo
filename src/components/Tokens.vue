@@ -16,7 +16,7 @@ import TokenCard from "../components/TokenCard";
 export default {
   name: "Tokens",
   components: {
-    TokenCard,
+    TokenCard
   },
   data: function() {
     return {

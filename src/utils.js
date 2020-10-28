@@ -20,7 +20,7 @@ export function getUserAccounts() {
   let accounts = [];
   if (state.getters.numberOfAccounts !== 0) {
     for (const key in state.getters.getAccounts) {
-      if (state.getters.getAccounts[key].account.wallet !== 'owner') {
+      if (state.getters.getAccounts[key].account.wallet !== "owner") {
         accounts.push(key);
       }
     }
