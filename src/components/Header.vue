@@ -14,15 +14,12 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn text @click="showUI('admin')">
-      Admin
-    </v-btn>
+    <v-btn class="ma-2" rounded :color="ownerButtonColor" @click="showUI('admin')"> {{ walletOwner }} (Owner) </v-btn>
     <div v-if="numberOfAccounts !== 0">
-      <v-btn text :disabled="numberOfTokens === 0" @click="showUI('wallet1')">
+      <v-btn class="ma-2" rounded :color="wallet1ButtonColor" :disabled="numberOfTokens === 0" @click="showUI('wallet1')">
         {{ walletId1 }}
       </v-btn>
-
-      <v-btn text  :disabled="numberOfTokens === 0" @click="showUI('wallet2')">
+      <v-btn class="ma-2" rounded :color="wallet2ButtonColor" :disabled="numberOfTokens === 0" @click="showUI('wallet2')">
         {{ walletId2 }}
       </v-btn>
     </div>
@@ -35,14 +32,15 @@
     <v-btn icon @click="showTransactions()">
       <v-icon>mdi-download-network</v-icon>
     </v-btn>
-    <v-btn icon color="red" @click="nuke()">
+    <v-btn icon color="red-dark" @click="nuke()">
       <v-icon>mdi-nuke</v-icon>
     </v-btn>
   </v-app-bar>
 </template>
 
+<!-- Add "scoped" attribute to limit CSS to this component only -->
 <script>
-import {getAccountDetails, notifySuccess} from "../utils";
+import { getAccountDetails, notifySuccess } from "../utils";
 import { EventBus } from "../eventBus";
 export default {
   name: "Header",
@@ -52,7 +50,11 @@ export default {
       numberOfTokens: this.$store.getters.numberOfTokens,
       walletId2: "",
       walletId1: "",
+      walletOwner: "",
       interval: undefined,
+      ownerButtonColor: "success",
+      wallet1ButtonColor: "primary",
+      wallet2ButtonColor: "primary",
     };
   },
   created() {
@@ -70,16 +72,33 @@ export default {
       this.numberOfTokens = this.$store.getters.numberOfTokens;
 
       if (this.numberOfAccounts === 3) {
-        const wallet1 = getAccountDetails("wallet1");
-        this.walletId1 = wallet1.accountId;
-        const wallet2 = getAccountDetails("wallet2");
-        this.walletId2 = wallet2.accountId;
+        this.walletId1 = getAccountDetails("wallet1").accountId;
+        this.walletId2 = getAccountDetails("wallet2").accountId;
+        this.walletOwner = getAccountDetails("owner").accountId;
       }
     },
     showCreate() {
       EventBus.$emit("tokenCreate", "");
     },
     showUI(ui) {
+      switch (ui) {
+        case "admin":
+          this.ownerButtonColor = "success";
+          this.wallet1ButtonColor = "primary";
+          this.wallet2ButtonColor = "primary";
+          break;
+        case "wallet1":
+          this.ownerButtonColor = "primary";
+          this.wallet1ButtonColor = "success";
+          this.wallet2ButtonColor = "primary";
+          break;
+        case "wallet2":
+          this.ownerButtonColor = "primary";
+          this.wallet1ButtonColor = "primary";
+          this.wallet2ButtonColor = "success";
+          break;
+      }
+
       EventBus.$emit("viewChange", ui);
     },
     showTransactions() {
@@ -88,7 +107,7 @@ export default {
     nuke() {
       this.$store.commit("setPolling", false);
       EventBus.$emit("busy", true);
-      EventBus.$emit("nuke","");
+      EventBus.$emit("nuke", "");
 
       notifySuccess("Clearing demo. Please wait");
       setTimeout(() => {
@@ -100,7 +119,6 @@ export default {
   }
 };
 </script>
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h3 {
   margin: 40px 0 0;
