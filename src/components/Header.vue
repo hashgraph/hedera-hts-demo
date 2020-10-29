@@ -32,7 +32,7 @@
     <v-btn icon @click="showTransactions()">
       <v-icon>mdi-download-network</v-icon>
     </v-btn>
-    <v-btn icon color="red-dark" @click="nuke()">
+    <v-btn icon color="red" @click="nuke()">
       <v-icon>mdi-nuke</v-icon>
     </v-btn>
   </v-app-bar>
