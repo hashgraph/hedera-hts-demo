@@ -18,6 +18,8 @@ The demo enables you to:
 
 For convenience, accounts and tokens created during the demo will be persisted to a cookie and will be available when the demo is restarted.
 
+** Note: This is purely for demonstration purposes and should not be used as-is in production **
+
 ## Prerequisites
 
 * A preview net account
