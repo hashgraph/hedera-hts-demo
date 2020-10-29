@@ -112,7 +112,7 @@
               </v-col>
               <v-col cols="6">
                 <v-checkbox
-                  v-model="defaultFreezeStatus"
+                  v-model="token.defaultFreezeStatus"
                   disabled
                   label="Default Freeze"
                 ></v-checkbox>
@@ -156,7 +156,6 @@ export default {
       valid: false,
       dialog: false,
       initialSupply: 0,
-      defaultFreezeStatus: false,
       supply: 0,
       expiry: 0,
       autoRenewPeriod: ""
