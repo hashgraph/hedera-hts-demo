@@ -1,4 +1,4 @@
-[![GitHub](https://img.shields.io/github/license/hashgraph/hedera-hts-demo)](LICENSE)
+[![GitHub license](https://img.shields.io/github/license/hashgraph/hedera-hts-demo)](https://github.com/hashgraph/hedera-hts-demo/blob/master/LICENSE)
 [![Discord](https://img.shields.io/badge/discord-join%20chat-blue.svg)](https://hedera.com/discord)
 
 # Hedera Token Service (HTS) demo
@@ -17,6 +17,8 @@ The demo enables you to:
 * Transfer between users
 
 For convenience, accounts and tokens created during the demo will be persisted to a cookie and will be available when the demo is restarted.
+
+** Note: This is purely for demonstration purposes and should not be used as-is in production **
 
 ## Prerequisites
 
