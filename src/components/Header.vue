@@ -29,10 +29,13 @@
     <v-btn icon @click="showCreate()">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
+    <v-btn icon @click="showCompose()">
+      <v-icon>mdi-music</v-icon>
+    </v-btn>
     <v-btn icon @click="showTransactions()">
       <v-icon>mdi-download-network</v-icon>
     </v-btn>
-    <v-btn icon color="red" @click="nuke()">
+    <v-btn icon class="ml-6" color="red" @click="nuke()">
       <v-icon>mdi-nuke</v-icon>
     </v-btn>
   </v-app-bar>
@@ -76,6 +79,9 @@ export default {
         this.walletId2 = getAccountDetails("wallet2").accountId;
         this.walletOwner = getAccountDetails("owner").accountId;
       }
+    },
+    showCompose() {
+      EventBus.$emit("tokenCompose", "");
     },
     showCreate() {
       EventBus.$emit("tokenCreate", "");
