@@ -50,7 +50,6 @@ export async function tokenCreate(token) {
   let tokenResponse = {};
   const autoRenewPeriod = 7776000; // set to default 3 months
 
-  // get private key and account for owner from accounts
   try {
     let additionalSig = false;
     let sigKey;
