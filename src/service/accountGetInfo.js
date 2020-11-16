@@ -1,7 +1,6 @@
 import { hederaClient } from "./client";
 import { notifyError } from "../utils";
 const { AccountInfoQuery } = require("@hashgraph/sdk");
-// import state from "../store/store"
 
 export async function accountGetInfo(accountId) {
   const client = hederaClient();
