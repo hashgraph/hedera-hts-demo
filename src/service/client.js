@@ -33,14 +33,10 @@ function hederaClientLocal(operatorAccount, operatorPrivateKey) {
   if (!checkProvided(process.env.VUE_APP_NETWORK)) {
     throw new Error("VUE_APP_NETWORK_NODES must be set in .env");
   }
+
   const network = {};
-  network.network = {};
-  network.network[process.env.VUE_APP_NETWORK] = {
-    shard: 0,
-    realm: 0,
-    account: 3
-  };
-  const client = new Client(network);
+  network[process.env.VUE_APP_NETWORK] = "0.0.3";
+  const client = Client.forNetwork(network);
   client.setOperator(operatorAccount, operatorPrivateKey);
   return client;
 }

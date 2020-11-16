@@ -115,7 +115,7 @@
 <script>
 import { EventBus } from "../eventBus";
 import { tokenCreate } from "../service/tokenService";
-import { Ed25519PrivateKey } from "@hashgraph/sdk";
+import { PrivateKey } from "@hashgraph/sdk";
 import { getAccountDetails } from "../utils";
 
 export default {
@@ -166,7 +166,7 @@ export default {
     },
     async create() {
       EventBus.$emit("busy", true);
-      const privateKey = await Ed25519PrivateKey.generate();
+      const privateKey = await PrivateKey.generate();
       let _defaultFreezeStatus = false;
       if (this.freezeKey) {
         if (this.defaultFreezeStatus) {

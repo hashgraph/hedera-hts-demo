@@ -1,7 +1,12 @@
 import { hederaClient, hederaClientForUser } from "./client";
 import { getAccountDetails, notifyError, notifySuccess } from "../utils";
 import state from "../store/store";
-import {
+import { EventBus } from "@/eventBus";
+import store from "@/store/store";
+
+const {
+  PrivateKey,
+  TokenCreateTransaction,
   TokenAssociateTransaction,
   TokenBurnTransaction,
   TokenDeleteTransaction,
@@ -11,17 +16,11 @@ import {
   TokenInfoQuery,
   TokenMintTransaction,
   TokenRevokeKycTransaction,
-  TokenTransferTransaction,
+  TransferTransaction,
   TokenUnfreezeTransaction,
-  TokenWipeTransaction
-} from "@hashgraph/sdk";
-import BigNumber from "bignumber.js";
-import { EventBus } from "@/eventBus";
-
-const {
-  Ed25519PrivateKey,
-  TokenCreateTransaction,
-  Hbar
+  TokenWipeTransaction,
+  Hbar,
+  Status
 } = require("@hashgraph/sdk");
 
 function ownerClient() {
@@ -37,7 +36,7 @@ export async function tokenGetInfo(token) {
       .execute(client);
 
     tokenResponse.totalSupply = info.totalSupply;
-    tokenResponse.expiry = info.expirationTime.getTime() / 1000
+    tokenResponse.expiry = info.expirationTime.seconds;
   } catch (err) {
     notifyError(err.message);
   }
@@ -46,35 +45,34 @@ export async function tokenGetInfo(token) {
 }
 
 export async function tokenCreate(token) {
-  const operatorAccount = process.env.VUE_APP_OPERATOR_ID;
   let tokenResponse = {};
   const autoRenewPeriod = 7776000; // set to default 3 months
-
+  const ownerAccount = getAccountDetails("owner").accountId.toString();
   try {
     let additionalSig = false;
     let sigKey;
     const tx = await new TokenCreateTransaction();
-    tx.setName(token.name);
-    tx.setSymbol(token.symbol.toUpperCase());
+    tx.setTokenName(token.name);
+    tx.setTokenSymbol(token.symbol.toUpperCase());
     tx.setDecimals(token.decimals);
     tx.setInitialSupply(token.initialSupply);
-    tx.setTreasury(token.treasury);
+    tx.setTreasuryAccountId(token.treasury);
     tx.setAutoRenewAccount(token.autoRenewAccount);
     tx.setMaxTransactionFee(new Hbar(1));
     tx.setAutoRenewPeriod(autoRenewPeriod);
 
     if (token.adminKey) {
-      sigKey = Ed25519PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.adminKey);
       tx.setAdminKey(sigKey.publicKey);
       additionalSig = true;
     }
     if (token.kycKey) {
-      sigKey = Ed25519PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.adminKey);
       tx.setKycKey(sigKey.publicKey);
       additionalSig = true;
     }
     if (token.freezeKey) {
-      sigKey = Ed25519PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.adminKey);
       tx.setFreezeKey(sigKey.publicKey);
       additionalSig = true;
       tx.setFreezeDefault(token.defaultFreezeStatus);
@@ -83,34 +81,35 @@ export async function tokenCreate(token) {
     }
     if (token.wipeKey) {
       additionalSig = true;
-      sigKey = Ed25519PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.adminKey);
       tx.setWipeKey(sigKey.publicKey);
     }
     if (token.supplyKey) {
       additionalSig = true;
-      sigKey = Ed25519PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.adminKey);
       tx.setSupplyKey(sigKey.publicKey);
     }
     const client = ownerClient();
-    let txToRun = await tx.build(client);
+
+    await tx.signWithOperator(client);
 
     if (additionalSig) {
       // TODO: should sign with every key (check docs)
       // since the admin/kyc/... keys are all the same, a single sig is sufficient
-      await txToRun.sign(sigKey);
+      await tx.sign(sigKey);
     }
 
-    const transactionId = await txToRun.execute(client);
+    const response = await tx.execute(client);
 
-    const transactionReceipt = await transactionId.getReceipt(client);
+    const transactionReceipt = await response.getReceipt(client);
 
-    if (transactionReceipt.status._isError()) {
-      notifyError(transactionReceipt.status.message);
+    if (transactionReceipt.status !== Status.Success) {
+      notifyError(transactionReceipt.status.toString());
     } else {
-      const newTokenId = transactionReceipt.getTokenId();
+      const newTokenId = transactionReceipt.tokenId;
 
       const transaction = {
-        id: transactionId.toString(),
+        id: response.transactionId.toString(),
         type: "tokenCreate",
         inputs:
           "Name=" +
@@ -132,7 +131,7 @@ export async function tokenCreate(token) {
         name: token.name,
         totalSupply: token.initialSupply,
         decimals: token.decimals,
-        autoRenewAccount: operatorAccount,
+        autoRenewAccount: ownerAccount,
         autoRenewPeriod: autoRenewPeriod,
         defaultFreezeStatus: token.defaultFreezeStatus,
         kycKey: token.kycKey,
@@ -142,9 +141,11 @@ export async function tokenCreate(token) {
         supplyKey: token.supplyKey,
         expiry: "",
         isDeleted: false,
-        treasury: operatorAccount
+        treasury: ownerAccount
       };
 
+      // force refresh
+      await store.dispatch("fetch");
       notifySuccess("token created successfully");
     }
     return tokenResponse;
@@ -165,25 +166,27 @@ async function tokenTransactionWithAmount(
     if (typeof instruction.accountId !== "undefined") {
       transaction.setAccountId(instruction.accountId);
     }
-    transaction.setAmount(new BigNumber(instruction.amount));
+    transaction.setAmount(instruction.amount);
     transaction.setMaxTransactionFee(new Hbar(1));
 
-    const txToRun = await transaction.build(client);
-    await txToRun.sign(key);
+    await transaction.signWithOperator(client);
+    await transaction.sign(key);
 
-    const transactionId = await txToRun.execute(client);
+    const response = await transaction.execute(client);
 
-    const transactionReceipt = await transactionId.getReceipt(client);
-    if (transactionReceipt.status._isError()) {
-      notifyError(transactionReceipt.status.message);
+    const transactionReceipt = await response.getReceipt(client);
+    if (transactionReceipt.status !== Status.Success) {
+      notifyError(transactionReceipt.status.toString());
       return {
         status: false
       };
     }
+    // force refresh
+    await store.dispatch("fetch");
     notifySuccess(instruction.successMessage);
     return {
       status: true,
-      transactionId: transactionId.toString()
+      transactionId: response.transactionId.toString()
     };
   } catch (err) {
     notifyError(err.message);
@@ -204,23 +207,25 @@ async function tokenTransactionWithIdAndAccount(
     transaction.setAccountId(instruction.accountId);
     transaction.setMaxTransactionFee(new Hbar(1));
 
-    const txToRun = await transaction.build(client);
-    await txToRun.sign(key);
+    await transaction.signWithOperator(client);
+    await transaction.sign(key);
 
-    const transactionId = await txToRun.execute(client);
+    const response = await transaction.execute(client);
 
-    const transactionReceipt = await transactionId.getReceipt(client);
-    if (transactionReceipt.status._isError()) {
-      notifyError(transactionReceipt.status.message);
+    const transactionReceipt = await response.getReceipt(client);
+    if (transactionReceipt.status !== Status.Success) {
+      notifyError(transactionReceipt.status.toString());
       return {
         status: false
       };
     }
 
+    // force refresh
+    await store.dispatch("fetch");
     notifySuccess(instruction.successMessage);
     return {
       status: true,
-      transactionId: transactionId.toString()
+      transactionId: response.transactionId.toString()
     };
   } catch (err) {
     notifyError(err.message);
@@ -234,7 +239,7 @@ export async function tokenBurn(instruction) {
   instruction.successMessage =
     "Burnt " + instruction.amount + " from token " + instruction.tokenId;
   const token = state.getters.getTokens[instruction.tokenId];
-  const supplyKey = Ed25519PrivateKey.fromString(token.supplyKey);
+  const supplyKey = PrivateKey.fromString(token.supplyKey);
   const tx = await new TokenBurnTransaction();
   const client = ownerClient();
   const result = await tokenTransactionWithAmount(
@@ -259,7 +264,7 @@ export async function tokenMint(instruction) {
   instruction.successMessage =
     "Minted " + instruction.amount + " for token " + instruction.tokenId;
   const token = state.getters.getTokens[instruction.tokenId];
-  const supplyKey = Ed25519PrivateKey.fromString(token.supplyKey);
+  const supplyKey = PrivateKey.fromString(token.supplyKey);
   const tx = await new TokenMintTransaction();
   const client = ownerClient();
   const result = await tokenTransactionWithAmount(
@@ -284,7 +289,7 @@ export async function tokenWipe(instruction) {
   instruction.successMessage =
     "Wiped " + instruction.amount + " from account " + instruction.accountId;
   const token = state.getters.getTokens[instruction.tokenId];
-  const supplyKey = Ed25519PrivateKey.fromString(token.wipeKey);
+  const supplyKey = PrivateKey.fromString(token.wipeKey);
   const tx = await new TokenWipeTransaction();
   const client = ownerClient();
   const result = await tokenTransactionWithAmount(
@@ -312,7 +317,7 @@ export async function tokenWipe(instruction) {
 
 export async function tokenFreeze(instruction) {
   const token = state.getters.getTokens[instruction.tokenId];
-  const freezeKey = Ed25519PrivateKey.fromString(token.freezeKey);
+  const freezeKey = PrivateKey.fromString(token.freezeKey);
   const tx = await new TokenFreezeTransaction();
   instruction.successMessage = "Account " + instruction.accountId + " frozen";
   const client = ownerClient();
@@ -339,7 +344,7 @@ export async function tokenFreeze(instruction) {
 
 export async function tokenUnFreeze(instruction) {
   const token = state.getters.getTokens[instruction.tokenId];
-  const freezeKey = Ed25519PrivateKey.fromString(token.freezeKey);
+  const freezeKey = PrivateKey.fromString(token.freezeKey);
   const tx = await new TokenUnfreezeTransaction();
   instruction.successMessage =
     "Account " + instruction.accountId + " defrosted";
@@ -367,7 +372,7 @@ export async function tokenUnFreeze(instruction) {
 
 export async function tokenGrantKYC(instruction) {
   const token = state.getters.getTokens[instruction.tokenId];
-  const kycKey = Ed25519PrivateKey.fromString(token.kycKey);
+  const kycKey = PrivateKey.fromString(token.kycKey);
   const tx = await new TokenGrantKycTransaction();
   instruction.successMessage =
     "Account " + instruction.accountId + " KYC Granted";
@@ -395,7 +400,7 @@ export async function tokenGrantKYC(instruction) {
 
 export async function tokenRevokeKYC(instruction) {
   const token = state.getters.getTokens[instruction.tokenId];
-  const kycKey = Ed25519PrivateKey.fromString(token.kycKey);
+  const kycKey = PrivateKey.fromString(token.kycKey);
   const tx = await new TokenRevokeKycTransaction();
   instruction.successMessage =
     "Account " + instruction.accountId + " KYC Revoked";
@@ -430,30 +435,32 @@ async function tokenAssociationTransaction(
 ) {
   const client = hederaClientForUser(user);
 
-  const userKey = Ed25519PrivateKey.fromString(account.privateKey);
+  const userKey = PrivateKey.fromString(account.privateKey);
 
   try {
-    transaction.addTokenId(tokenId);
+    transaction.setTokenIds([tokenId]);
     transaction.setAccountId(account.accountId);
     transaction.setMaxTransactionFee(new Hbar(1));
 
-    const txToRun = await transaction.build(client);
-    await txToRun.sign(userKey);
+    await transaction.signWithOperator(client);
+    await transaction.sign(userKey);
 
-    const transactionId = await txToRun.execute(client);
+    const response = await transaction.execute(client);
 
-    const transactionReceipt = await transactionId.getReceipt(client);
-    if (transactionReceipt.status._isError()) {
-      notifyError(transactionReceipt.status.message);
+    const transactionReceipt = await response.getReceipt(client);
+    if (transactionReceipt.status !== Status.Success) {
+      notifyError(transactionReceipt.status.toString());
       return {
         status: false
       };
     }
 
+    // force refresh
+    await store.dispatch("fetch");
     notifySuccess(message);
     return {
       status: true,
-      transactionId: transactionId.toString()
+      transactionId: response.transactionId.toString()
     };
   } catch (err) {
     notifyError(err.message);
@@ -509,22 +516,24 @@ export async function tokenTransfer(tokenId, user, quantity, destination) {
   const account = getAccountDetails(user);
   const client = hederaClientForUser(user);
   try {
-    const tx = await new TokenTransferTransaction();
-    tx.addSender(tokenId, account.accountId, new BigNumber(quantity));
-    tx.addRecipient(tokenId, destination, new BigNumber(quantity));
+    const tx = await new TransferTransaction();
+    tx.addTokenTransfer(tokenId, account.accountId, -quantity);
+    tx.addTokenTransfer(tokenId, destination, quantity);
     tx.setMaxTransactionFee(new Hbar(1));
 
-    const transactionId = await tx.execute(client);
+    const result = await tx.execute(client);
 
-    const transactionReceipt = await transactionId.getReceipt(client);
+    const transactionReceipt = await result.getReceipt(client);
 
-    if (transactionReceipt.status._isError()) {
-      notifyError(transactionReceipt.status.message);
+    if (transactionReceipt.status !== Status.Success) {
+      notifyError(transactionReceipt.status.toString());
       return false;
     } else {
+      // force refresh
+      await store.dispatch("fetch");
       notifySuccess("tokens transferred successfully");
       const transaction = {
-        id: transactionId.toString(),
+        id: result.transactionId.toString(),
         type: "tokenTransfer",
         inputs:
           "tokenId=" +
@@ -552,22 +561,24 @@ export async function tokenDelete(token) {
     tx.setTokenId(token.tokenId);
     tx.setMaxTransactionFee(new Hbar(1));
 
+    await tx.signWithOperator(client);
     if (typeof token.adminKey !== "undefined") {
-      tx = tx.build(client);
-      tx.sign(Ed25519PrivateKey.fromString(token.adminKey));
+      await tx.sign(PrivateKey.fromString(token.adminKey));
     }
 
-    const transactionId = await tx.execute(client);
+    const response = await tx.execute(client);
 
-    const transactionReceipt = await transactionId.getReceipt(client);
+    const transactionReceipt = await response.getReceipt(client);
 
-    if (transactionReceipt.status._isError()) {
-      notifyError(transactionReceipt.status.message);
+    if (transactionReceipt.status !== Status.SUCCESS) {
+      notifyError(transactionReceipt.status.toString());
       return false;
     } else {
+      // force refresh
+      await store.dispatch("fetch");
       notifySuccess("Token deleted successfully");
       const transaction = {
-        id: transactionId.toString(),
+        id: response.transactionId.toString(),
         type: "tokenDelete",
         inputs: "tokenId=" + token.tokenId
       };
