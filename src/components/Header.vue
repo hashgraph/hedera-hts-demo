@@ -14,12 +14,31 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn class="ma-2" rounded :color="ownerButtonColor" @click="showUI('admin')"> {{ walletOwner }} (Owner) </v-btn>
+    <v-btn
+      class="ma-2"
+      rounded
+      :color="ownerButtonColor"
+      @click="showUI('admin')"
+    >
+      {{ walletOwner }} (Owner)
+    </v-btn>
     <div v-if="numberOfAccounts !== 0">
-      <v-btn class="ma-2" rounded :color="wallet1ButtonColor" :disabled="numberOfTokens === 0" @click="showUI('wallet1')">
+      <v-btn
+        class="ma-2"
+        rounded
+        :color="wallet1ButtonColor"
+        :disabled="numberOfTokens === 0"
+        @click="showUI('wallet1')"
+      >
         {{ walletId1 }}
       </v-btn>
-      <v-btn class="ma-2" rounded :color="wallet2ButtonColor" :disabled="numberOfTokens === 0" @click="showUI('wallet2')">
+      <v-btn
+        class="ma-2"
+        rounded
+        :color="wallet2ButtonColor"
+        :disabled="numberOfTokens === 0"
+        @click="showUI('wallet2')"
+      >
         {{ walletId2 }}
       </v-btn>
     </div>
@@ -57,7 +76,7 @@ export default {
       interval: undefined,
       ownerButtonColor: "success",
       wallet1ButtonColor: "primary",
-      wallet2ButtonColor: "primary",
+      wallet2ButtonColor: "primary"
     };
   },
   created() {
