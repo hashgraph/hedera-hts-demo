@@ -65,19 +65,26 @@
                   <v-row>
                     <v-col cols="12">
                       <v-text-field
-                        label="Balance"
-                        :value="balance"
-                        outlined
-                        dense
-                        disabled
+                          label="Token Balance"
+                          :value="balance"
+                          outlined
+                          dense
+                          disabled
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                          label="hBar Balance"
+                          :value="accountRelation.hbarBalance"
+                          outlined
+                          dense
+                          disabled
                       ></v-text-field>
                     </v-col>
                   </v-row>
                 </v-card-text>
-                <v-card-subtitle class="justify-center"
-                  >hBar Balance:
-                  {{ accountRelation.hbarBalance }}</v-card-subtitle
-                >
                 <v-card-actions class="justify-end">
                   <v-btn
                     icon

@@ -3,6 +3,7 @@ import { getAccountDetails, notifyError, notifySuccess } from "../utils";
 import state from "../store/store";
 import { EventBus } from "@/eventBus";
 import store from "@/store/store";
+import {getPrivateKeyForAccount} from "@/utils";
 
 const {
   PrivateKey,
@@ -514,7 +515,7 @@ export async function tokenDissociate(tokenId, user) {
   return result.status;
 }
 
-export async function tokenTransfer(tokenId, user, quantity, destination) {
+export async function tokenTransfer(tokenId, user, quantity, hbar, destination) {
   const account = getAccountDetails(user);
   const client = hederaClientForUser(user);
   try {
@@ -522,9 +523,17 @@ export async function tokenTransfer(tokenId, user, quantity, destination) {
     tx.addTokenTransfer(tokenId, account.accountId, -quantity);
     tx.addTokenTransfer(tokenId, destination, quantity);
     tx.setMaxTransactionFee(new Hbar(1));
+    tx.setMaxTransactionFee(new Hbar(1));
+    if (hbar !== 0) {
+      // token recipient pays in hBar and signs transaction
+      tx.addHbarTransfer(destination, new Hbar(-hbar));
+      tx.addHbarTransfer(account.accountId, new Hbar(hbar));
+      tx.freezeWith(client);
+      const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(destination));
+      await tx.sign(sigKey);
+    }
 
     const result = await tx.execute(client);
-
     const transactionReceipt = await result.getReceipt(client);
 
     if (transactionReceipt.status !== Status.Success) {
@@ -552,6 +561,7 @@ export async function tokenTransfer(tokenId, user, quantity, destination) {
     }
   } catch (err) {
     notifyError(err.message);
+    console.log(err.message);
     return false;
   }
 }

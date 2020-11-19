@@ -32,12 +32,24 @@
                     v-model="destination"
                   ></v-select>
                 </v-col>
-                <v-col cols="6">
+              </v-row>
+              <v-row>
+                <v-col cols="12">
                   <v-text-field
-                    label="Quantity* (includes decimals, for 100.02 input 10002)"
-                    :rules="integerRules"
-                    v-model="quantity"
-                    required
+                      label="Token Quantity* (includes decimals, for 100.02 input 10002)"
+                      :rules="integerRules"
+                      v-model="quantity"
+                      required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                      label="hBar* (Token(s) recipient pays in hBar)"
+                      :rules="integerRules"
+                      v-model="hBars"
+                      required
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -76,7 +88,8 @@ export default {
       accounts: getUserAccounts(),
       valid: false,
       dialog: false,
-      quantity: "",
+      quantity: 0,
+      hBars: 0,
       destination: "",
       fixedDestination: "",
       tokenId: "",
@@ -95,7 +108,8 @@ export default {
         this.tokenId,
         this.user,
         this.quantity,
-        this.destination
+        this.hBars,
+        this.destination,
       ));
     }
   },

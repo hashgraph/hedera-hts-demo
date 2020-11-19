@@ -32,6 +32,10 @@ export function amountWithDecimals(amount, decimals) {
   return (amount / parseFloat(Math.pow(10, decimals))).toFixed(decimals);
 }
 
+export function getPrivateKeyForAccount(accountId) {
+  return state.getters.getAccounts[accountId].account.privateKey;
+}
+
 export function getAccountDetails(account) {
   if (state.getters.numberOfAccounts !== 0) {
     for (const key in state.getters.getAccounts) {
