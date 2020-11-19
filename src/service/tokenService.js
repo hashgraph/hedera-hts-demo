@@ -36,7 +36,7 @@ export async function tokenGetInfo(token) {
       .execute(client);
 
     tokenResponse.totalSupply = info.totalSupply;
-    tokenResponse.expiry = info.expirationTime.seconds;
+    tokenResponse.expiry = info.expirationTime.toDate();
   } catch (err) {
     notifyError(err.message);
   }
@@ -57,7 +57,7 @@ export async function tokenCreate(token) {
     tx.setDecimals(token.decimals);
     tx.setInitialSupply(token.initialSupply);
     tx.setTreasuryAccountId(token.treasury);
-    tx.setAutoRenewAccount(token.autoRenewAccount);
+    tx.setAutoRenewAccountId(token.autoRenewAccount);
     tx.setMaxTransactionFee(new Hbar(1));
     tx.setAutoRenewPeriod(autoRenewPeriod);
 
@@ -106,7 +106,7 @@ export async function tokenCreate(token) {
     if (transactionReceipt.status !== Status.Success) {
       notifyError(transactionReceipt.status.toString());
     } else {
-      const newTokenId = transactionReceipt.tokenId;
+      token.tokenId = transactionReceipt.tokenId;
 
       const transaction = {
         id: response.transactionId.toString(),
@@ -121,12 +121,14 @@ export async function tokenCreate(token) {
           ", Supply=" +
           token.initialSupply +
           ", ...",
-        outputs: "tokenId=" + newTokenId.toString()
+        outputs: "tokenId=" + token.tokenId.toString()
       };
       EventBus.$emit("addTransaction", transaction);
 
+      const tokenInfo = await tokenGetInfo(token);
+
       tokenResponse = {
-        tokenId: newTokenId.toString(),
+        tokenId: token.tokenId.toString(),
         symbol: token.symbol.toUpperCase(),
         name: token.name,
         totalSupply: token.initialSupply,
@@ -139,7 +141,7 @@ export async function tokenCreate(token) {
         freezeKey: token.freezeKey,
         adminKey: token.adminKey,
         supplyKey: token.supplyKey,
-        expiry: "",
+        expiry: tokenInfo.expiry,
         isDeleted: false,
         treasury: ownerAccount
       };

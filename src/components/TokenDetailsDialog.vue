@@ -144,7 +144,6 @@
 import { EventBus } from "../eventBus";
 import {
   amountWithDecimals,
-  localTimeFromSeconds,
   secondsToParts
 } from "../utils";
 
@@ -167,7 +166,7 @@ export default {
       vm.dialog = true;
       vm.token = value;
       vm.supply = amountWithDecimals(value.totalSupply, value.decimals);
-      vm.expiry = localTimeFromSeconds(value.expiry);
+      vm.expiry = value.expiry;
       vm.autoRenewPeriod = secondsToParts(value.autoRenewPeriod);
     });
   }
