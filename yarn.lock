@@ -904,18 +904,18 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@hashgraph/cryptography@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@hashgraph/cryptography/-/cryptography-1.0.6.tgz#a19072b5829cd89c413686018785bf644f7ca7cf"
-  integrity sha512-r2DX2WM/B8hkHIiP/b91yxKCfO5QrczExZzqiltj+Ex8W4u83fvGM4m/TRg5IpzQQcOCo//OCRzcGHdQxAnpkQ==
+"@hashgraph/cryptography@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@hashgraph/cryptography/-/cryptography-1.0.7.tgz#4e93f29067fc15ace2be0e5f3c8c33a0cf7fa475"
+  integrity sha512-oEyy+YUHLaDPDhIemZUxDkcuy/lZv9WBEzVxGOCqiSBEqGCkJgCG9H1hpoKIovcwFeAsVsOMn3Ujz5N20eXRAw==
   dependencies:
     bignumber.js "^9.0.1"
     tweetnacl "^1.0.3"
 
-"@hashgraph/proto@^1.0.14":
-  version "1.0.14"
-  resolved "https://registry.yarnpkg.com/@hashgraph/proto/-/proto-1.0.14.tgz#d47aabc60fdc0bda4c457d94e1d7f3ab054f8e5d"
-  integrity sha512-kBUQv5/0tBD6Wg9b4gqE88gv3s4SEOAeOayF3KthEwlXapA3QenwF2gpNXd0zslEuBKtqHVcybEKMBx6EBQJkA==
+"@hashgraph/proto@^1.0.16":
+  version "1.0.16"
+  resolved "https://registry.yarnpkg.com/@hashgraph/proto/-/proto-1.0.16.tgz#5ecc562e7acd278832f9dd584ef38d4cb77bd736"
+  integrity sha512-z6quQTyZ6CH2NTvnNtKZBfawp1SV2rqVtsPWHGi5xijWIWPLPg/RWe/Sq9AwcuFhCzMzBQcEhpMQfLN/i9qMig==
   dependencies:
     "@hashgraph/protobufjs" "^6.10.1-hashgraph.2"
 
@@ -938,14 +938,12 @@
     "@types/node" "^13.7.0"
     long "^4.0.0"
 
-"@hashgraph/sdk@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-2.0.0.tgz#008263ab57fbec2c226fd394be80733f2c6753d6"
-  integrity sha512-Df2meAJHeZ0fMe1mdtkMkDg2r3y8Rv2wb25orWL4VN1xVvxBDe/U7ha+PPaxlR/NucKIjtJNA+hMwPoW4fiwEw==
+"@hashgraph/sdk@file:../hedera-sdk-js":
+  version "2.0.2"
   dependencies:
     "@grpc/grpc-js" "^1.2.0"
-    "@hashgraph/cryptography" "^1.0.6"
-    "@hashgraph/proto" "^1.0.14"
+    "@hashgraph/cryptography" "^1.0.7"
+    "@hashgraph/proto" "^1.0.16"
     bignumber.js "^9.0.1"
     long "^4.0.0"
 
