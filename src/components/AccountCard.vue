@@ -16,39 +16,53 @@
           <v-checkbox
             label="Frozen"
             disabled
-            :input-value="relation.freezeStatus"
+            :input-value="freezeStatus"
           ></v-checkbox>
         </v-col>
         <v-col cols="6">
           <v-checkbox
             label="KYCd"
             disabled
-            :input-value="relation.kycStatus"
+            :input-value="kycStatus"
           ></v-checkbox>
         </v-col>
       </v-row>
     </v-card-text>
     <v-card-actions class="justify-center">
       <v-btn
-        v-if="relation.freezeStatus"
+        v-if="freezeStatus"
         color="green darken-1"
         @click="freeze(false)"
+        :disabled="relation.freezeStatus === null"
         text
       >
         Unfreeze
       </v-btn>
-      <v-btn v-else color="red darken-1" @click="freeze(true)" text>
+      <v-btn
+          v-else
+          color="red darken-1"
+          @click="freeze(true)"
+          text
+          :disabled="relation.freezeStatus === null"
+      >
         Freeze
       </v-btn>
       <v-btn
-        v-if="relation.kycStatus"
+        v-if="kycStatus"
         color="red darken-1"
         @click="kyc(false)"
+        :disabled="relation.kycStatus === null"
         text
       >
         Revoke KYC
       </v-btn>
-      <v-btn v-else color="green darken-1" @click="kyc(true)" text>
+      <v-btn
+          v-else
+          color="green darken-1"
+          @click="kyc(true)"
+          text
+          :disabled="relation.kycStatus === null"
+        >
         Grant KYC
       </v-btn>
       <v-btn v-if="wipeKey" color="red darken-1" @click="wipe" text>
@@ -96,7 +110,9 @@ export default {
       relation: this.$store.getters.getAccounts[this.accountRelation.accountId]
         .tokenRelationships[this.accountRelation.token.tokenId],
       wipeKey: this.accountRelation.token.wipeKey,
-      interval: undefined
+      interval: undefined,
+      kycStatus: false,
+      freezeStatus: false,
     };
   },
   created() {
@@ -105,6 +121,17 @@ export default {
       this.relation = this.$store.getters.getAccounts[
         this.accountRelation.accountId
       ].tokenRelationships[this.accountRelation.token.tokenId];
+
+      if (this.relation.kycStatus === null) {
+        this.kycStatus = false;
+      } else {
+        this.kycStatus = this.relation.kycStatus;
+      }
+      if (this.relation.freezeStatus === null) {
+        this.freezeStatus = false;
+      } else {
+        this.freezeStatus = this.relation.freezeStatus;
+      }
     }, 1000);
   },
   beforeDestroy() {

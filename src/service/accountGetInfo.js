@@ -17,8 +17,8 @@ export async function accountGetInfo(accountId) {
         tokenId: key.toString(),
         hbarBalance: hBarBalance.toString(),
         balance: info.tokenRelationships.get(key).balance.toString(),
-        freezeStatus: info.tokenRelationships.get(key).freezeStatus,
-        kycStatus: info.tokenRelationships.get(key).kycStatus
+        freezeStatus: info.tokenRelationships.get(key).isFrozen,
+        kycStatus: info.tokenRelationships.get(key).isKycGranted
       };
       tokenRelationships[key] = tokenRelationship;
     }

@@ -47,17 +47,17 @@
               <div v-if="currentToken.associated">
                 <v-card-text>
                   <v-row>
-                    <v-col cols="6">
+                    <v-col cols="6" v-if="this.accountRelation.freezeStatus !== null">
                       <v-checkbox
                         label="Frozen"
-                        :input-value="accountRelation.freezeStatus"
+                        :input-value="freezeStatus"
                         disabled
                       ></v-checkbox>
                     </v-col>
-                    <v-col cols="6">
+                    <v-col cols="6" v-if="this.accountRelation.kycStatus !== null">
                       <v-checkbox
                         label="KYCd"
-                        :input-value="accountRelation.kycStatus"
+                        :input-value="kycStatus"
                         disabled
                       ></v-checkbox>
                     </v-col>
@@ -134,7 +134,9 @@ export default {
       accountRelation: undefined,
       canTransfer: false,
       balance: 0,
-      hbarBalance: 0
+      hbarBalance: 0,
+      kycStatus: false,
+      freezeStatus: false
     };
   },
   computed: {
@@ -210,9 +212,22 @@ export default {
             this.accountRelation.balance,
             this.currentToken.decimals
           );
-          this.canTransfer =
-            this.accountRelation.kycStatus &&
-            !this.accountRelation.freezeStatus;
+          if (this.accountRelation.kycStatus === null) {
+            this.kycStatus = false;
+          } else {
+            this.kycStatus = this.accountRelation.kycStatus;
+          }
+          if (this.accountRelation.freezeStatus === null) {
+            this.freezeStatus = false;
+          } else {
+            this.freezeStatus = this.accountRelation.freezeStatus;
+          }
+
+          this.canTransfer = (this.accountRelation.freezeStatus === null) ||
+            (
+              this.kycStatus &&
+              !this.freezeStatus
+            );
         } else {
           this.canTransfer = false;
           this.balance = 0;
