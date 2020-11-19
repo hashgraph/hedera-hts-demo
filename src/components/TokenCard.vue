@@ -100,7 +100,6 @@ export default {
         this.token.decimals
       );
       this.defaultFreezeStatus = this.token.defaultFreezeStatus;
-      console.log(this.token.expiry);
     }, 1000);
   },
   beforeDestroy() {

@@ -561,7 +561,6 @@ export async function tokenTransfer(tokenId, user, quantity, hbar, destination) 
     }
   } catch (err) {
     notifyError(err.message);
-    console.log(err.message);
     return false;
   }
 }
