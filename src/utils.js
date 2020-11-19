@@ -50,12 +50,6 @@ export function getAccountDetails(account) {
   };
 }
 
-export function localTimeFromSeconds(seconds) {
-  let d = new Date(0);
-  d.setUTCSeconds(seconds);
-  return d.toLocaleString();
-}
-
 export function secondsToParts(seconds) {
   const secondsInMonth = 30 * 24 * 60 * 60;
   const secondsInDay = 24 * 60 * 60;
