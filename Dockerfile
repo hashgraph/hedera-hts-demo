@@ -11,9 +11,7 @@ ADD ./src /srv/hedera-hts-demo/src
 ADD ./public /srv/hedera-hts-demo/public
 
 RUN cd /srv/hedera-hts-demo && yarn install
-RUN cd /srv/hedera-hts-demo && ls
 RUN cd /srv/hedera-hts-demo && yarn build
-RUN cd /srv/hedera-hts-demo && ls
 
 FROM nginx:alpine
 
