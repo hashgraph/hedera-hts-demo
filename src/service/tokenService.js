@@ -3,7 +3,7 @@ import { getAccountDetails, notifyError, notifySuccess } from "../utils";
 import state from "../store/store";
 import { EventBus } from "@/eventBus";
 import store from "@/store/store";
-import {getPrivateKeyForAccount} from "@/utils";
+import { getPrivateKeyForAccount } from "@/utils";
 
 const {
   PrivateKey,
@@ -515,7 +515,73 @@ export async function tokenDissociate(tokenId, user) {
   return result.status;
 }
 
-export async function tokenTransfer(tokenId, user, quantity, hbar, destination) {
+export async function tokenSwap(
+  from,
+  to,
+  token1,
+  tokenQuantity1,
+  token2,
+  tokenQuantity2,
+  hBars
+) {
+  const account = getAccountDetails(from);
+  const client = hederaClientForUser(from);
+
+  try {
+    const tx = await new TransferTransaction();
+    if (token1 !== "" && tokenQuantity1 !== 0) {
+      tx.addTokenTransfer(token1, account.accountId, -tokenQuantity1);
+      tx.addTokenTransfer(token1, to, tokenQuantity1);
+    }
+    if (token2 !== "" && tokenQuantity2 !== 0) {
+      tx.addTokenTransfer(token2, account.accountId, -tokenQuantity2);
+      tx.addTokenTransfer(token2, to, tokenQuantity2);
+    }
+    if (hBars !== 0) {
+      tx.addHbarTransfer(account.accountId, new Hbar(hBars));
+      tx.addHbarTransfer(to, new Hbar(-hBars));
+    }
+
+    tx.setMaxTransactionFee(new Hbar(1));
+    tx.freezeWith(client);
+
+    // signature only required if transferring from the 'to' address, but
+    // let's sign anyway for now
+    //TODO: Only sign if necessary
+    const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(to));
+    await tx.sign(sigKey);
+
+    const result = await tx.execute(client);
+    const transactionReceipt = await result.getReceipt(client);
+
+    if (transactionReceipt.status !== Status.Success) {
+      notifyError(transactionReceipt.status.toString());
+      return false;
+    } else {
+      // force refresh
+      await store.dispatch("fetch");
+      notifySuccess("tokens transferred successfully");
+      const transaction = {
+        id: result.transactionId.toString(),
+        type: "tokenTransfer",
+        inputs: ""
+      };
+      EventBus.$emit("addTransaction", transaction);
+      return true;
+    }
+  } catch (err) {
+    notifyError(err.message);
+    return false;
+  }
+}
+
+export async function tokenTransfer(
+  tokenId,
+  user,
+  quantity,
+  hbar,
+  destination
+) {
   const account = getAccountDetails(user);
   const client = hederaClientForUser(user);
   try {
@@ -523,13 +589,14 @@ export async function tokenTransfer(tokenId, user, quantity, hbar, destination) 
     tx.addTokenTransfer(tokenId, account.accountId, -quantity);
     tx.addTokenTransfer(tokenId, destination, quantity);
     tx.setMaxTransactionFee(new Hbar(1));
-    tx.setMaxTransactionFee(new Hbar(1));
     if (hbar !== 0) {
       // token recipient pays in hBar and signs transaction
       tx.addHbarTransfer(destination, new Hbar(-hbar));
       tx.addHbarTransfer(account.accountId, new Hbar(hbar));
       tx.freezeWith(client);
-      const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(destination));
+      const sigKey = await PrivateKey.fromString(
+        getPrivateKeyForAccount(destination)
+      );
       await tx.sign(sigKey);
     }
 
