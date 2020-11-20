@@ -39,11 +39,11 @@
         Unfreeze
       </v-btn>
       <v-btn
-          v-else
-          color="red darken-1"
-          @click="freeze(true)"
-          text
-          :disabled="relation.freezeStatus === null"
+        v-else
+        color="red darken-1"
+        @click="freeze(true)"
+        text
+        :disabled="relation.freezeStatus === null"
       >
         Freeze
       </v-btn>
@@ -57,12 +57,12 @@
         Revoke KYC
       </v-btn>
       <v-btn
-          v-else
-          color="green darken-1"
-          @click="kyc(true)"
-          text
-          :disabled="relation.kycStatus === null"
-        >
+        v-else
+        color="green darken-1"
+        @click="kyc(true)"
+        text
+        :disabled="relation.kycStatus === null"
+      >
         Grant KYC
       </v-btn>
       <v-btn v-if="wipeKey" color="red darken-1" @click="wipe" text>
@@ -112,7 +112,7 @@ export default {
       wipeKey: this.accountRelation.token.wipeKey,
       interval: undefined,
       kycStatus: false,
-      freezeStatus: false,
+      freezeStatus: false
     };
   },
   created() {

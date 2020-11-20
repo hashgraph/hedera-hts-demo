@@ -36,20 +36,20 @@
               <v-row>
                 <v-col cols="12">
                   <v-text-field
-                      label="Token Quantity* (includes decimals, for 100.02 input 10002)"
-                      :rules="integerRules"
-                      v-model="quantity"
-                      required
+                    label="Token Quantity* (includes decimals, for 100.02 input 10002)"
+                    :rules="integerRules"
+                    v-model="quantity"
+                    required
                   ></v-text-field>
                 </v-col>
               </v-row>
               <v-row>
                 <v-col cols="12">
                   <v-text-field
-                      label="hBar* (Token(s) recipient pays in hBar)"
-                      :rules="integerRules"
-                      v-model="hBars"
-                      required
+                    label="hBar* (Token(s) recipient pays in hBar)"
+                    :rules="integerRules"
+                    v-model="hBars"
+                    required
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -109,7 +109,7 @@ export default {
         this.user,
         this.quantity,
         this.hBars,
-        this.destination,
+        this.destination
       ));
     }
   },

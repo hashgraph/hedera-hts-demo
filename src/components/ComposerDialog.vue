@@ -2,9 +2,7 @@
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="800px">
       <v-toolbar color="primary" dark>
-        <v-toolbar-title class="white--text"
-          >Token Composer</v-toolbar-title
-        >
+        <v-toolbar-title class="white--text">Token Composer</v-toolbar-title>
       </v-toolbar>
       <v-stepper v-model="step" alt-labels>
         <v-stepper-header>
@@ -16,7 +14,10 @@
             Name
           </v-stepper-step>
           <v-divider></v-divider>
-          <v-stepper-step :complete="step > STEP_FRACTIONAL" :step="STEP_FRACTIONAL">
+          <v-stepper-step
+            :complete="step > STEP_FRACTIONAL"
+            :step="STEP_FRACTIONAL"
+          >
             Fractional
           </v-stepper-step>
           <v-divider></v-divider>
@@ -32,11 +33,17 @@
             KYC
           </v-stepper-step>
           <v-divider></v-divider>
-          <v-stepper-step :complete="step > STEP_WIPEABLE" :step="STEP_WIPEABLE">
+          <v-stepper-step
+            :complete="step > STEP_WIPEABLE"
+            :step="STEP_WIPEABLE"
+          >
             Wipeable
           </v-stepper-step>
           <v-divider></v-divider>
-          <v-stepper-step :complete="step > STEP_FREEZABLE" :step="STEP_FREEZABLE">
+          <v-stepper-step
+            :complete="step > STEP_FREEZABLE"
+            :step="STEP_FREEZABLE"
+          >
             Freezable
           </v-stepper-step>
           <v-divider></v-divider>
@@ -50,8 +57,16 @@
             <v-card class="mb-12" height="200px">
               <v-form ref="fungibleForm">
                 <v-radio-group v-model="fungible">
-                  <v-radio name="fungible" label="Fungible" value="yes"></v-radio>
-                  <v-radio name="fungible" label="Non Fungible" value="no"></v-radio>
+                  <v-radio
+                    name="fungible"
+                    label="Fungible"
+                    value="yes"
+                  ></v-radio>
+                  <v-radio
+                    name="fungible"
+                    label="Non Fungible"
+                    value="no"
+                  ></v-radio>
                 </v-radio-group>
               </v-form>
             </v-card>
@@ -76,20 +91,20 @@
                 <v-row>
                   <v-col cols="6">
                     <v-text-field
-                        label="Name*"
-                        :rules="textRules"
-                        v-model="name"
-                        required
+                      label="Name*"
+                      :rules="textRules"
+                      v-model="name"
+                      required
                     ></v-text-field>
                   </v-col>
                 </v-row>
                 <v-row>
                   <v-col cols="6">
                     <v-text-field
-                        label="Symbol*"
-                        :rules="textOnlyRules"
-                        v-model="symbol"
-                        required
+                      label="Symbol*"
+                      :rules="textOnlyRules"
+                      v-model="symbol"
+                      required
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -115,7 +130,11 @@
 
           <v-stepper-content :step="STEP_FRACTIONAL">
             <v-card class="mb-12" height="200px">
-              <v-form v-if="fungible === 'yes'" ref="decimalsForm" v-model="decimalsValid">
+              <v-form
+                v-if="fungible === 'yes'"
+                ref="decimalsForm"
+                v-model="decimalsValid"
+              >
                 <v-radio-group v-model="fractional">
                   <v-radio
                     name="fractional"
@@ -145,9 +164,9 @@
               <v-form v-else ref="decimalsForm" v-model="decimalsValid">
                 <v-radio-group v-model="fractional">
                   <v-radio
-                      name="fractional"
-                      label="Singleton"
-                      value="no"
+                    name="fractional"
+                    label="Singleton"
+                    value="no"
                   ></v-radio>
                 </v-radio-group>
               </v-form>
@@ -176,48 +195,48 @@
 
           <v-stepper-content :step="STEP_SUPPLY">
             <v-card class="mb-12" height="200px">
-              <v-form v-if="fungible === 'yes'" ref="supplyForm" v-model="supplyValid">
+              <v-form
+                v-if="fungible === 'yes'"
+                ref="supplyForm"
+                v-model="supplyValid"
+              >
                 <v-radio-group v-model="variable">
                   <v-radio
-                      name="variable"
-                      label="Variable"
-                      value="yes"
-                      @click="validateSupply()"
+                    name="variable"
+                    label="Variable"
+                    value="yes"
+                    @click="validateSupply()"
                   ></v-radio>
                   <v-radio
-                      name="variable"
-                      label="Fixed"
-                      value="no"
-                      @click="validateSupply()"
+                    name="variable"
+                    label="Fixed"
+                    value="no"
+                    @click="validateSupply()"
                   ></v-radio>
                 </v-radio-group>
                 <v-row>
                   <v-col cols="4">
                     <v-text-field
-                        label="Initial Supply*"
-                        required
-                        v-model="initialSupply"
-                        :rules="[supplyRule]"
+                      label="Initial Supply*"
+                      required
+                      v-model="initialSupply"
+                      :rules="[supplyRule]"
                     ></v-text-field>
                   </v-col>
                 </v-row>
               </v-form>
               <v-form v-else>
                 <v-radio-group v-model="variable">
-                  <v-radio
-                      name="variable"
-                      label="Fixed"
-                      value="no"
-                  ></v-radio>
+                  <v-radio name="variable" label="Fixed" value="no"></v-radio>
                 </v-radio-group>
                 <v-row>
                   <v-col cols="4">
                     <v-text-field
-                        label="Initial Supply*"
-                        required
-                        disabled
-                        value="1"
-                        v-model="initialSupply"
+                      label="Initial Supply*"
+                      required
+                      disabled
+                      value="1"
+                      v-model="initialSupply"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -238,7 +257,7 @@
                 <v-btn
                   color="primary"
                   @click="nextStep"
-                  :disabled="!supplyValid && (this.fungible === 'yes')"
+                  :disabled="!supplyValid && this.fungible === 'yes'"
                 >
                   Continue
                 </v-btn>
@@ -302,7 +321,12 @@
             <v-card class="mb-12" height="200px">
               <v-radio-group v-model="wipe">
                 <v-radio name="wipe" label="No" value="no"></v-radio>
-                <v-radio v-if="fungible === 'yes'" name="wipe" label="Yes" value="yes"></v-radio>
+                <v-radio
+                  v-if="fungible === 'yes'"
+                  name="wipe"
+                  label="Yes"
+                  value="yes"
+                ></v-radio>
               </v-radio-group>
             </v-card>
 
@@ -362,19 +386,20 @@
           <v-stepper-content :step="STEP_CREATE">
             <v-card class="mb-12" height="200px">
               <v-card-title v-if="fungible === 'yes'"
-              >You're about to create a fungible token named {{ name }} ({{
+                >You're about to create a fungible token named {{ name }} ({{
                   symbol.toUpperCase()
                 }})</v-card-title
               >
               <v-card-title v-else
-              >You're about to create a non fungible token named {{ name }} ({{
-                  symbol.toUpperCase()
-                }})</v-card-title
+                >You're about to create a non fungible token named
+                {{ name }} ({{ symbol.toUpperCase() }})</v-card-title
               >
               <v-card-text align="left">
                 <P>{{ tokenDetails() }}</P>
                 <P>{{ tokenCompliance() }}</P>
-                <P v-if="mutable === 'yes'">An admin key will be able to update it.</P>
+                <P v-if="mutable === 'yes'"
+                  >An admin key will be able to update it.</P
+                >
                 <P v-else>It will be immutable.</P>
                 <P>{{ tokenUsages() }}</P>
               </v-card-text>
@@ -473,7 +498,7 @@ export default {
   computed: {},
   methods: {
     nextStep() {
-      if ((this.step === this.STEP_TYPE) && (this.fungible === "no")) {
+      if (this.step === this.STEP_TYPE && this.fungible === "no") {
         this.initialSupply = 1;
         this.variable = "no";
         this.decimals = 0;
@@ -525,8 +550,7 @@ export default {
         kycKey: this.kyc === "yes" ? privateKey.toString() : undefined,
         freezeKey: this.freeze === "yes" ? privateKey.toString() : undefined,
         wipeKey: this.wipe === "yes" ? privateKey.toString() : undefined,
-        supplyKey:
-          this.variable === "no" ? privateKey.toString() : undefined,
+        supplyKey: this.variable === "yes" ? privateKey.toString() : undefined,
         defaultFreezeStatus: this.defaultFreezeStatus,
         autoRenewAccount: ownerAccount.accountId,
         treasury: ownerAccount.accountId,
@@ -553,7 +577,8 @@ export default {
         } else {
           if (this.variable === "yes") {
             // fungible, whole, variable
-            details = "It could be used as a stock keeping unit, stock or loyalty.";
+            details =
+              "It could be used as a stock keeping unit, stock or loyalty.";
           } else {
             // fungible, whole, fixed
             details = "It could be used as a bond.";
@@ -602,8 +627,7 @@ export default {
       let details = "";
 
       if (this.fractional === "yes") {
-        details +=
-          "It will be fractional with " + this.decimals + " decimals ";
+        details += "It will be fractional with " + this.decimals + " decimals ";
       } else {
         details += "It will be non-fractional ";
       }
