@@ -2,122 +2,114 @@
   <v-container>
     <div v-if="accountId">
       <v-row>
-        <v-col cols="6">
-          <v-card class="mx-auto" max-width="300" tile>
-            <v-toolbar color="primary" dark>
-              <v-toolbar-title class="white--text">Tokens</v-toolbar-title>
-            </v-toolbar>
-            <v-list flat v-if="numberOfTokens !== 0">
-              <v-list-item
-                v-for="token in tokens"
-                :key="token.tokenId"
-                @click="selectToken(token)"
-                color="primary"
+        <v-col cols="12">
+          <v-data-table
+            :headers="headers"
+            :items="accountTokens"
+            class="elevation-1"
+            hide-default-footer
+          >
+
+            <template v-slot:item.tokenId="{ item }">
+                {{ item.tokenSymbol }} ({{ item.tokenId }})
+            </template>
+
+            <template v-slot:item.freezeStatus="{ item }">
+              <v-chip
+                  :color="getColor(item.freezeStatus, true)"
+                  dark
               >
-                <v-list-item-icon v-if="token.associated"
-                  ><v-icon>mdi-link-variant</v-icon></v-list-item-icon
-                >
-                <v-list-item-icon v-else
-                  ><v-icon>mdi-link-variant-off</v-icon></v-list-item-icon
-                >
-                <v-list-item-content>
-                  <v-list-item-title class="text-left">{{
-                    token.name
-                  }}</v-list-item-title>
-                  <v-list-item-subtitle class="text-left"
-                    >{{ token.symbol }}
-                    {{ token.tokenId }}</v-list-item-subtitle
-                  >
-                </v-list-item-content>
-              </v-list-item>
-            </v-list>
-            <v-card-text v-if="numberOfTokens === 0">No tokens</v-card-text>
-          </v-card>
-        </v-col>
-        <v-col cols="6">
-          <v-card class="mx-auto" max-width="300" tile>
-            <div v-if="currentToken">
-              <v-toolbar color="primary" dark>
-                <v-toolbar-title class="white--text"
-                  >{{ currentToken.name }} ({{
-                    currentToken.symbol
-                  }})</v-toolbar-title
-                >
-              </v-toolbar>
-              <div v-if="currentToken.associated">
-                <v-card-text>
-                  <v-row>
-                    <v-col cols="6" v-if="this.accountRelation.freezeStatus !== null">
-                      <v-checkbox
-                        label="Frozen"
-                        :input-value="freezeStatus"
-                        disabled
-                      ></v-checkbox>
-                    </v-col>
-                    <v-col cols="6" v-if="this.accountRelation.kycStatus !== null">
-                      <v-checkbox
-                        label="KYCd"
-                        :input-value="kycStatus"
-                        disabled
-                      ></v-checkbox>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-text-field
-                          label="Token Balance"
-                          :value="balance"
-                          outlined
-                          dense
-                          disabled
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-text-field
-                          label="hBar Balance"
-                          :value="accountRelation.hbarBalance"
-                          outlined
-                          dense
-                          disabled
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-                <v-card-actions class="justify-end">
-                  <v-btn
-                    icon
-                    color="blue darken-1"
-                    :disabled="!canTransfer"
-                    @click="transferToken"
-                  >
-                    <v-icon>mdi-bank-transfer</v-icon>
-                  </v-btn>
-                  <v-btn color="red darken-1" text @click="dissociate()">
-                    <v-icon>mdi-link-variant-off</v-icon>
-                  </v-btn>
-                </v-card-actions>
-              </div>
-              <div v-else>
-                <v-card-text v-if="!currentToken.associated"
-                  >This token is not associated to this account</v-card-text
-                >
-                <v-card-actions class="justify-end">
-                  <v-btn color="blue darken-1" text @click="associate()">
-                    <v-icon>mdi-link-variant</v-icon>
-                  </v-btn>
-                </v-card-actions>
-              </div>
-            </div>
-            <div v-else>
-              <v-card-text v-if="numberOfTokens !== 0"
-                >Please select a token</v-card-text
+                {{ item.freezeStatus }}
+              </v-chip>
+            </template>
+
+            <template v-slot:item.kycStatus="{ item }">
+              <v-chip
+                  :color="getColor(item.kycStatus, false)"
+                  dark
               >
-            </div>
-          </v-card>
+                {{ item.kycStatus }}
+              </v-chip>
+            </template>
+
+            <template v-slot:item.related="{ item }">
+              <v-chip
+                  :color="getColor(item.related, false)"
+                  dark
+              >
+                {{ item.related }}
+              </v-chip>
+              <v-btn v-if="item.related === 'No'" color="blue darken-1" text @click="associate(item.tokenId)">
+                <v-icon>mdi-link-variant</v-icon>
+              </v-btn>
+              <v-btn v-else color="blue darken-1" text @click="dissociate(item.tokenId)">
+                <v-icon>mdi-link-variant-off</v-icon>
+              </v-btn>
+            </template>
+          </v-data-table>
         </v-col>
       </v-row>
+      <v-card class="mx-auto ma-4">
+        <v-toolbar color="primary" dark>
+          <v-toolbar-title class="white--text">Transfers and swaps to/from {{ transferTo }}</v-toolbar-title>
+        </v-toolbar>
+        <v-card-text>
+          <v-row>
+            <v-col cols="3">
+              <v-select
+                  :items="transferableTokens"
+                  label="Token 1"
+                  v-model="tokenToTransfer1"
+              ></v-select>
+            </v-col>
+            <v-col cols="5">
+              <v-text-field
+                  label="Token Quantity* (includes decimals, negative to receive)"
+                  :rules="integerRules"
+                  v-model="quantityToTransfer1"
+                  required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="3">
+              <v-select
+                  :items="transferableTokens"
+                  label="Token 2"
+                  v-model="tokenToTransfer2"
+              ></v-select>
+            </v-col>
+            <v-col cols="5">
+              <v-text-field
+                  label="Token Quantity* (includes decimals, negative to receive)"
+                  :rules="integerRules"
+                  v-model="quantityToTransfer2"
+                  required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="5">
+              <v-text-field
+                  label="hBar* (negative to send)"
+                  :rules="integerRules"
+                  v-model="hBars"
+                  required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions class="justify-end">
+          <v-btn
+              text
+              color="blue darken-1"
+              @click="tokenSwap"
+              :disabled="!formValid"
+          >
+            Transfer
+          </v-btn>
+        </v-card-actions>
+      </v-card>
     </div>
     <div v-else>Wallet account isn't setup</div>
   </v-container>
@@ -127,6 +119,7 @@
 import { amountWithDecimals, getAccountDetails } from "../utils";
 import { EventBus } from "../eventBus";
 import { tokenAssociate, tokenDissociate } from "../service/tokenService";
+import {tokenSwap} from "@/service/tokenService";
 
 export default {
   name: "Wallet",
@@ -138,21 +131,42 @@ export default {
       currentToken: this.$store.getters.getTokens[
         localStorage.getItem(this.walletInstance) || ""
       ],
+      transferTo: "",
+      tokenToTransfer1: "",
+      quantityToTransfer1: 0,
+      tokenToTransfer2: "",
+      quantityToTransfer2: 0,
+      hBars: 0,
       accountRelation: undefined,
       canTransfer: false,
       balance: 0,
       hbarBalance: 0,
       kycStatus: false,
-      freezeStatus: false
+      freezeStatus: false,
+      accountTokens: [],
+      transferableTokens: [],
+      integerRules: [v => v == parseInt(v) || "Integer required"],
+      headers: [
+        { text: 'Token', align: 'center', value: 'tokenId' },
+        { text: 'Associated', align: 'center', value: 'related' },
+        { text: 'hBar Balance', align: 'center', value: 'hbarBalance' },
+        { text: 'token Balance', align: 'center', value: 'tokenBalance' },
+        { text: 'Frozen', align: 'center', value: 'freezeStatus' },
+        { text: 'KYCd', align: 'center', value: 'kycStatus' },
+      ],
     };
   },
   computed: {
     accountId() {
       let account = getAccountDetails(this.walletInstance);
       return account.accountId;
+    },
+    formValid() {
+      return true;
     }
   },
   created() {
+    this.loadTokenData();
     const walletToken = localStorage.getItem(this.walletInstance) || undefined;
     if (typeof walletToken !== "undefined") {
       this.setCurrentToken(this.tokens[walletToken]);
@@ -176,6 +190,7 @@ export default {
           this.setCurrentToken(this.tokens[walletToken]);
         }
       }
+      this.loadTokenData();
       this.$forceUpdate();
     }, 1000);
   },
@@ -183,11 +198,75 @@ export default {
     clearInterval(this.interval);
   },
   methods: {
-    associate() {
-      tokenAssociate(this.currentToken.tokenId, this.walletInstance);
+    getColor(status, reverseLogic) {
+      if (status === "n/a") return 'grey';
+      else if (status === "Yes") return reverseLogic ? 'red' : 'green';
+      else return reverseLogic ? 'green' : 'red';
     },
-    dissociate() {
-      tokenDissociate(this.currentToken.tokenId, this.walletInstance);
+    loadTokenData() {
+      this.transferableTokens = [];
+      this.accountTokens = [];
+
+      if (this.walletInstance === "wallet1") {
+        this.transferTo = getAccountDetails("wallet2").accountId;
+      } else {
+        this.transferTo = getAccountDetails("wallet1").accountId;
+      }
+
+      const accountRelations = this.$store.getters.getAccounts[this.accountId]
+          .tokenRelationships;
+      // cycle all available tokens
+      for (const tokenId in this.tokens) {
+        const oneToken = {
+          tokenId: tokenId,
+          tokenSymbol: this.tokens[tokenId].symbol,
+          related: "No",
+          hbarBalance: "n/a",
+          tokenBalance: "n/a",
+          freezeStatus: "n/a",
+          kycStatus: "n/a",
+          transferable: false
+        }
+        if (typeof accountRelations[tokenId] !== "undefined") {
+          oneToken.related = "Yes";
+          oneToken.hbarBalance = accountRelations[tokenId].hbarBalance;
+          oneToken.tokenBalance = accountRelations[tokenId].balance;
+          if (accountRelations[tokenId].freezeStatus === null) {
+            oneToken.freezeStatus = "n/a";
+          } else {
+            oneToken.freezeStatus = (accountRelations[tokenId].freezeStatus) ? "Yes" : "No";
+          }
+          if (accountRelations[tokenId].kycStatus === null) {
+            oneToken.kycStatus = "n/a";
+          } else {
+            oneToken.kycStatus = (accountRelations[tokenId].kycStatus) ? "Yes" : "No";
+          }
+        }
+        const otherRelation = this.$store.getters.getAccounts[this.transferTo].tokenRelationships;
+        if (typeof otherRelation[tokenId] !== "undefined") {
+          //TODO: Check kyc and freeze status on other account
+          oneToken.transferable = true;
+          this.transferableTokens.push(tokenId);
+        }
+        this.accountTokens.push(oneToken);
+      }
+    },
+    associate(tokenId) {
+      tokenAssociate(tokenId, this.walletInstance);
+    },
+    dissociate(tokenId) {
+      tokenDissociate(tokenId, this.walletInstance);
+    },
+    tokenSwap() {
+      tokenSwap(
+          this.walletInstance,
+          this.transferTo,
+          this.tokenToTransfer1,
+          this.quantityToTransfer1,
+          this.tokenToTransfer2,
+          this.quantityToTransfer2,
+          this.hBars
+      );
     },
     transferToken() {
       let transferTo = "";
@@ -230,11 +309,9 @@ export default {
             this.freezeStatus = this.accountRelation.freezeStatus;
           }
 
-          this.canTransfer = (this.accountRelation.freezeStatus === null) ||
-            (
-              this.kycStatus &&
-              !this.freezeStatus
-            );
+          this.canTransfer =
+            this.accountRelation.freezeStatus === null ||
+            (this.kycStatus && !this.freezeStatus);
         } else {
           this.canTransfer = false;
           this.balance = 0;
