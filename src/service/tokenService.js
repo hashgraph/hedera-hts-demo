@@ -63,17 +63,17 @@ export async function tokenCreate(token) {
     tx.setAutoRenewPeriod(autoRenewPeriod);
 
     if (token.adminKey) {
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setAdminKey(sigKey.publicKey);
       additionalSig = true;
     }
     if (token.kycKey) {
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setKycKey(sigKey.publicKey);
       additionalSig = true;
     }
     if (token.freezeKey) {
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setFreezeKey(sigKey.publicKey);
       additionalSig = true;
       tx.setFreezeDefault(token.defaultFreezeStatus);
@@ -82,12 +82,12 @@ export async function tokenCreate(token) {
     }
     if (token.wipeKey) {
       additionalSig = true;
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setWipeKey(sigKey.publicKey);
     }
     if (token.supplyKey) {
       additionalSig = true;
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setSupplyKey(sigKey.publicKey);
     }
     const client = ownerClient();

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@hashgraph/sdk": "^2.0.3",
+    "@koumoul/vjsf": "^1.17.1",
     "bignumber.js": "^9.0.0",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",

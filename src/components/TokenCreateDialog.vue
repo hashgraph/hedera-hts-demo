@@ -12,7 +12,7 @@
                 <v-col cols="12">
                   <v-text-field
                     label="Name*"
-                    :rules="textRules"
+                    :rules="nameRules"
                     v-model="name"
                     required
                   ></v-text-field>
@@ -22,7 +22,7 @@
                 <v-col cols="4">
                   <v-text-field
                     label="Symbol*"
-                    :rules="textOnlyRules"
+                    :rules="symbolRules"
                     v-model="symbol"
                     required
                   ></v-text-field>
@@ -134,11 +134,17 @@ export default {
       freezeKey: true,
       kycKey: true,
       supplyKey: true,
-      integerRules: [v => v == parseInt(v) || "Integer required"],
-      textRules: [v => !!v || "Input required"],
-      textOnlyRules: [
-        v => !!v || "Input required",
-        v => /^[a-zA-Z]*$/.test(v) || "Only letters are allowed"
+      integerRules: [
+        v => (v == parseInt(v) && v > 0) || "Integer greater than 0 required"
+      ],
+      nameRules: [
+          v => !!v || "Input required",
+          v => v.length > 100 || "Max length 100"
+      ],
+      symbolRules: [
+          v => !!v || "Input required",
+          v => v.length > 100 || "Max length 100"
+        // v => /^[a-zA-Z]*$/.test(v) || "Only letters are allowed"
       ]
     };
   },

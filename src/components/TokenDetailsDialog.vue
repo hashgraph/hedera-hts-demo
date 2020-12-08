@@ -1,133 +1,199 @@
 <template>
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="600px">
-      <v-card>
-        <v-card-title>
-          <span class="headline text-center"
-            >{{ token.name }} ({{ token.symbol }}) - {{ token.tokenId }}
-          </span>
-        </v-card-title>
+      <v-card :color=backgroundColor>
+        <v-toolbar :color=headingColor dark>
+          <v-toolbar-title class="white--text">{{ title }}</v-toolbar-title>
+          <v-spacer></v-spacer>
+          <v-toolbar-title class="white--text">{{ token.tokenId }}</v-toolbar-title>
+        </v-toolbar>
         <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="6"
-                ><v-text-field
-                  label="Decimals"
-                  :value="token.decimals"
-                  outlined
-                  dense
-                  disabled
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6"
-                ><v-text-field
-                  label="Supply"
-                  :value="supply"
-                  outlined
-                  dense
-                  disabled
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6"
-                ><v-text-field
-                  label="Treasury"
-                  :value="token.treasury"
-                  outlined
-                  dense
-                  disabled
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6"
-                ><v-text-field
-                  label="Auto Renew Account"
-                  :value="token.autoRenewAccount"
-                  outlined
-                  dense
-                  disabled
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6"
-                ><v-text-field
-                  label="Auto Renew Period"
-                  :value="autoRenewPeriod"
-                  outlined
-                  dense
-                  disabled
-                ></v-text-field>
-              </v-col>
-              <v-col cols="6"
-                ><v-text-field
-                  label="Expiry"
-                  :value="expiry"
-                  outlined
-                  dense
-                  disabled
-                ></v-text-field>
-              </v-col>
-            </v-row>
+          <v-row v-if="token.isNFT">
+            <v-col cols="12">
+            Token properties stored in Hedera File Id: {{ fileId }}
+            </v-col>
+          </v-row>
+          <v-row v-if="!token.isNFT" dense>
+            <v-col cols="6"
+              ><v-text-field
+                label="Decimals"
+                :value="token.decimals"
+                outlined
+                dense
+                disabled
+              ></v-text-field>
+            </v-col>
+            <v-col cols="6"
+              ><v-text-field
+                label="Supply"
+                :value="supply"
+                outlined
+                dense
+                disabled
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row dense>
+            <v-col cols="6"
+              ><v-text-field
+                label="Treasury"
+                :value="token.treasury"
+                outlined
+                dense
+                disabled
+              ></v-text-field>
+            </v-col>
+            <v-col cols="6"
+              ><v-text-field
+                label="Auto Renew Account"
+                :value="token.autoRenewAccount"
+                outlined
+                dense
+                disabled
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row dense>
+            <v-col cols="6"
+              ><v-text-field
+                label="Auto Renew Period"
+                :value="autoRenewPeriod"
+                outlined
+                dense
+                disabled
+              ></v-text-field>
+            </v-col>
+            <v-col cols="6"
+              ><v-text-field
+                label="Expiry"
+                :value="expiry"
+                outlined
+                dense
+                disabled
+              ></v-text-field>
+            </v-col>
+          </v-row>
 
-            <v-row>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="token.adminKey"
-                  label="Admin"
-                  disabled
-                ></v-checkbox>
+          <v-row dense>
+            <v-col cols="4">
+              <v-checkbox
+                v-model="token.adminKey"
+                label="Admin"
+                dense
+                disabled
+                hide-details
+              ></v-checkbox>
+            </v-col>
+            <v-col cols="4">
+              <v-checkbox
+                v-model="token.supplyKey"
+                label="Change Supply"
+                disabled
+                dense
+                hide-details
+              ></v-checkbox>
+            </v-col>
+            <v-col cols="4">
+              <v-checkbox
+                v-model="token.kycKey"
+                label="KYC"
+                disabled
+                dense
+                hide-details
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+          <v-row dense>
+            <v-col cols="4">
+              <v-checkbox
+                v-model="token.wipeKey"
+                label="Wipe"
+                disabled
+                dense
+                hide-details
+              ></v-checkbox>
+            </v-col>
+            <v-col cols="4">
+              <v-checkbox
+                v-model="token.freezeKey"
+                label="Freeze"
+                disabled
+                dense
+                hide-details
+              ></v-checkbox>
+            </v-col>
+            <v-col cols="4">
+              <v-checkbox
+                v-model="token.defaultFreezeStatus"
+                disabled
+                label="Default Freeze"
+                dense
+                hide-details
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+          <v-container v-if="token.isNFT">
+            <v-container v-if="imageData">
+              <v-row dense align="center" justify="center">
+              <v-col cols="8">
+                <v-simple-table fixed-header height="200px">
+                  <template v-slot:default>
+                    <thead>
+                    <tr>
+                      <th class="text-left">
+                        Property
+                      </th>
+                      <th class="text-left">
+                        value
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr
+                        v-for="keyValue in keyValues"
+                        :key="keyValue.key"
+                    >
+                      <td class="text-left">{{ keyValue.key }}</td>
+                      <td class="text-left">{{ keyValue.value }}</td>
+                    </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
               </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="token.supplyKey"
-                  label="Change Supply"
-                  disabled
-                ></v-checkbox>
+              <v-col cols="4">
+                <img v-if="imageData" :src="imageData" width="100%">
               </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="token.kycKey"
-                  label="KYC"
-                  disabled
-                ></v-checkbox>
+              </v-row>
+            </v-container>
+            <v-container v-else>
+              <v-row dense>
+              <v-col cols="12">
+                <v-simple-table fixed-header height="200px">
+                  <template v-slot:default>
+                    <thead>
+                    <tr>
+                      <th class="text-left">
+                        Property
+                      </th>
+                      <th class="text-left">
+                        Value
+                      </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr
+                        v-for="keyValue in keyValues"
+                        :key="keyValue.key"
+                    >
+                      <td class="text-left">{{ keyValue.key }}</td>
+                      <td class="text-left">{{ keyValue.value }}</td>
+                    </tr>
+                    </tbody>
+                  </template>
+                </v-simple-table>
               </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="token.wipeKey"
-                  label="Wipe"
-                  disabled
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="token.freezeKey"
-                  label="Freeze"
-                  disabled
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="token.defaultFreezeStatus"
-                  disabled
-                  label="Default Freeze"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="token.isDeleted"
-                  label="Deleted"
-                  disabled
-                ></v-checkbox>
-              </v-col>
-              <v-col cols="6"> </v-col>
-            </v-row>
+              </v-row>
+            </v-container>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -143,6 +209,7 @@
 <script>
 import { EventBus } from "../eventBus";
 import { amountWithDecimals, secondsToParts } from "../utils";
+import {fileGetContents} from "@/service/fileService";
 
 export default {
   name: "TokenDetailsDialog",
@@ -154,17 +221,43 @@ export default {
       initialSupply: 0,
       supply: 0,
       expiry: 0,
-      autoRenewPeriod: ""
+      autoRenewPeriod: "",
+      headingColor: "primary",
+      title: "",
+      backgroundColor: "white",
+      properties: "",
+      imageData: undefined,
+      keyValues: [],
+      fileId: ""
     };
   },
   created() {
     const vm = this;
-    EventBus.$on("tokenDetails", function(value) {
+    EventBus.$on("tokenDetails", async function(value) {
       vm.dialog = true;
       vm.token = value;
       vm.supply = amountWithDecimals(value.totalSupply, value.decimals);
       vm.expiry = value.expiry;
       vm.autoRenewPeriod = secondsToParts(value.autoRenewPeriod);
+      vm.headingColor = value.isNFT ? "" : "primary";
+      vm.title = value.isNFT ? value.name : value.name + " (" + value.symbol + ")";
+      vm.backgroundColor = value.isDeleted ? "red" : "white";
+      vm.keyValues = [];
+      if (value.isNFT) {
+        // get file from Hedera
+        vm.fileId = value.symbol.replace("HEDERA://","");
+        const fileData = await fileGetContents(vm.fileId);
+        const fileDataString = new TextDecoder().decode(fileData);
+        const tokenProperties = JSON.parse(fileDataString);
+        console.log(tokenProperties);
+        if (tokenProperties.photo) {
+          vm.imageData = tokenProperties.photo;
+          delete tokenProperties.photo;
+        }
+        for (const key in tokenProperties) {
+          vm.keyValues.push({key: key, value : tokenProperties[key]});
+        }
+      }
     });
   }
 };
@@ -185,5 +278,18 @@ li {
 }
 a {
   color: #42b983;
+}
+html {
+  overflow: hidden !important;
+}
+
+.v-card {
+  display: flex !important;
+  flex-direction: column;
+}
+
+.v-card__text {
+  flex-grow: 1;
+  overflow: auto;
 }
 </style>
