@@ -9,8 +9,12 @@
             class="elevation-1"
             hide-default-footer
           >
-            <template v-slot:item.tokenId="{ item }">
-              {{ item.tokenSymbol }} ({{ item.tokenId }})
+            <template v-slot:item.image="{ item }">
+              <v-img v-if="item.imageData" :src="item.imageData" max-width="50px" aspect-ratio="1"></v-img>
+            </template>
+
+            <template v-slot:item.tokenName="{ item }">
+              {{ item.tokenName }} ({{ item.tokenId }})
             </template>
 
             <template v-slot:item.freezeStatus="{ item }">
@@ -120,10 +124,12 @@
 </template>
 
 <script>
-import { getAccountDetails } from "../utils";
-import { tokenAssociate, tokenDissociate } from "../service/tokenService";
+import { getAccountDetails } from "@/utils";
+import { tokenAssociate, tokenDissociate } from "@/service/tokenService";
 import { tokenSwap } from "@/service/tokenService";
 import { EventBus } from "@/eventBus";
+import {fileGetContents} from "@/service/fileService";
+import Vue from "vue";
 
 export default {
   name: "Wallet",
@@ -131,6 +137,7 @@ export default {
   data: function() {
     return {
       valid: false,
+      loading: false,
       numberOfTokens: this.$store.getters.numberOfTokens,
       transferTo: "",
       tokenToTransfer1: "",
@@ -139,10 +146,12 @@ export default {
       quantityToTransfer2: 0,
       hBars: 0,
       accountTokens: [],
+      tokenProperties: [],
       transferableTokens: [],
       integerRules: [v => v == parseInt(v) || "Integer required"],
       headers: [
-        { text: "Token", align: "center", value: "tokenId" },
+        { text: "", align: "center", value: "image" },
+        { text: "Token", align: "center", value: "tokenName" },
         { text: "Associated", align: "center", value: "related" },
         { text: "hBar Balance", align: "center", value: "hbarBalance" },
         { text: "token Balance", align: "center", value: "tokenBalance" },
@@ -190,6 +199,7 @@ export default {
     this.loadTokenData();
     // not clean but can't get VUEX to trigger a watch, this is a quick fix
     this.interval = setInterval(() => {
+      if (this.loading) { return; }
       this.loadTokenData();
       this.$forceUpdate();
     }, 1000);
@@ -203,7 +213,8 @@ export default {
       else if (status === "Yes") return reverseLogic ? "red" : "green";
       else return reverseLogic ? "green" : "red";
     },
-    loadTokenData() {
+    async loadTokenData() {
+      this.loading = true;
       this.transferableTokens = [];
       this.accountTokens = [];
 
@@ -217,45 +228,61 @@ export default {
         .tokenRelationships;
       // cycle all available tokens
       const tokens = this.$store.getters.getTokens;
-      for (const tokenId in tokens) {
+      for (const oneTokenId in tokens) {
         const oneToken = {
-          tokenId: tokenId,
-          tokenSymbol: tokens[tokenId].symbol,
+          tokenId: oneTokenId,
+          tokenSymbol: tokens[oneTokenId].symbol,
+          tokenName: tokens[oneTokenId].name,
           related: "No",
           hbarBalance: "n/a",
           tokenBalance: "n/a",
           freezeStatus: "n/a",
           kycStatus: "n/a",
-          transferable: false
+          transferable: false,
+          imageData: undefined,
         };
-        if (typeof accountRelations[tokenId] !== "undefined") {
+        if (tokens[oneTokenId].symbol.includes("HEDERA://")) {
+          if (! this.tokenProperties[oneTokenId]) {
+            // get the file for this token
+            const fileId = tokens[oneTokenId].symbol.replace("HEDERA://","");
+            const fileContents = await fileGetContents(fileId);
+            const fileDataString = new TextDecoder().decode(fileContents);
+            const tokenProperties = JSON.parse(fileDataString);
+            if (tokenProperties.photo) {
+              Vue.set(this.tokenProperties, oneTokenId, tokenProperties);
+            }
+          }
+          oneToken.imageData = this.tokenProperties[oneTokenId].photo;
+        }
+        if (typeof accountRelations[oneTokenId] !== "undefined") {
           oneToken.related = "Yes";
-          oneToken.hbarBalance = accountRelations[tokenId].hbarBalance;
-          oneToken.tokenBalance = accountRelations[tokenId].balance;
-          if (accountRelations[tokenId].freezeStatus === null) {
+          oneToken.hbarBalance = accountRelations[oneTokenId].hbarBalance;
+          oneToken.tokenBalance = accountRelations[oneTokenId].balance;
+          if (accountRelations[oneTokenId].freezeStatus === null) {
             oneToken.freezeStatus = "n/a";
           } else {
-            oneToken.freezeStatus = accountRelations[tokenId].freezeStatus
+            oneToken.freezeStatus = accountRelations[oneTokenId].freezeStatus
               ? "Yes"
               : "No";
           }
-          if (accountRelations[tokenId].kycStatus === null) {
+          if (accountRelations[oneTokenId].kycStatus === null) {
             oneToken.kycStatus = "n/a";
           } else {
-            oneToken.kycStatus = accountRelations[tokenId].kycStatus
+            oneToken.kycStatus = accountRelations[oneTokenId].kycStatus
               ? "Yes"
               : "No";
           }
         }
         const otherRelation = this.$store.getters.getAccounts[this.transferTo]
           .tokenRelationships;
-        if (typeof otherRelation[tokenId] !== "undefined") {
+        if (typeof otherRelation[oneTokenId] !== "undefined") {
           //TODO: Check kyc and freeze status on other account
           oneToken.transferable = true;
-          this.transferableTokens.push(tokenId);
+          this.transferableTokens.push(oneTokenId);
         }
         this.accountTokens.push(oneToken);
       }
+      this.loading = false;
     },
     associate(tokenId) {
       tokenAssociate(tokenId, this.walletInstance);
