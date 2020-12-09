@@ -413,7 +413,15 @@ export default {
     };
   },
   created() {
-    EventBus.$on("tokenCompose", () => {
+    this.init();
+    EventBus.$on("tokenCompose",() => {
+      this.init();
+    });
+  },
+  computed: {},
+  methods: {
+    init() {
+
       this.nameValid = false;
       this.decimalsValid = false;
       this.supplyValid = false;
@@ -430,10 +438,7 @@ export default {
       this.decimals = "";
       this.initialSupply = "";
       this.defaultFreezeStatus = false;
-    });
-  },
-  computed: {},
-  methods: {
+    },
     nextStep() {
       this.step = this.step + 1;
     },
@@ -441,7 +446,7 @@ export default {
       this.step = this.step - 1;
     },
     cancel() {
-      EventBus.$emit("busy", false);
+      EventBus.$emit("dialogClose");
     },
     supplyRule(v) {
       if (this.variable === "no") {
@@ -494,6 +499,7 @@ export default {
       const newToken = await tokenCreate(token);
       if (typeof newToken.tokenId !== "undefined") {
         this.$store.commit("setToken", newToken);
+        EventBus.$emit("dialogClose");
       }
       EventBus.$emit("busy", false);
     },

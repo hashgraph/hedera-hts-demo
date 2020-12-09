@@ -38,10 +38,8 @@ export default {
     EventBus.$on("tokenCompose", () => {
       this.dialog = true;
     });
-    EventBus.$on("busy", busy => {
-      if (busy === false) {
-        this.dialog = false;
-      }
+    EventBus.$on("dialogClose", () => {
+      this.dialog = false;
     })
   },
   computed: {},
