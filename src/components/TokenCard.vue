@@ -11,13 +11,12 @@
     <v-card-text>
       <v-row>
         <v-col cols="6">Id</v-col>
-        <v-col cols="6"
-        ><a :href="mirrorURL" target="_blank">{{ token.tokenId }}</a></v-col
-        >
+        <v-col cols="6"><a :href="tokenMirrorURL" target="_blank">{{ token.tokenId }}</a></v-col>
       </v-row>
       <v-row>
         <v-col cols="6">Symbol</v-col>
-        <v-col cols="6">{{ token.symbol }}</v-col>
+        <v-col v-if="fileMirrorURL" cols="6"><a :href="fileMirrorURL" target="_blank">{{ token.symbol }}</a></v-col>
+        <v-col v-else cols="6">{{ token.symbol }}</v-col>
       </v-row>
       <v-row>
         <v-col cols="6">Decimals</v-col>
@@ -82,7 +81,9 @@ export default {
       dirty: false,
       isDeleted: false,
       defaultFreezeStatus: false,
-      mirrorURL: "",
+      mirrorURL: "https://testnet.dragonglass.me/hedera/search?q=",
+      tokenMirrorURL: "",
+      fileMirrorURL: "",
       totalSupply: 0.0,
       interval: undefined,
       headingColor: "primary",
@@ -93,6 +94,10 @@ export default {
     this.defaultFreezeStatus = this.token.defaultFreezeStatus;
 
     this.token.isNFT = (this.token.symbol.includes("HEDERA://"));
+    if (this.token.isNFT) {
+      this.fileMirrorURL = this.mirrorURL.concat(this.token.symbol.replace("HEDERA://", ""));
+    }
+
     if (this.isDeleted) {
       this.headingColor = "red";
     } else {
@@ -102,9 +107,7 @@ export default {
     // not clean but can't get VUEX to trigger a watch, this is a quick fix
     this.interval = setInterval(() => {
       this.token = this.$store.getters.getTokens[this.tokenId];
-      this.mirrorURL = "https://explorer.kabuto.sh/testnet/id/".concat(
-        this.tokenId
-      );
+      this.tokenMirrorURL = this.mirrorURL.concat(this.tokenId);
       this.isDeleted = this.token.deleted;
       this.totalSupply = amountWithDecimals(
         this.token.totalSupply,
