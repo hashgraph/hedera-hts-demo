@@ -161,7 +161,7 @@
                 </v-simple-table>
               </v-col>
               <v-col cols="4">
-                <img v-if="imageData" :src="imageData" width="100%">
+                <v-img v-if="imageData" :src="imageData" width="100%"></v-img>
               </v-col>
               </v-row>
             </v-container>
@@ -249,7 +249,6 @@ export default {
         const fileData = await fileGetContents(vm.fileId);
         const fileDataString = new TextDecoder().decode(fileData);
         const tokenProperties = JSON.parse(fileDataString);
-        console.log(tokenProperties);
         if (tokenProperties.photo) {
           vm.imageData = tokenProperties.photo;
           delete tokenProperties.photo;
