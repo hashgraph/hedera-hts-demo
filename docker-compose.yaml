@@ -1,11 +1,11 @@
 version: "3"
 services:
-  envoy:
-    build:
-      context: envoy
-#    restart: on-failure
-    ports:
-      - "80:80"
+#  envoy:
+#    build:
+#      context: envoy
+##    restart: on-failure
+#    ports:
+#      - "80:80"
 
   hts-demo:
     build:
@@ -13,5 +13,5 @@ services:
 #    restart: on-failure
     ports:
       - "8080:8080"
-    depends_on:
-      - envoy
+#    depends_on:
+#      - envoy

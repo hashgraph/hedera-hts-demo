@@ -31,12 +31,20 @@ export function hederaClient() {
 
 function hederaClientLocal(operatorAccount, operatorPrivateKey) {
   if (!checkProvided(process.env.VUE_APP_NETWORK)) {
-    throw new Error("VUE_APP_NETWORK_NODES must be set in .env");
+    throw new Error("VUE_APP_NETWORK must be set in environment");
   }
 
-  const network = {};
-  network[process.env.VUE_APP_NETWORK] = "0.0.3";
-  const client = Client.forNetwork(network);
+  let client;
+  switch (process.env.VUE_APP_NETWORK.toUpperCase()) {
+    case "TESTNET":
+      client = Client.forTestnet();
+      break;
+    case "MAINNET":
+      client = Client.forMainnet();
+      break;
+    default:
+      throw new Error("VUE_APP_NETWORK must be \"testnet\" or \"mainnet\"");
+  }
   client.setOperator(operatorAccount, operatorPrivateKey);
   return client;
 }
