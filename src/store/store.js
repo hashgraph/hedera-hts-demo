@@ -123,17 +123,21 @@ export default new Vuex.Store({
       if (Object.keys(state.accounts).length === 0) {
         // set ourselves up
         // create owner account
-        let newAccount = await accountCreate("owner");
+        let newAccount = await accountCreate("Owner");
         commit("setAccount", newAccount);
-        notifySuccess("Setting up demo 1/3 - owner account created");
+        notifySuccess("Setting up demo 1/4 - owner account created");
         // create user 1
-        newAccount = await accountCreate("wallet1");
+        newAccount = await accountCreate("Alice");
         commit("setAccount", newAccount);
-        notifySuccess("Setting up demo 2/3 - first wallet account created");
+        notifySuccess("Setting up demo 2/4 - Alice wallet account created");
         // create user 2
-        newAccount = await accountCreate("wallet2");
+        newAccount = await accountCreate("Bob");
         commit("setAccount", newAccount);
-        notifySuccess("Setting up demo 3/3 - second wallet account created");
+        notifySuccess("Setting up demo 3/4 - Bob wallet account created");
+        // create user 3
+        newAccount = await accountCreate("Marketplace");
+        commit("setAccount", newAccount);
+        notifySuccess("Setting up demo 4/4 - Marketplace wallet account created");
       }
       commit("setCurrentTokenId", undefined);
       notifySuccess("Demo Ready");
