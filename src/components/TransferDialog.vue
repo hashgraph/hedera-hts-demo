@@ -96,7 +96,7 @@ export default {
   name: "TransferDialog",
   data: function() {
     return {
-      accounts: getUserAccountsWithNames(),
+      accounts: getUserAccountsWithNames(""),
       marketPlaceAccountId: getAccountDetails("Marketplace").accountId,
       valid: false,
       dialog: false,
@@ -133,7 +133,7 @@ export default {
   },
   created() {
     EventBus.$on("transferDialog", operation => {
-      this.accounts = getUserAccountsWithNames();
+      this.accounts = getUserAccountsWithNames("");
       this.valid = false;
       this.tokenId = operation.tokenId;
       this.transferFrom = operation.transferFrom;

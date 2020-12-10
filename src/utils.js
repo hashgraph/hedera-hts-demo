@@ -29,16 +29,18 @@ export function getUserAccounts() {
   return accounts;
 }
 
-export function getUserAccountsWithNames() {
+export function getUserAccountsWithNames(exclude) {
   let accounts = [];
   if (state.getters.numberOfAccounts !== 0) {
     for (const key in state.getters.getAccounts) {
       if (state.getters.getAccounts[key].account.wallet !== "Owner") {
-        const account = {
-          accountId: key,
-          name: state.getters.getAccounts[key].account.wallet
+        if (state.getters.getAccounts[key].account.wallet !== exclude) {
+          const account = {
+            accountId: key,
+            name: state.getters.getAccounts[key].account.wallet
+          }
+          accounts.push(account);
         }
-        accounts.push(account);
       }
     }
   }
