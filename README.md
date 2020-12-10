@@ -5,8 +5,10 @@
 
 This demo is a user interface written in Javascript (Vue.JS) to illustrate the use of the Hedera Token Service. When first launched, the demo will create three accounts as follows:
 * An account for the owner/admin of new tokens
-* Two accounts representing users (wallet holders) that will use the token
-Each account is credited 1 hBar to fund their activity on Hedera.
+* Two accounts representing users (wallet holders) that will use the token, Alice and Bob
+* Anoter account representing a marketplace (escrow) for the purpose of holding tokens that have been offered for sale
+
+Each account is credited some hBar to fund their activity on Hedera.
 
 The demo enables you to:
 * Create tokens
@@ -15,6 +17,7 @@ The demo enables you to:
 * Manage KYC and Freeze for token/account relationships
 * Transfer from treasury (owner) to users
 * Transfer between users
+* Atomically transfer up to two tokens between users, with an optional hBar payment as one atomic transaction
 
 For convenience, accounts and tokens created during the demo will be persisted to a cookie and will be available when the demo is restarted.
 
@@ -22,7 +25,7 @@ For convenience, accounts and tokens created during the demo will be persisted t
 
 ## Prerequisites
 
-* A preview net account
+* A testnet or mainnet account
 * Node.js v14.9.0
 * Yarn 1.22.10
 * Docker 
@@ -36,7 +39,6 @@ Edit `.env` and setup the following variables
 
 * VUE_APP_OPERATOR_ID=0.0.xxxx Input your operator id 
 * VUE_APP_OPERATOR_KEY=302xxx Input your private key
-* VUE_APP_NETWORK="http://localhost"
 * VUE_APP_INITIAL_BALANCE=1
 
 ## I just want to run it quickly
@@ -56,19 +58,6 @@ docker-compose up
 Note: `docker-compose` build is only necessary the first time, or if you make changes to the code or `.env` file to (re)build the images. 
 
 ## I want to build it myself
-
-### gRPCWeb envoy proxy
-
-The UI requires a gRPCWeb proxy in order to successfully send transactions to the Hedera network from the UI client.
-
-The `envoy` folder has the necessary files to start one up using docker.
-
-```shell script
-cd envoy
-./start-envoy.sh
-```
-
-(Note, the `envoy.yaml` file is currently setup to communicate with `previewNet`)
 
 ### Project setup
 ```
@@ -116,6 +105,15 @@ Clicking on the accounts button (left most) will show which accounts are current
 
 Choosing one of the user accounts in the header allows you to associate or dissociate the account from a token.
 Once associated (and subject to the account being KYCd and unfrozen if appropriate for the token), you can transfer to the other user account.
+
+## NFTs
+
+Support for creating NFTs is demonstrated in the composer whereby a set of templates (driven from `/public/tokenTemplates.json`) are available within the UI when creating an NFT.
+Each template carries a set of properties that are input during the token creation.
+These properties (along with an image if necessary) as then stored in an immutable file on Hedera, the resulting FileId is used to define the symbol for the token, e.g. HEDERA://0.0.xxxx.
+
+You may edit or add to the templates by editing the `/public/tokenTemplates.json` file, following guidelines from [the vjsf component](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/about).
+Note that if you wish to include a picture in your NFT specification, the property must be called `photo` since the UI depends on that field value.
 
 ## Contributing
 
