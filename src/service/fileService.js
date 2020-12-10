@@ -72,7 +72,6 @@ export async function fileCreate(fileData) {
       // sleep 500ms to avoid duplicate tx errors
       await new Promise(r => setTimeout(r, 500));
       // append to file
-      console.log(startIndex + "-" + (startIndex + fileChunk));
       response = await new FileAppendTransaction()
           .setContents(fileData.slice(startIndex, startIndex + fileChunk))
           .setFileId(FileId.fromString(fileId))
