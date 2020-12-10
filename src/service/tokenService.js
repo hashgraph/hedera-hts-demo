@@ -25,7 +25,7 @@ const {
 } = require("@hashgraph/sdk");
 
 function ownerClient() {
-  return hederaClientForUser("owner");
+  return hederaClientForUser("Owner");
 }
 
 export async function tokenGetInfo(token) {
@@ -48,7 +48,7 @@ export async function tokenGetInfo(token) {
 export async function tokenCreate(token) {
   let tokenResponse = {};
   const autoRenewPeriod = 7776000; // set to default 3 months
-  const ownerAccount = getAccountDetails("owner").accountId.toString();
+  const ownerAccount = getAccountDetails("Owner").accountId.toString();
   try {
     let additionalSig = false;
     let sigKey;
@@ -147,9 +147,30 @@ export async function tokenCreate(token) {
         treasury: ownerAccount
       };
 
+      // automatically associate, grant, etc... for marketplace
+      tokenAssociate(token.tokenId, "Marketplace").then(
+          () => {
+            const marketAccountId = getAccountDetails("Marketplace").accountId;
+            notifySuccess("token association with marketplace successful")
+            if (token.kycKey) {
+              const instruction = {
+                tokenId: token.tokenId,
+                accountId: marketAccountId
+              };
+              tokenGrantKYC(instruction);
+            }
+            if ((token.freezeKey) && (token.defaultFreezeStatus)) {
+              const instruction = {
+                tokenId: token.tokenId,
+                accountId: marketAccountId
+              };
+              tokenUnFreeze(instruction)
+            }
+          }
+      );
       // force refresh
       await store.dispatch("fetch");
-      notifySuccess("token created successfully");
+      notifySuccess("token creation successful");
     }
     return tokenResponse;
   } catch (err) {
@@ -481,7 +502,7 @@ export async function tokenAssociate(tokenId, user) {
     tokenId,
     account,
     user,
-    "token successfully associated"
+    "token association successful"
   );
   if (result.status) {
     const transaction = {
@@ -502,7 +523,7 @@ export async function tokenDissociate(tokenId, user) {
     tokenId,
     account,
     user,
-    "token successfully dissociated"
+    "token dissociation succesful"
   );
   if (result.status) {
     const transaction = {
@@ -560,7 +581,7 @@ export async function tokenSwap(
     } else {
       // force refresh
       await store.dispatch("fetch");
-      notifySuccess("tokens transferred successfully");
+      notifySuccess("tokens transfer successful");
       const transaction = {
         id: result.transactionId.toString(),
         type: "tokenTransfer",
@@ -609,7 +630,7 @@ export async function tokenTransfer(
     } else {
       // force refresh
       await store.dispatch("fetch");
-      notifySuccess("tokens transferred successfully");
+      notifySuccess("tokens transfer successful");
       const transaction = {
         id: result.transactionId.toString(),
         type: "tokenTransfer",
@@ -654,7 +675,7 @@ export async function tokenDelete(token) {
     } else {
       // force refresh
       await store.dispatch("fetch");
-      notifySuccess("Token deleted successfully");
+      notifySuccess("Token deletion successful");
       const transaction = {
         id: response.transactionId.toString(),
         type: "tokenDelete",
