@@ -64,7 +64,9 @@
             <v-row>
               <v-col cols="3">
                 <v-select
-                  :items="transferableTokens"
+                  :items="accountTokens"
+                  item-text="tokenName"
+                  item-value="tokenId"
                   label="Token 1"
                   v-model="tokenToTransfer1"
                 ></v-select>
@@ -81,7 +83,9 @@
             <v-row>
               <v-col cols="3">
                 <v-select
-                  :items="transferableTokens"
+                  :items="accountTokens"
+                  item-text="tokenName"
+                  item-value="tokenId"
                   label="Token 2"
                   v-model="tokenToTransfer2"
                 ></v-select>
@@ -147,7 +151,6 @@ export default {
       hBars: 0,
       accountTokens: [],
       tokenProperties: [],
-      transferableTokens: [],
       integerRules: [v => v == parseInt(v) || "Integer required"],
       headers: [
         { text: "", align: "center", value: "image" },
@@ -215,13 +218,12 @@ export default {
     },
     async loadTokenData() {
       this.loading = true;
-      this.transferableTokens = [];
       this.accountTokens = [];
 
-      if (this.walletInstance === "wallet1") {
-        this.transferTo = getAccountDetails("wallet2").accountId;
+      if (this.walletInstance === "Alice") {
+        this.transferTo = getAccountDetails("Bob").accountId;
       } else {
-        this.transferTo = getAccountDetails("wallet1").accountId;
+        this.transferTo = getAccountDetails("Alice").accountId;
       }
 
       const accountRelations = this.$store.getters.getAccounts[this.accountId]
@@ -238,7 +240,6 @@ export default {
           tokenBalance: "n/a",
           freezeStatus: "n/a",
           kycStatus: "n/a",
-          transferable: false,
           imageData: undefined,
         };
         if (tokens[oneTokenId].symbol.includes("HEDERA://")) {
@@ -272,13 +273,6 @@ export default {
               ? "Yes"
               : "No";
           }
-        }
-        const otherRelation = this.$store.getters.getAccounts[this.transferTo]
-          .tokenRelationships;
-        if (typeof otherRelation[oneTokenId] !== "undefined") {
-          //TODO: Check kyc and freeze status on other account
-          oneToken.transferable = true;
-          this.transferableTokens.push(oneTokenId);
         }
         this.accountTokens.push(oneToken);
       }
