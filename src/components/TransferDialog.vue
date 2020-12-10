@@ -1,11 +1,17 @@
 <template>
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="600px">
-      <v-form ref="form" v-model="valid" lazy-validation>
+      <v-form ref="form" v-model="valid">
         <v-card>
           <v-card-title>
             <span class="headline">Transfer</span>
           </v-card-title>
+          <v-card-subtitle v-if="isNFT" class="text-left">
+            Transfer one Non Fungible Token
+          </v-card-subtitle>
+          <v-card-subtitle v-if="! isNFT" class="text-left">
+            Transfer a Fungible Token, optionally exchanging hBar in one atomic transaction
+          </v-card-subtitle>
           <v-card-text>
             <v-container>
               <v-row v-if="transferFrom">
@@ -18,32 +24,37 @@
                 </v-col>
               </v-row>
               <v-row>
-                <v-col cols="6" v-if="fixedDestination">
-                  <v-text-field
-                    label="To"
-                    v-model="fixedDestination"
-                    disabled
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6" v-else>
+                <v-col cols="6">
                   <v-select
                     :items="accounts"
+                    item-text="name"
+                    item-value="accountId"
                     label="To"
                     v-model="destination"
                   ></v-select>
                 </v-col>
               </v-row>
-              <v-row>
+              <v-row v-if="! isNFT">
                 <v-col cols="12">
                   <v-text-field
-                    label="Token Quantity* (includes decimals, for 100.02 input 10002)"
-                    :rules="integerRules"
-                    v-model="quantity"
-                    required
+                      label="Token Quantity* (includes decimals, for 100.02 input 10002)"
+                      :rules="quantityRules"
+                      v-model="quantity"
+                      required
                   ></v-text-field>
                 </v-col>
               </v-row>
-              <v-row>
+              <v-row v-if="destination === marketPlaceAccountId">
+                <v-col cols="12">
+                  <v-text-field
+                      label="Offer* (offer price in hBar)"
+                      :rules="integerRules"
+                      v-model="offer"
+                      required
+                  ></v-text-field>
+                </v-col>
+              </v-row>
+              <v-row v-else>
                 <v-col cols="12">
                   <v-text-field
                     label="hBar* (Token(s) recipient pays in hBar)"
@@ -78,23 +89,26 @@
 
 <script>
 import { EventBus } from "../eventBus";
-import { getUserAccounts } from "../utils";
 import { tokenTransfer } from "../service/tokenService";
+import {getAccountDetails, getUserAccountsWithNames} from "@/utils";
 
 export default {
   name: "TransferDialog",
   data: function() {
     return {
-      accounts: getUserAccounts(),
+      accounts: getUserAccountsWithNames(),
+      marketPlaceAccountId: getAccountDetails("Marketplace").accountId,
       valid: false,
       dialog: false,
       quantity: 0,
       hBars: 0,
+      offer: 0,
       destination: "",
-      fixedDestination: "",
       tokenId: "",
       integerRules: [v => v == parseInt(v) || "Integer required"],
-      transferFrom: ""
+      quantityRules: [v => v == parseInt(v) && v > 0|| "Integer greater than 0 required"],
+      transferFrom: "",
+      isNFT: false
     };
   },
   computed: {
@@ -104,26 +118,30 @@ export default {
   },
   methods: {
     async transfer() {
-      this.dialog = !(await tokenTransfer(
+      const result = await tokenTransfer(
         this.tokenId,
         this.user,
         this.quantity,
         this.hBars,
         this.destination
-      ));
+      );
+      if (result) {
+        //TODO-if successful, register bid in memory
+        this.dialog = false
+      };
     }
   },
   created() {
     EventBus.$on("transferDialog", operation => {
-      this.accounts = getUserAccounts();
+      this.accounts = getUserAccountsWithNames();
       this.valid = false;
-      this.quantity = "";
-      this.fixedDestination = operation.fixedDestination;
-      this.destination = operation.fixedDestination;
       this.tokenId = operation.tokenId;
       this.transferFrom = operation.transferFrom;
       this.user = operation.user;
       this.dialog = true;
+      this.isNFT = operation.isNFT;
+      this.quantity = (this.isNFT) ? 1 : 0;
+      this.offer = 0;
     });
   }
 };
