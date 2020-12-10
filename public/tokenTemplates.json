@@ -1,4 +1,5 @@
 {
+  "helpCompletingThisFile": "https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/about",
   "card": {
     "type": "object",
     "properties": {

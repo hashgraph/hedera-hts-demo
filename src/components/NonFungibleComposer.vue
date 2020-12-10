@@ -314,7 +314,9 @@ export default {
       this.tokenTemplates = loadTokenTemplates();
       this.tokenTemplatesForSelection = [];
       for (const templateItem in this.tokenTemplates) {
-        this.tokenTemplatesForSelection.push(templateItem);
+        if (templateItem !== "helpCompletingThisFile") {
+          this.tokenTemplatesForSelection.push(templateItem);
+        }
       }
     },
     selectTemplate() {
