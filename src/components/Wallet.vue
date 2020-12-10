@@ -53,82 +53,129 @@
           </v-data-table>
         </v-col>
       </v-row>
-      <v-form ref="form" v-model="valid">
-        <v-card class="mx-auto ma-4">
-          <v-toolbar color="primary" dark>
-            <v-toolbar-title class="white--text"
-              >Transfers and swaps to/from {{ transferTo }}</v-toolbar-title
-            >
-          </v-toolbar>
-          <v-card-text>
-            <v-row>
-              <v-col cols="3">
-                <v-select
-                  :items="accountTokens"
-                  item-text="tokenName"
-                  item-value="tokenId"
-                  label="Token 1"
-                  v-model="tokenToTransfer1"
-                ></v-select>
-              </v-col>
-              <v-col cols="5">
-                <v-text-field
-                  label="Token Quantity* (includes decimals, negative to receive)"
-                  :rules="integerRules"
-                  v-model="quantityToTransfer1"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="3">
-                <v-select
-                  :items="accountTokens"
-                  item-text="tokenName"
-                  item-value="tokenId"
-                  label="Token 2"
-                  v-model="tokenToTransfer2"
-                ></v-select>
-              </v-col>
-              <v-col cols="5">
-                <v-text-field
-                  label="Token Quantity* (includes decimals, negative to receive)"
-                  :rules="integerRules"
-                  v-model="quantityToTransfer2"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="3">
-                <v-text-field
-                  label="hBar* (negative to send)"
-                  :rules="integerRules"
-                  v-model="hBars"
-                  required
-                ></v-text-field>
-              </v-col>
-            </v-row>
-          </v-card-text>
-          <v-card-actions class="justify-end">
-            <v-btn
-              text
-              color="blue darken-1"
-              @click="tokenSwap"
-              :disabled="!formValid"
-            >
-              Transfer
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-form>
+      <v-toolbar>
+      <v-tabs centered v-model="tabs">
+        <v-tab>Transfers and swaps</v-tab>
+        <v-tab>Market place</v-tab>
+      </v-tabs>
+      </v-toolbar>
+
+      <v-tabs-items v-model="tabs">
+        <v-tab-item>
+          <v-form ref="form" v-model="valid">
+            <v-card class="mx-auto">
+              <v-card-text>
+                <v-row dense>
+                  <v-col cols="3">
+                    <v-select
+                        :items="accounts"
+                        item-text="name"
+                        item-value="accountId"
+                        label="To/from"
+                        v-model="destination1"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="3">
+                    <v-select
+                        :items="accountTokens"
+                        item-text="tokenName"
+                        item-value="tokenId"
+                        label="Token 1"
+                        v-model="tokenToTransfer1"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="4" v-if="destination1 === marketPlaceAccountId">
+                    <v-text-field
+                        label="Offer* (offer price in hBar)"
+                        :rules="integerRules"
+                        v-model="offer1"
+                        required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col v-else cols="4">
+                    <v-text-field
+                        label="Token Quantity* (includes decimals, negative to receive)"
+                        :rules="integerRules"
+                        v-model="quantityToTransfer1"
+                        required
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+                <v-row dense>
+                  <v-col cols="3">
+                    <v-select
+                        :items="accounts"
+                        item-text="name"
+                        item-value="accountId"
+                        label="To/from"
+                        v-model="destination2"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="3">
+                    <v-select
+                        :items="accountTokens"
+                        item-text="tokenName"
+                        item-value="tokenId"
+                        label="Token 2"
+                        v-model="tokenToTransfer2"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="4" v-if="destination2 === marketPlaceAccountId">
+                    <v-text-field
+                        label="Offer* (offer price in hBar)"
+                        :rules="integerRules"
+                        v-model="offer2"
+                        required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col v-else cols="4">
+                    <v-text-field
+                        label="Token Quantity* (includes decimals, negative to receive)"
+                        :rules="integerRules"
+                        v-model="quantityToTransfer2"
+                        required
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+                <v-row dense>
+                  <v-col cols="3">
+                    <v-text-field
+                        label="hBar* (negative to send)"
+                        :rules="integerRules"
+                        v-model="hBars"
+                        required
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+              <v-card-actions class="justify-end">
+                <v-btn
+                    text
+                    color="blue darken-1"
+                    @click="tokenSwap"
+                    :disabled="!formValid"
+                >
+                  Transfer
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </v-tab-item>
+        <v-tab-item>
+          <v-card class="mx-auto">
+            <v-card-text>
+              MarketPlace
+            </v-card-text>
+          </v-card>
+        </v-tab-item>
+      </v-tabs-items>
     </div>
     <div v-else>Wallet account isn't setup</div>
   </v-container>
 </template>
 
 <script>
-import { getAccountDetails } from "@/utils";
+import {getAccountDetails, getUserAccountsWithNames} from "@/utils";
 import { tokenAssociate, tokenDissociate } from "@/service/tokenService";
 import { tokenSwap } from "@/service/tokenService";
 import { EventBus } from "@/eventBus";
@@ -144,6 +191,8 @@ export default {
       loading: false,
       numberOfTokens: this.$store.getters.numberOfTokens,
       transferTo: "",
+      destination1: "",
+      destination2: "",
       tokenToTransfer1: "",
       quantityToTransfer1: 0,
       tokenToTransfer2: "",
@@ -160,7 +209,12 @@ export default {
         { text: "token Balance", align: "center", value: "tokenBalance" },
         { text: "Frozen", align: "center", value: "freezeStatus" },
         { text: "KYCd", align: "center", value: "kycStatus" }
-      ]
+      ],
+      tabs: null,
+      accounts: getUserAccountsWithNames(this.walletInstance),
+      marketPlaceAccountId: getAccountDetails("Marketplace").accountId,
+      offer1: 0,
+      offer2: 0,
     };
   },
   computed: {
@@ -171,13 +225,29 @@ export default {
     formValid() {
       if (
         this.tokenToTransfer1 !== "" &&
+        this.destination1 !== "Marketplace" &&
         !this.quantityToTransfer1 === parseInt(this.quantityToTransfer1)
       ) {
         return false;
       }
       if (
+          this.tokenToTransfer1 !== "" &&
+          this.destination1 === "Marketplace" &&
+          !this.offer1 === parseInt(this.offer1)
+      ) {
+        return false;
+      }
+      if (
         this.tokenToTransfer2 !== "" &&
+        this.destination2 !== "Marketplace" &&
         !this.quantityToTransfer2 === parseInt(this.quantityToTransfer2)
+      ) {
+        return false;
+      }
+      if (
+          this.tokenToTransfer2 !== "" &&
+          this.destination2 === "Marketplace" &&
+          !this.offer2 === parseInt(this.offer2)
       ) {
         return false;
       }
@@ -286,7 +356,7 @@ export default {
     },
     async tokenSwap() {
       EventBus.$emit("busy", true);
-      await tokenSwap(
+      const result = await tokenSwap(
         this.walletInstance,
         this.transferTo,
         this.tokenToTransfer1,
@@ -295,7 +365,10 @@ export default {
         this.quantityToTransfer2,
         this.hBars
       );
-      EventBus.$emit("busy", false);
+      if (result) {
+        // TODO: Log marketplace offer
+        EventBus.$emit("busy", false);
+      }
     }
   }
 };
