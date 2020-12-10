@@ -366,7 +366,7 @@ export default {
       }
       const fileId = await fileCreate(JSON.stringify(modelToSave));
       if (fileId !== "") {
-        const ownerAccount = getAccountDetails("owner");
+        const ownerAccount = getAccountDetails("Owner");
 
         const token = {
           name: this.name,

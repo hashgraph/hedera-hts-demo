@@ -32,7 +32,7 @@
                     label="Decimals*"
                     required
                     v-model="decimals"
-                    :rules="integerRules"
+                    :rules="decimalsRules"
                   ></v-text-field>
                 </v-col>
                 <v-col cols="4">
@@ -137,13 +137,16 @@ export default {
       integerRules: [
         v => (v == parseInt(v) && v > 0) || "Integer greater than 0 required"
       ],
+      decimalsRules: [
+        v => (v == parseInt(v) && v >= 0) || "Integer greater or equal to 0 required"
+      ],
       nameRules: [
           v => !!v || "Input required",
-          v => v.length > 100 || "Max length 100"
+          v => v.length <= 100 || "Max length 100"
       ],
       symbolRules: [
           v => !!v || "Input required",
-          v => v.length > 100 || "Max length 100"
+          v => v.length <= 100 || "Max length 100"
         // v => /^[a-zA-Z]*$/.test(v) || "Only letters are allowed"
       ]
     };
@@ -182,7 +185,7 @@ export default {
         }
       }
 
-      const ownerAccount = getAccountDetails("owner");
+      const ownerAccount = getAccountDetails("Owner");
       const token = {
         name: this.name,
         symbol: this.symbol,
@@ -196,7 +199,8 @@ export default {
         defaultFreezeStatus: _defaultFreezeStatus,
         autoRenewAccount: ownerAccount.accountId,
         treasury: ownerAccount.accountId,
-        deleted: false
+        deleted: false,
+        key: privateKey.toString()
       };
       const newToken = await tokenCreate(token);
       if (typeof newToken.tokenId !== "undefined") {

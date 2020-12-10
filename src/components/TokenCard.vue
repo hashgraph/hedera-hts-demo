@@ -139,8 +139,8 @@ export default {
       const transfer = {
         operation: "transfer",
         tokenId: this.tokenId,
-        fixedDestination: "",
-        user: "owner"
+        isNFT: this.token.isNFT,
+        user: "Owner"
       };
       EventBus.$emit("transferDialog", transfer);
     },

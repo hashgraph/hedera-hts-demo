@@ -479,7 +479,7 @@ export default {
         this.defaultFreezeStatus = false;
       }
 
-      const ownerAccount = getAccountDetails("owner");
+      const ownerAccount = getAccountDetails("Owner");
       const token = {
         name: this.name,
         symbol: this.symbol,
