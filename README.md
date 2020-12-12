@@ -56,7 +56,7 @@ Run
 docker-compose up
 ```
 
-Note: `docker-compose` build is only necessary the first time, or if you make changes to the code to (re)build the images. 
+Note: `docker-compose` build is only necessary the first time, or if you make changes to the code or `.env` to (re)build the images. 
 
 ## I want to build it myself
 
