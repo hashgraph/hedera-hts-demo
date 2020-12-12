@@ -40,6 +40,7 @@ Edit `.env` and setup the following variables
 * VUE_APP_OPERATOR_ID=0.0.xxxx Input your operator id 
 * VUE_APP_OPERATOR_KEY=302xxx Input your private key
 * VUE_APP_INITIAL_BALANCE=1
+* VUE_APP_NETWORK=testnet (or mainnet)
 
 ## I just want to run it quickly
 
