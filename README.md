@@ -47,7 +47,7 @@ You can deploy the UI with docker-compose after you have edited the `.env` file 
 
 Build
 ```shell script
-docker-compose build
+docker-compose build --no-cache
 ```
 
 Run
