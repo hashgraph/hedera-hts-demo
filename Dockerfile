@@ -6,7 +6,7 @@ COPY ./.browserslistrc /srv/hedera-hts-demo/.browserslistrc
 COPY ./.eslintrc.js /srv/hedera-hts-demo/.eslintrc.js
 COPY ./babel.config.js /srv/hedera-hts-demo/babel.config.js
 COPY ./vue.config.js /srv/hedera-hts-demo/vue.config.js
-COPY ./.env /srv/hedera-hts-demo/.env
+#COPY ./.env /srv/hedera-hts-demo/.env
 ADD ./src /srv/hedera-hts-demo/src
 ADD ./public /srv/hedera-hts-demo/public
 
