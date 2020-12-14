@@ -6,7 +6,7 @@
 This demo is a user interface written in Javascript (Vue.JS) to illustrate the use of the Hedera Token Service. When first launched, the demo will create three accounts as follows:
 * An account for the owner/admin of new tokens
 * Two accounts representing users (wallet holders) that will use the token, Alice and Bob
-* Anoter account representing a marketplace (escrow) for the purpose of holding tokens that have been offered for sale
+* Another account representing a marketplace (escrow) for the purpose of holding tokens that have been offered for sale
 
 Each account is credited some hBar to fund their activity on Hedera.
 
@@ -39,7 +39,7 @@ Edit `.env` and setup the following variables
 
 * VUE_APP_OPERATOR_ID=0.0.xxxx Input your operator id 
 * VUE_APP_OPERATOR_KEY=302xxx Input your private key
-* VUE_APP_INITIAL_BALANCE=1
+* VUE_APP_INITIAL_BALANCE=10
 * VUE_APP_NETWORK=testnet (or mainnet)
 
 ## I just want to run it quickly
