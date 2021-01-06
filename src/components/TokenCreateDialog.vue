@@ -135,7 +135,7 @@ export default {
       kycKey: true,
       supplyKey: true,
       integerRules: [
-        v => (v == parseInt(v) && v > 0) || "Integer greater than 0 required"
+        v => (v == parseInt(v) && v >= 0) || "Integer greater or equal to 0 required"
       ],
       decimalsRules: [
         v => (v == parseInt(v) && v >= 0) || "Integer greater or equal to 0 required"
