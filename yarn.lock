@@ -904,18 +904,18 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@hashgraph/cryptography@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@hashgraph/cryptography/-/cryptography-1.0.7.tgz#4e93f29067fc15ace2be0e5f3c8c33a0cf7fa475"
-  integrity sha512-oEyy+YUHLaDPDhIemZUxDkcuy/lZv9WBEzVxGOCqiSBEqGCkJgCG9H1hpoKIovcwFeAsVsOMn3Ujz5N20eXRAw==
+"@hashgraph/cryptography@^1.0.11":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@hashgraph/cryptography/-/cryptography-1.0.12.tgz#8c4b3900d10d0c6c5ff807f90aad0c45b3d2beb4"
+  integrity sha512-uX0IzuOoE1LxAuc6+SVrc9WCEJWnRJNurAgEfycGKqfwUbCEWXHqTzUc/hDlB2NEv0M6g/cRVwtzatCHPGaJwQ==
   dependencies:
     bignumber.js "^9.0.1"
     tweetnacl "^1.0.3"
 
-"@hashgraph/proto@^1.0.17":
-  version "1.0.17"
-  resolved "https://registry.yarnpkg.com/@hashgraph/proto/-/proto-1.0.17.tgz#6ab92f32307d40cf0d6e331ed82f4b7e265631f2"
-  integrity sha512-Ar0htaA3SPHElIANqP2Madz6NsfmnoCW4RQ79KXS8uqBMO6lU3sPBhRFu1QkZbh4I+8h/pJd+tVSoOqAu44o+A==
+"@hashgraph/proto@^1.0.19":
+  version "1.0.19"
+  resolved "https://registry.yarnpkg.com/@hashgraph/proto/-/proto-1.0.19.tgz#3eb08c17a582bb508a04c8bdefbf5a9e0bc5c95f"
+  integrity sha512-cdoZB9QT1ed4sEfO8tGdkGzDurM4BU0aZWoa0IWhFGrj6O9oTz2RDyh9YArqeGkwm5g3u/luWRaKlObe97tM/A==
   dependencies:
     "@hashgraph/protobufjs" "^6.10.1-hashgraph.2"
 
@@ -938,14 +938,14 @@
     "@types/node" "^13.7.0"
     long "^4.0.0"
 
-"@hashgraph/sdk@^2.0.3":
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-2.0.3.tgz#37c5d2154331e3124302df6854fbe5727fae04a9"
-  integrity sha512-MRA9y6QF3iVlPkXqVndp597pfagEl7S5QNVdDWiwK9AWfcnrBBsK945JgLPBczmoC/VaePvspoc64iPwg4WU7A==
+"@hashgraph/sdk@^2.0.12":
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-2.0.12.tgz#e65e3e5d38f5a4c2d74abb4daf0d3f1f69bef487"
+  integrity sha512-GTp+PfLZh0egVaZFNYXfEdgTv29h9xfZHEMcA6nhpbaOYDLgazovs6vJBmYo/AxNsgHDZK2bFtVAbhZRAyXpEQ==
   dependencies:
     "@grpc/grpc-js" "^1.2.0"
-    "@hashgraph/cryptography" "^1.0.7"
-    "@hashgraph/proto" "^1.0.17"
+    "@hashgraph/cryptography" "^1.0.11"
+    "@hashgraph/proto" "^1.0.19"
     bignumber.js "^9.0.1"
     long "^4.0.0"
 
