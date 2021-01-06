@@ -4,7 +4,7 @@
       <v-row>
         <v-col cols="12">
           <v-data-table
-            :headers="headers"
+            :headers="tokenHeaders"
             :items="accountTokens"
             class="elevation-1"
             hide-default-footer
@@ -14,7 +14,7 @@
             </template>
 
             <template v-slot:item.tokenName="{ item }">
-              {{ item.tokenName }} ({{ item.tokenId }})
+              {{ item.tokenName }} (<a :href="item.mirrorURL" target="_blank">{{ item.tokenId }}</a>)
             </template>
 
             <template v-slot:item.freezeStatus="{ item }">
@@ -139,11 +139,20 @@
                 </v-row>
                 <v-row dense>
                   <v-col cols="3">
+                    <v-select
+                        :items="accounts"
+                        item-text="name"
+                        item-value="accountId"
+                        label="Hbar To/from"
+                        v-model="hbarTo"
+                    ></v-select>
+                  </v-col>
+                  <v-col cols="3">
                     <v-text-field
                         label="hBar* (negative to send)"
                         :rules="integerRules"
                         v-model="hBars"
-                        required
+                        :disabled="!hbarTo"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -162,11 +171,21 @@
           </v-form>
         </v-tab-item>
         <v-tab-item>
-          <v-card class="mx-auto">
-            <v-card-text>
-              MarketPlace
-            </v-card-text>
-          </v-card>
+          <v-data-table
+              :headers="bidHeaders"
+              :items="bids"
+              class="elevation-1"
+              hide-default-footer
+          >
+            <template v-slot:item.actions="{ item }">
+              <v-chip color="green dark">
+                <v-btn
+                    text
+                    @click="buy(item)"
+                >Buy</v-btn>
+              </v-chip>
+            </template>
+          </v-data-table>
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -187,21 +206,23 @@ export default {
   props: ["walletInstance"],
   data: function() {
     return {
+      mirrorURL: "https://testnet.dragonglass.me/hedera/search?q=",
       valid: false,
       loading: false,
       numberOfTokens: this.$store.getters.numberOfTokens,
-      transferTo: "",
       destination1: "",
       destination2: "",
       tokenToTransfer1: "",
       quantityToTransfer1: 0,
       tokenToTransfer2: "",
       quantityToTransfer2: 0,
+      hbarTo: "",
       hBars: 0,
       accountTokens: [],
+      bids: [],
       tokenProperties: [],
       integerRules: [v => v == parseInt(v) || "Integer required"],
-      headers: [
+      tokenHeaders: [
         { text: "", align: "center", value: "image" },
         { text: "Token", align: "center", value: "tokenName" },
         { text: "Associated", align: "center", value: "related" },
@@ -209,6 +230,11 @@ export default {
         { text: "token Balance", align: "center", value: "tokenBalance" },
         { text: "Frozen", align: "center", value: "freezeStatus" },
         { text: "KYCd", align: "center", value: "kycStatus" }
+      ],
+      bidHeaders: [
+        { text: "Token", align: "center", value: "tokenId" },
+        { text: "Offer", align: "center", value: "offerAmount" },
+        { text: "", align: "center", value: "actions" }
       ],
       tabs: null,
       accounts: getUserAccountsWithNames(this.walletInstance),
@@ -223,45 +249,34 @@ export default {
       return account.accountId;
     },
     formValid() {
-      if (
-        this.tokenToTransfer1 !== "" &&
-        this.destination1 !== "Marketplace" &&
-        !this.quantityToTransfer1 === parseInt(this.quantityToTransfer1)
-      ) {
-        return false;
+      if (this.tokenToTransfer1 !== "") {
+        if (this.destination1 === "Marketplace") {
+          if (!this.offer1 === parseInt(this.offer1)) {
+            return false;
+          }
+        } else {
+          if (!this.quantityToTransfer1 === parseInt(this.quantityToTransfer1)) {
+            return false;
+          }
+        }
       }
-      if (
-          this.tokenToTransfer1 !== "" &&
-          this.destination1 === "Marketplace" &&
-          !this.offer1 === parseInt(this.offer1)
-      ) {
-        return false;
+
+      if (this.tokenToTransfer2 !== "") {
+        if (this.destination2 === "Marketplace") {
+          if (!this.offer2 === parseInt(this.offer2)) {
+            return false;
+          }
+        } else {
+          if (!this.quantityToTransfer2 === parseInt(this.quantityToTransfer2)) {
+            return false;
+          }
+        }
       }
-      if (
-        this.tokenToTransfer2 !== "" &&
-        this.destination2 !== "Marketplace" &&
-        !this.quantityToTransfer2 === parseInt(this.quantityToTransfer2)
-      ) {
-        return false;
-      }
-      if (
-          this.tokenToTransfer2 !== "" &&
-          this.destination2 === "Marketplace" &&
-          !this.offer2 === parseInt(this.offer2)
-      ) {
-        return false;
-      }
+
       if (!this.hBars === parseInt(this.hBars)) {
         return false;
       }
       if (this.tokenToTransfer1 === "" && this.tokenToTransfer2 === "") {
-        return false;
-      }
-      if (
-        parseInt(this.quantityToTransfer1) +
-          parseInt(this.quantityToTransfer2) ===
-        0
-      ) {
         return false;
       }
 
@@ -281,6 +296,26 @@ export default {
     clearInterval(this.interval);
   },
   methods: {
+    async buy(bid) {
+      EventBus.$emit("busy", true);
+
+      const result = await tokenSwap(
+          "Marketplace",
+          getAccountDetails(this.walletInstance).accountId,
+          bid.tokenId,
+          1,
+          "",
+          "",
+          0,
+          getAccountDetails(bid.tokenOwner).accountId,
+          bid.offerAmount
+      );
+
+      if (result) {
+          this.$store.commit("deleteBid", bid);
+      }
+      EventBus.$emit("busy", false);
+    },
     getColor(status, reverseLogic) {
       if (status === "n/a") return "grey";
       else if (status === "Yes") return reverseLogic ? "red" : "green";
@@ -289,11 +324,10 @@ export default {
     async loadTokenData() {
       this.loading = true;
       this.accountTokens = [];
+      this.bids = [];
 
-      if (this.walletInstance === "Alice") {
-        this.transferTo = getAccountDetails("Bob").accountId;
-      } else {
-        this.transferTo = getAccountDetails("Alice").accountId;
+      for (const bid in this.$store.getters.getBids) {
+        this.bids.push(this.$store.getters.getBids[bid]);
       }
 
       const accountRelations = this.$store.getters.getAccounts[this.accountId]
@@ -311,6 +345,7 @@ export default {
           freezeStatus: "n/a",
           kycStatus: "n/a",
           imageData: undefined,
+          mirrorURL: this.mirrorURL.concat(oneTokenId)
         };
         if (tokens[oneTokenId].symbol.includes("HEDERA://")) {
           if (! this.tokenProperties[oneTokenId]) {
@@ -356,19 +391,43 @@ export default {
     },
     async tokenSwap() {
       EventBus.$emit("busy", true);
+      // if transferring to marketplace, we only transfer 1 token
+      if (this.destination1 === this.marketPlaceAccountId) {
+        this.quantityToTransfer1 = 1;
+      }
+      if (this.destination2 === this.marketPlaceAccountId) {
+        this.quantityToTransfer2 = 1;
+      }
       const result = await tokenSwap(
         this.walletInstance,
-        this.transferTo,
+        this.destination1,
         this.tokenToTransfer1,
         this.quantityToTransfer1,
+        this.destination2,
         this.tokenToTransfer2,
         this.quantityToTransfer2,
+        this.hbarTo,
         this.hBars
       );
       if (result) {
-        // TODO: Log marketplace offer
-        EventBus.$emit("busy", false);
+        if (this.destination1 === this.marketPlaceAccountId) {
+          const bid = {
+            tokenId: this.tokenToTransfer1,
+            offerAmount: this.offer1,
+            tokenOwner: this.walletInstance
+          };
+          this.$store.commit("addBid", bid);
+        }
+        if (this.destination2 === this.marketPlaceAccountId) {
+          const bid = {
+            tokenId: this.tokenToTransfer2,
+            offerAmount: this.offer2,
+            tokenOwner: this.walletInstance
+          };
+          this.$store.commit("addBid", bid);
+        }
       }
+      EventBus.$emit("busy", false);
     }
   }
 };

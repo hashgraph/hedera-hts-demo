@@ -13,8 +13,8 @@ export default new Vuex.Store({
   state: {
     tokens: {},
     accounts: {},
+    bids: {},
     currentTokenId: undefined,
-    nonce: "",
     enablePoll: false
   },
   mutations: {
@@ -23,28 +23,29 @@ export default new Vuex.Store({
     },
     setCurrentTokenId(state, tokenId) {
       state.currentTokenId = tokenId;
-      state.nonce = Date.now().toString();
     },
     setTokens(state, tokens) {
       state.tokens = tokens;
-      state.nonce = Date.now().toString();
     },
     setAccounts(state, accounts) {
       state.accounts = accounts;
-      state.nonce = Date.now().toString();
     },
     setAccount(state, account) {
       Vue.set(state.accounts, account.accountId, account);
-
-      state.nonce = Date.now().toString();
     },
     setToken(state, token) {
       Vue.set(state.tokens, token.tokenId, token);
-      state.nonce = Date.now().toString();
+    },
+    addBid(state, bid) {
+      Vue.set(state.bids, bid.tokenId, bid);
+    },
+    deleteBid(state, bid) {
+      Vue.delete(state.bids, bid.tokenId);
     },
     reset(state) {
       state.accounts = {};
       state.tokens = {};
+      state.bids = {};
       state.currentTokenId = undefined;
     },
     wipeAccount(state, wipeInstruction) {
@@ -56,7 +57,6 @@ export default new Vuex.Store({
         const relationship = account.tokenRelationships[tokenId];
         if (typeof relationship !== "undefined") {
           state.accounts[accountId].tokenRelationships[tokenId].balance = 0;
-          state.nonce = Date.now().toString();
         }
       }
     },
@@ -71,7 +71,6 @@ export default new Vuex.Store({
           const freeze = freezeInstruction.freeze ? 1 : 2;
           account.tokenRelationships[tokenId].freezeStatus = freeze;
           Vue.set(state.accounts, accountId, account);
-          state.nonce = Date.now().toString();
         }
       }
     },
@@ -85,14 +84,17 @@ export default new Vuex.Store({
         if (typeof relationship !== "undefined") {
           const kyc = kycInstruction.kyc ? 1 : 2;
           state.accounts[accountId].tokenRelationships[tokenId].kycStatus = kyc;
-          state.nonce = Date.now().toString();
         }
       }
     }
   },
   getters: {
-    nonce(state) {
-      return state.nonce;
+    getBids(state) {
+      if (typeof state.bids === "undefined") {
+        return {};
+      } else {
+        return state.bids;
+      }
     },
     currentTokenId(state) {
       return state.currentTokenId;

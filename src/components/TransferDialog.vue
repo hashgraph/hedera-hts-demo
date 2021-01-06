@@ -113,7 +113,15 @@ export default {
   },
   computed: {
     formValid() {
-      return this.valid && this.destination !== "";
+      if (this.destination === "") {
+        return false;
+      }
+      if ((this.destination === this.marketPlaceAccountId) && (this.offer != 0)) {
+        return true;
+      }  else if ((this.destination !== this.marketPlaceAccountId) && (this.quantity != 0)) {
+        return true;
+      }
+      return false;
     }
   },
   methods: {
@@ -126,7 +134,14 @@ export default {
         this.destination
       );
       if (result) {
-        //TODO-if successful, register bid in memory
+        if (this.destination === this.marketPlaceAccountId) {
+          const bid = {
+            tokenId: this.tokenId,
+            offerAmount: this.offer,
+            tokenOwner: this.user
+          };
+          this.$store.commit("addBid", bid);
+        }
         this.dialog = false
       };
     }
@@ -134,6 +149,7 @@ export default {
   created() {
     EventBus.$on("transferDialog", operation => {
       this.accounts = getUserAccountsWithNames("");
+      this.marketPlaceAccountId = getAccountDetails("Marketplace").accountId;
       this.valid = false;
       this.tokenId = operation.tokenId;
       this.transferFrom = operation.transferFrom;
