@@ -105,6 +105,7 @@ export default {
       offer: 0,
       destination: "",
       tokenId: "",
+      name: "",
       integerRules: [v => v == parseInt(v) || "Integer required"],
       quantityRules: [v => v == parseInt(v) && v > 0|| "Integer greater than 0 required"],
       transferFrom: "",
@@ -138,7 +139,8 @@ export default {
           const bid = {
             tokenId: this.tokenId,
             offerAmount: this.offer,
-            tokenOwner: this.user
+            tokenOwner: this.user,
+            tokenName: this.name
           };
           this.$store.commit("addBid", bid);
         }
@@ -158,6 +160,7 @@ export default {
       this.isNFT = operation.isNFT;
       this.quantity = (this.isNFT) ? 1 : 0;
       this.offer = 0;
+      this.name = operation.name;
     });
   }
 };

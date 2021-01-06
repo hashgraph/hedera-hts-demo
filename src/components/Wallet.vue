@@ -14,7 +14,7 @@
             </template>
 
             <template v-slot:item.tokenName="{ item }">
-              {{ item.tokenName }} (<a :href="item.mirrorURL" target="_blank">{{ item.tokenId }}</a>)
+              {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{ item.tokenId }}</a>)
             </template>
 
             <template v-slot:item.freezeStatus="{ item }">
@@ -177,10 +177,15 @@
               class="elevation-1"
               hide-default-footer
           >
+            <template v-slot:item.tokenName="{ item }">
+              {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{ item.tokenId }}</a>)
+            </template>
+
             <template v-slot:item.actions="{ item }">
               <v-chip color="green dark">
                 <v-btn
                     text
+                    :disabled="item.tokenOwner === walletInstance"
                     @click="buy(item)"
                 >Buy</v-btn>
               </v-chip>
@@ -232,7 +237,7 @@ export default {
         { text: "KYCd", align: "center", value: "kycStatus" }
       ],
       bidHeaders: [
-        { text: "Token", align: "center", value: "tokenId" },
+        { text: "Token", align: "center", value: "tokenName" },
         { text: "Offer", align: "center", value: "offerAmount" },
         { text: "", align: "center", value: "actions" }
       ],
