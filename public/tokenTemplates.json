@@ -1,0 +1,176 @@
+{
+  "helpCompletingThisFile": "https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/about",
+  "card": {
+    "type": "object",
+    "properties": {
+      "photo": {
+        "type": "object",
+        "title": "Photo",
+        "contentMediaType": "image/*",
+        "writeOnly": true,
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "x-props": {
+            "dense": true
+          }
+        }
+      },
+      "Quality": {
+        "type": "string",
+        "title": "Quality",
+        "enum": [
+          "Meteorite",
+          "Diamond",
+          "Shadow"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
+      "Rarity": {
+        "type": "string",
+        "title": "Rarity",
+        "enum": [
+          "Legendary",
+          "Rare",
+          "Common"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
+      "Type": {
+        "type": "string",
+        "title": "Type",
+        "enum": [
+          "Creature",
+          "Spell"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      }
+    }
+  },
+  "frog": {
+    "type": "object",
+    "properties": {
+      "photo": {
+        "type": "object",
+        "title": "Photo",
+        "contentMediaType": "image/*",
+        "writeOnly": true,
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "x-props": {
+            "dense": true
+          }
+        }
+      },
+      "SkinColor": {
+        "type": "string",
+        "title": "Skin Color",
+        "enum": [
+          "Green",
+          "Brown",
+          "Yellow"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
+      "AdultSize": {
+        "type": "string",
+        "title": "Adult size",
+        "enum": [
+          "Tiny",
+          "Small",
+          "Medium",
+          "Large"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
+      "DangerLevel": {
+        "type": "string",
+        "title": "Am I dangerous to humans",
+        "enum": [
+          "Slimy",
+          "Poisonous",
+          "Lethal"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      }
+    }
+  },
+  "cat": {
+    "type": "object",
+    "properties": {
+      "photo": {
+        "type": "object",
+        "title": "Photo",
+        "contentMediaType": "image/*",
+        "writeOnly": true,
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "x-props": {
+            "dense": true
+          }
+        }
+      },
+      "Breed": {
+        "type": "string",
+        "title": "Breed",
+        "enum": [
+          "Persian",
+          "Maine Coon",
+          "Short hair",
+          "Siamese"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
+      "EyeColor": {
+        "type": "string",
+        "title": "Eye Color",
+        "enum": [
+          "Lava",
+          "Sunfire",
+          "Teal",
+          "Gold"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      }
+    }
+  }
+}

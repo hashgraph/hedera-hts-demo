@@ -20,7 +20,7 @@ export function getUserAccounts() {
   let accounts = [];
   if (state.getters.numberOfAccounts !== 0) {
     for (const key in state.getters.getAccounts) {
-      if (state.getters.getAccounts[key].account.wallet !== "owner") {
+      if (state.getters.getAccounts[key].account.wallet !== "Owner") {
         accounts.push(key);
       }
     }
@@ -28,6 +28,31 @@ export function getUserAccounts() {
 
   return accounts;
 }
+
+export function getUserAccountsWithNames(exclude) {
+  let accounts = [];
+  const account = {
+    accountId: "0.0.0",
+    name: ""
+  };
+  accounts.push(account);
+  if (state.getters.numberOfAccounts !== 0) {
+    for (const key in state.getters.getAccounts) {
+      if (state.getters.getAccounts[key].account.wallet !== "Owner") {
+        if (state.getters.getAccounts[key].account.wallet !== exclude) {
+          const account = {
+            accountId: key,
+            name: state.getters.getAccounts[key].account.wallet
+          };
+          accounts.push(account);
+        }
+      }
+    }
+  }
+
+  return accounts;
+}
+
 export function amountWithDecimals(amount, decimals) {
   return (amount / parseFloat(Math.pow(10, decimals))).toFixed(decimals);
 }

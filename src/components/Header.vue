@@ -18,28 +18,28 @@
       class="ma-2"
       rounded
       :color="ownerButtonColor"
-      @click="showUI('admin')"
+      @click="showUI('Owner')"
     >
-      {{ walletOwner }} (Owner)
+      Owner ({{ walletOwner }})
     </v-btn>
     <div v-if="numberOfAccounts !== 0">
       <v-btn
         class="ma-2"
         rounded
-        :color="wallet1ButtonColor"
+        :color="aliceButtonColor"
         :disabled="numberOfTokens === 0"
-        @click="showUI('wallet1')"
+        @click="showUI('Alice')"
       >
-        {{ walletId1 }}
+        Alice ({{ walletId1 }})
       </v-btn>
       <v-btn
         class="ma-2"
         rounded
-        :color="wallet2ButtonColor"
+        :color="bobButtonColor"
         :disabled="numberOfTokens === 0"
-        @click="showUI('wallet2')"
+        @click="showUI('Bob')"
       >
-        {{ walletId2 }}
+        Bob ({{ walletId2 }})
       </v-btn>
     </div>
 
@@ -75,8 +75,8 @@ export default {
       walletOwner: "",
       interval: undefined,
       ownerButtonColor: "success",
-      wallet1ButtonColor: "primary",
-      wallet2ButtonColor: "primary"
+      aliceButtonColor: "primary",
+      bobButtonColor: "primary"
     };
   },
   created() {
@@ -93,10 +93,10 @@ export default {
       this.numberOfAccounts = this.$store.getters.numberOfAccounts;
       this.numberOfTokens = this.$store.getters.numberOfTokens;
 
-      if (this.numberOfAccounts === 3) {
-        this.walletId1 = getAccountDetails("wallet1").accountId;
-        this.walletId2 = getAccountDetails("wallet2").accountId;
-        this.walletOwner = getAccountDetails("owner").accountId;
+      if (this.numberOfAccounts === 4) {
+        this.walletId1 = getAccountDetails("Alice").accountId;
+        this.walletId2 = getAccountDetails("Bob").accountId;
+        this.walletOwner = getAccountDetails("Owner").accountId;
       }
     },
     showCompose() {
@@ -107,20 +107,20 @@ export default {
     },
     showUI(ui) {
       switch (ui) {
-        case "admin":
+        case "Owner":
           this.ownerButtonColor = "success";
-          this.wallet1ButtonColor = "primary";
-          this.wallet2ButtonColor = "primary";
+          this.aliceButtonColor = "primary";
+          this.bobButtonColor = "primary";
           break;
-        case "wallet1":
+        case "Alice":
           this.ownerButtonColor = "primary";
-          this.wallet1ButtonColor = "success";
-          this.wallet2ButtonColor = "primary";
+          this.aliceButtonColor = "success";
+          this.bobButtonColor = "primary";
           break;
-        case "wallet2":
+        case "Bob":
           this.ownerButtonColor = "primary";
-          this.wallet1ButtonColor = "primary";
-          this.wallet2ButtonColor = "success";
+          this.aliceButtonColor = "primary";
+          this.bobButtonColor = "success";
           break;
       }
 
@@ -138,7 +138,7 @@ export default {
       setTimeout(() => {
         this.$store.commit("reset");
         this.$store.dispatch("setup");
-        EventBus.$emit("viewChange", "admin");
+        EventBus.$emit("viewChange", "Owner");
       }, 3000);
     }
   }

@@ -5,8 +5,10 @@
 
 This demo is a user interface written in Javascript (Vue.JS) to illustrate the use of the Hedera Token Service. When first launched, the demo will create three accounts as follows:
 * An account for the owner/admin of new tokens
-* Two accounts representing users (wallet holders) that will use the token
-Each account is credited 1 hBar to fund their activity on Hedera.
+* Two accounts representing users (wallet holders) that will use the token, Alice and Bob
+* Another account representing a marketplace (escrow) for the purpose of holding tokens that have been offered for sale
+
+Each account is credited some hBar to fund their activity on Hedera.
 
 The demo enables you to:
 * Create tokens
@@ -15,14 +17,16 @@ The demo enables you to:
 * Manage KYC and Freeze for token/account relationships
 * Transfer from treasury (owner) to users
 * Transfer between users
+* Atomically transfer up to two tokens between users, with an optional hBar payment as one atomic transaction
+* Transfer tokens to a marketplace escrow account along with an offer price in hBar
 
 For convenience, accounts and tokens created during the demo will be persisted to a cookie and will be available when the demo is restarted.
 
-** Note: This is purely for demonstration purposes and should not be used as-is in production **
+_Note: This is purely for demonstration purposes and should not be used as-is in production_
 
 ## Prerequisites
 
-* A preview net account
+* A testnet or mainnet account
 * Node.js v14.9.0
 * Yarn 1.22.10
 * Docker 
@@ -36,8 +40,8 @@ Edit `.env` and setup the following variables
 
 * VUE_APP_OPERATOR_ID=0.0.xxxx Input your operator id 
 * VUE_APP_OPERATOR_KEY=302xxx Input your private key
-* VUE_APP_NETWORK="http://localhost"
-* VUE_APP_INITIAL_BALANCE=1
+* VUE_APP_INITIAL_BALANCE=100
+* VUE_APP_NETWORK=testnet (or mainnet)
 
 ## I just want to run it quickly
 
@@ -45,7 +49,7 @@ You can deploy the UI with docker-compose after you have edited the `.env` file 
 
 Build
 ```shell script
-docker-compose build
+docker-compose build --no-cache
 ```
 
 Run
@@ -53,22 +57,9 @@ Run
 docker-compose up
 ```
 
-Note: `docker-compose` build is only necessary the first time, or if you make changes to the code or `.env` file to (re)build the images. 
+Note: `docker-compose` build is only necessary the first time, or if you make changes to the code or `.env` to (re)build the images. 
 
 ## I want to build it myself
-
-### gRPCWeb envoy proxy
-
-The UI requires a gRPCWeb proxy in order to successfully send transactions to the Hedera network from the UI client.
-
-The `envoy` folder has the necessary files to start one up using docker.
-
-```shell script
-cd envoy
-./start-envoy.sh
-```
-
-(Note, the `envoy.yaml` file is currently setup to communicate with `previewNet`)
 
 ### Project setup
 ```
@@ -116,6 +107,25 @@ Clicking on the accounts button (left most) will show which accounts are current
 
 Choosing one of the user accounts in the header allows you to associate or dissociate the account from a token.
 Once associated (and subject to the account being KYCd and unfrozen if appropriate for the token), you can transfer to the other user account.
+
+## NFTs
+
+Support for creating NFTs is demonstrated in the composer whereby a set of templates (driven from `/public/tokenTemplates.json`) are available within the UI when creating an NFT.
+Each template carries a set of properties that are input during the token creation.
+These properties (along with an image if necessary) as then stored in an immutable file on Hedera, the resulting FileId is used to define the symbol for the token, e.g. HEDERA://0.0.xxxx.
+
+You may edit or add to the templates by editing the `/public/tokenTemplates.json` file, following guidelines from [the vjsf component](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/about).
+Note that if you wish to include a picture in your NFT specification, the property must be called `photo` since the UI depends on that field value.
+
+_Note: An alternative to using files on Hedera would be to host the file on a shared location and use a hash of the file as the symbol for the token so that the validity of the file can be verified at any time._  
+
+## Marketplace
+
+A pseudo-market place is enabled in the demo, this enables a token to be transferred to a market place (an escrow account of sorts) along with an offer price in hBar.
+
+One a token has been transferred to the market place, Alice or Bob can request transfer of the token from the marketplace to their account in exchange for the offered hBar value whereby they will own the token in exchange for the hBar value which will be transferred to the account that transferred the token to the market place in the first place.
+
+_Note: If Alice transferred a token to the market place, she's not able to buy the token, only Bob can. If the issuer (owner) of the token transferred to the marketplace, both Bob and Alice can buy it._
 
 ## Contributing
 

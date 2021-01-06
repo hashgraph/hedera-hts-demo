@@ -1,9 +1,7 @@
 <template>
   <v-card>
-    <v-toolbar color="primary" dark>
-      <v-toolbar-title class="white--text"
-        >{{ token.name }} ({{ token.symbol.toUpperCase() }})</v-toolbar-title
-      >
+    <v-toolbar :color="headingColor" dark>
+      <v-toolbar-title class="white--text">{{ token.name }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn icon @click="showDetails">
         <v-icon color="white">mdi-magnify</v-icon>
@@ -11,10 +9,21 @@
     </v-toolbar>
     <v-card-text>
       <v-row>
-        <v-col cols="6">Token Id</v-col>
+        <v-col cols="6">Id</v-col>
         <v-col cols="6"
-          ><a :href="mirrorURL" target="_blank">{{ token.tokenId }}</a></v-col
+          ><a :href="tokenMirrorURL" target="_blank">{{
+            token.tokenId
+          }}</a></v-col
         >
+      </v-row>
+      <v-row>
+        <v-col cols="6">Symbol</v-col>
+        <v-col v-if="fileMirrorURL" cols="6"
+          ><a :href="fileMirrorURL" target="_blank">{{
+            token.symbol
+          }}</a></v-col
+        >
+        <v-col v-else cols="6">{{ token.symbol }}</v-col>
       </v-row>
       <v-row>
         <v-col cols="6">Decimals</v-col>
@@ -79,21 +88,35 @@ export default {
       dirty: false,
       isDeleted: false,
       defaultFreezeStatus: false,
-      mirrorURL: "",
+      mirrorURL: "https://testnet.dragonglass.me/hedera/search?q=",
+      tokenMirrorURL: "",
+      fileMirrorURL: "",
       totalSupply: 0.0,
-      interval: undefined
+      interval: undefined,
+      headingColor: "primary"
     };
   },
   created() {
     this.token = this.$store.getters.getTokens[this.tokenId];
     this.defaultFreezeStatus = this.token.defaultFreezeStatus;
 
+    this.token.isNFT = this.token.symbol.includes("HEDERA://");
+    if (this.token.isNFT) {
+      this.fileMirrorURL = this.mirrorURL.concat(
+        this.token.symbol.replace("HEDERA://", "")
+      );
+    }
+
+    if (this.isDeleted) {
+      this.headingColor = "red";
+    } else {
+      this.headingColor = this.token.isNFT ? "" : "primary";
+    }
+
     // not clean but can't get VUEX to trigger a watch, this is a quick fix
     this.interval = setInterval(() => {
       this.token = this.$store.getters.getTokens[this.tokenId];
-      this.mirrorURL = "https://explorer.kabuto.sh/testnet/id/".concat(
-        this.tokenId
-      );
+      this.tokenMirrorURL = this.mirrorURL.concat(this.tokenId);
       this.isDeleted = this.token.deleted;
       this.totalSupply = amountWithDecimals(
         this.token.totalSupply,
@@ -125,8 +148,9 @@ export default {
       const transfer = {
         operation: "transfer",
         tokenId: this.tokenId,
-        fixedDestination: "",
-        user: "owner"
+        isNFT: this.token.isNFT,
+        user: "Owner",
+        name: this.token.name
       };
       EventBus.$emit("transferDialog", transfer);
     },

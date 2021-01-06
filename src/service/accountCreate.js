@@ -14,7 +14,6 @@ export async function accountCreate(wallet) {
 
   const response = await new AccountCreateTransaction()
     .setKey(privateKey.publicKey)
-    .setMaxTransactionFee(new Hbar(1))
     .setInitialBalance(new Hbar(process.env.VUE_APP_INITIAL_BALANCE))
     .execute(client);
 

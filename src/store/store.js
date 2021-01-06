@@ -13,8 +13,8 @@ export default new Vuex.Store({
   state: {
     tokens: {},
     accounts: {},
+    bids: {},
     currentTokenId: undefined,
-    nonce: "",
     enablePoll: false
   },
   mutations: {
@@ -23,28 +23,29 @@ export default new Vuex.Store({
     },
     setCurrentTokenId(state, tokenId) {
       state.currentTokenId = tokenId;
-      state.nonce = Date.now().toString();
     },
     setTokens(state, tokens) {
       state.tokens = tokens;
-      state.nonce = Date.now().toString();
     },
     setAccounts(state, accounts) {
       state.accounts = accounts;
-      state.nonce = Date.now().toString();
     },
     setAccount(state, account) {
       Vue.set(state.accounts, account.accountId, account);
-
-      state.nonce = Date.now().toString();
     },
     setToken(state, token) {
       Vue.set(state.tokens, token.tokenId, token);
-      state.nonce = Date.now().toString();
+    },
+    addBid(state, bid) {
+      Vue.set(state.bids, bid.tokenId, bid);
+    },
+    deleteBid(state, bid) {
+      Vue.delete(state.bids, bid.tokenId);
     },
     reset(state) {
       state.accounts = {};
       state.tokens = {};
+      state.bids = {};
       state.currentTokenId = undefined;
     },
     wipeAccount(state, wipeInstruction) {
@@ -56,7 +57,6 @@ export default new Vuex.Store({
         const relationship = account.tokenRelationships[tokenId];
         if (typeof relationship !== "undefined") {
           state.accounts[accountId].tokenRelationships[tokenId].balance = 0;
-          state.nonce = Date.now().toString();
         }
       }
     },
@@ -71,7 +71,6 @@ export default new Vuex.Store({
           const freeze = freezeInstruction.freeze ? 1 : 2;
           account.tokenRelationships[tokenId].freezeStatus = freeze;
           Vue.set(state.accounts, accountId, account);
-          state.nonce = Date.now().toString();
         }
       }
     },
@@ -85,14 +84,17 @@ export default new Vuex.Store({
         if (typeof relationship !== "undefined") {
           const kyc = kycInstruction.kyc ? 1 : 2;
           state.accounts[accountId].tokenRelationships[tokenId].kycStatus = kyc;
-          state.nonce = Date.now().toString();
         }
       }
     }
   },
   getters: {
-    nonce(state) {
-      return state.nonce;
+    getBids(state) {
+      if (typeof state.bids === "undefined") {
+        return {};
+      } else {
+        return state.bids;
+      }
     },
     currentTokenId(state) {
       return state.currentTokenId;
@@ -123,17 +125,23 @@ export default new Vuex.Store({
       if (Object.keys(state.accounts).length === 0) {
         // set ourselves up
         // create owner account
-        let newAccount = await accountCreate("owner");
+        let newAccount = await accountCreate("Owner");
         commit("setAccount", newAccount);
-        notifySuccess("Setting up demo 1/3 - owner account created");
+        notifySuccess("Setting up demo 1/4 - owner account created");
         // create user 1
-        newAccount = await accountCreate("wallet1");
+        newAccount = await accountCreate("Alice");
         commit("setAccount", newAccount);
-        notifySuccess("Setting up demo 2/3 - first wallet account created");
+        notifySuccess("Setting up demo 2/4 - Alice wallet account created");
         // create user 2
-        newAccount = await accountCreate("wallet2");
+        newAccount = await accountCreate("Bob");
         commit("setAccount", newAccount);
-        notifySuccess("Setting up demo 3/3 - second wallet account created");
+        notifySuccess("Setting up demo 3/4 - Bob wallet account created");
+        // create user 3
+        newAccount = await accountCreate("Marketplace");
+        commit("setAccount", newAccount);
+        notifySuccess(
+          "Setting up demo 4/4 - Marketplace wallet account created"
+        );
       }
       commit("setCurrentTokenId", undefined);
       notifySuccess("Demo Ready");

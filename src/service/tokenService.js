@@ -25,7 +25,7 @@ const {
 } = require("@hashgraph/sdk");
 
 function ownerClient() {
-  return hederaClientForUser("owner");
+  return hederaClientForUser("Owner");
 }
 
 export async function tokenGetInfo(token) {
@@ -48,7 +48,7 @@ export async function tokenGetInfo(token) {
 export async function tokenCreate(token) {
   let tokenResponse = {};
   const autoRenewPeriod = 7776000; // set to default 3 months
-  const ownerAccount = getAccountDetails("owner").accountId.toString();
+  const ownerAccount = getAccountDetails("Owner").accountId.toString();
   try {
     let additionalSig = false;
     let sigKey;
@@ -59,21 +59,20 @@ export async function tokenCreate(token) {
     tx.setInitialSupply(token.initialSupply);
     tx.setTreasuryAccountId(token.treasury);
     tx.setAutoRenewAccountId(token.autoRenewAccount);
-    tx.setMaxTransactionFee(new Hbar(1));
     tx.setAutoRenewPeriod(autoRenewPeriod);
 
     if (token.adminKey) {
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setAdminKey(sigKey.publicKey);
       additionalSig = true;
     }
     if (token.kycKey) {
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setKycKey(sigKey.publicKey);
       additionalSig = true;
     }
     if (token.freezeKey) {
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setFreezeKey(sigKey.publicKey);
       additionalSig = true;
       tx.setFreezeDefault(token.defaultFreezeStatus);
@@ -82,12 +81,12 @@ export async function tokenCreate(token) {
     }
     if (token.wipeKey) {
       additionalSig = true;
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setWipeKey(sigKey.publicKey);
     }
     if (token.supplyKey) {
       additionalSig = true;
-      sigKey = PrivateKey.fromString(token.adminKey);
+      sigKey = PrivateKey.fromString(token.key);
       tx.setSupplyKey(sigKey.publicKey);
     }
     const client = ownerClient();
@@ -99,9 +98,7 @@ export async function tokenCreate(token) {
       // since the admin/kyc/... keys are all the same, a single sig is sufficient
       await tx.sign(sigKey);
     }
-
     const response = await tx.execute(client);
-
     const transactionReceipt = await response.getReceipt(client);
 
     if (transactionReceipt.status !== Status.Success) {
@@ -147,9 +144,28 @@ export async function tokenCreate(token) {
         treasury: ownerAccount
       };
 
+      // automatically associate, grant, etc... for marketplace
+      tokenAssociate(token.tokenId, "Marketplace").then(() => {
+        const marketAccountId = getAccountDetails("Marketplace").accountId;
+        notifySuccess("token association with marketplace successful");
+        if (token.kycKey) {
+          const instruction = {
+            tokenId: token.tokenId,
+            accountId: marketAccountId
+          };
+          tokenGrantKYC(instruction);
+        }
+        if (token.freezeKey && token.defaultFreezeStatus) {
+          const instruction = {
+            tokenId: token.tokenId,
+            accountId: marketAccountId
+          };
+          tokenUnFreeze(instruction);
+        }
+      });
       // force refresh
       await store.dispatch("fetch");
-      notifySuccess("token created successfully");
+      notifySuccess("token creation successful");
     }
     return tokenResponse;
   } catch (err) {
@@ -170,7 +186,6 @@ async function tokenTransactionWithAmount(
       transaction.setAccountId(instruction.accountId);
     }
     transaction.setAmount(instruction.amount);
-    transaction.setMaxTransactionFee(new Hbar(1));
 
     await transaction.signWithOperator(client);
     await transaction.sign(key);
@@ -208,7 +223,6 @@ async function tokenTransactionWithIdAndAccount(
   try {
     transaction.setTokenId(instruction.tokenId);
     transaction.setAccountId(instruction.accountId);
-    transaction.setMaxTransactionFee(new Hbar(1));
 
     await transaction.signWithOperator(client);
     await transaction.sign(key);
@@ -443,7 +457,6 @@ async function tokenAssociationTransaction(
   try {
     transaction.setTokenIds([tokenId]);
     transaction.setAccountId(account.accountId);
-    transaction.setMaxTransactionFee(new Hbar(1));
 
     await transaction.signWithOperator(client);
     await transaction.sign(userKey);
@@ -481,7 +494,7 @@ export async function tokenAssociate(tokenId, user) {
     tokenId,
     account,
     user,
-    "token successfully associated"
+    "token association successful"
   );
   if (result.status) {
     const transaction = {
@@ -502,7 +515,7 @@ export async function tokenDissociate(tokenId, user) {
     tokenId,
     account,
     user,
-    "token successfully dissociated"
+    "token dissociation succesful"
   );
   if (result.status) {
     const transaction = {
@@ -517,11 +530,13 @@ export async function tokenDissociate(tokenId, user) {
 
 export async function tokenSwap(
   from,
-  to,
+  token1To,
   token1,
   tokenQuantity1,
+  token2To,
   token2,
   tokenQuantity2,
+  hbarTo,
   hBars
 ) {
   const account = getAccountDetails(from);
@@ -529,27 +544,47 @@ export async function tokenSwap(
 
   try {
     const tx = await new TransferTransaction();
-    if (token1 !== "" && tokenQuantity1 !== 0) {
+    if (token1 !== "" && token1 !== 0 && tokenQuantity1 !== 0) {
       tx.addTokenTransfer(token1, account.accountId, -tokenQuantity1);
-      tx.addTokenTransfer(token1, to, tokenQuantity1);
+      tx.addTokenTransfer(token1, token1To, tokenQuantity1);
     }
-    if (token2 !== "" && tokenQuantity2 !== 0) {
+    if (token2 !== "" && token2 !== 0 && tokenQuantity2 !== 0) {
       tx.addTokenTransfer(token2, account.accountId, -tokenQuantity2);
-      tx.addTokenTransfer(token2, to, tokenQuantity2);
+      tx.addTokenTransfer(token2, token2To, tokenQuantity2);
     }
-    if (hBars !== 0) {
-      tx.addHbarTransfer(account.accountId, new Hbar(hBars));
-      tx.addHbarTransfer(to, new Hbar(-hBars));
+    if (typeof hBars !== "undefined" && hBars !== 0) {
+      if (from === "Marketplace") {
+        tx.addHbarTransfer(token1To, new Hbar(-hBars));
+        tx.addHbarTransfer(hbarTo, new Hbar(hBars));
+      } else {
+        tx.addHbarTransfer(account.accountId, new Hbar(hBars));
+        tx.addHbarTransfer(hbarTo, new Hbar(-hBars));
+      }
     }
 
-    tx.setMaxTransactionFee(new Hbar(1));
     tx.freezeWith(client);
 
     // signature only required if transferring from the 'to' address, but
     // let's sign anyway for now
     //TODO: Only sign if necessary
-    const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(to));
-    await tx.sign(sigKey);
+    if (token1To !== "" && token1To !== "0.0.0" && tokenQuantity1 !== 0) {
+      const sigKey = await PrivateKey.fromString(
+        getPrivateKeyForAccount(token1To)
+      );
+      await tx.sign(sigKey);
+    }
+    if (token2To !== "" && token2To !== "0.0.0" && tokenQuantity2 !== 0) {
+      const sigKey = await PrivateKey.fromString(
+        getPrivateKeyForAccount(token2To)
+      );
+      await tx.sign(sigKey);
+    }
+    if (hbarTo !== "" && hbarTo !== "0.0.0" && hBars !== 0) {
+      const sigKey = await PrivateKey.fromString(
+        getPrivateKeyForAccount(hbarTo)
+      );
+      await tx.sign(sigKey);
+    }
 
     const result = await tx.execute(client);
     const transactionReceipt = await result.getReceipt(client);
@@ -560,7 +595,7 @@ export async function tokenSwap(
     } else {
       // force refresh
       await store.dispatch("fetch");
-      notifySuccess("tokens transferred successfully");
+      notifySuccess("tokens transfer successful");
       const transaction = {
         id: result.transactionId.toString(),
         type: "tokenTransfer",
@@ -588,7 +623,6 @@ export async function tokenTransfer(
     const tx = await new TransferTransaction();
     tx.addTokenTransfer(tokenId, account.accountId, -quantity);
     tx.addTokenTransfer(tokenId, destination, quantity);
-    tx.setMaxTransactionFee(new Hbar(1));
     if (hbar !== 0) {
       // token recipient pays in hBar and signs transaction
       tx.addHbarTransfer(destination, new Hbar(-hbar));
@@ -609,7 +643,7 @@ export async function tokenTransfer(
     } else {
       // force refresh
       await store.dispatch("fetch");
-      notifySuccess("tokens transferred successfully");
+      notifySuccess("tokens transfer successful");
       const transaction = {
         id: result.transactionId.toString(),
         type: "tokenTransfer",
@@ -637,7 +671,6 @@ export async function tokenDelete(token) {
   try {
     let tx = await new TokenDeleteTransaction();
     tx.setTokenId(token.tokenId);
-    tx.setMaxTransactionFee(new Hbar(1));
 
     await tx.signWithOperator(client);
     if (typeof token.adminKey !== "undefined") {
@@ -654,7 +687,7 @@ export async function tokenDelete(token) {
     } else {
       // force refresh
       await store.dispatch("fetch");
-      notifySuccess("Token deleted successfully");
+      notifySuccess("Token deletion successful");
       const transaction = {
         id: response.transactionId.toString(),
         type: "tokenDelete",

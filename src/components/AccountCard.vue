@@ -1,9 +1,11 @@
 <template>
   <v-card :color="cardColor">
-    <v-card-title class="justify-center"
-      ><a :href="mirrorURL" target="_blank">{{ accountRelation.accountId }}</a>
-      {{ owner }}</v-card-title
-    >
+    <v-card-title class="justify-center">
+      {{ owner }} (<a :href="accountMirrorURL" target="_blank">{{
+        accountRelation.accountId
+      }}</a
+      >)
+    </v-card-title>
     <v-card-title class="justify-center"
       >Token Balance: {{ balance }}</v-card-title
     >
@@ -92,19 +94,16 @@ export default {
   data: function() {
     return {
       dirty: false,
-      owner:
-        this.$store.getters.getAccounts[this.accountRelation.accountId].account
-          .wallet === "owner"
-          ? " (Owner)"
-          : "",
+      mirrorURL: "https://testnet.dragonglass.me/hedera/search?q=",
+
+      owner: this.$store.getters.getAccounts[this.accountRelation.accountId]
+        .account.wallet,
       cardColor:
         this.$store.getters.getAccounts[this.accountRelation.accountId].account
-          .wallet === "owner"
+          .wallet === "Owner"
           ? "yellow lighten-4"
           : "",
-      mirrorURL: "https://explorer.kabuto.sh/testnet/id/".concat(
-        this.accountRelation.accountId
-      ),
+      accountMirrorURL: "",
       nonce: this.$store.getters.nonce,
       tokenId: this.accountRelation.token.tokenId,
       relation: this.$store.getters.getAccounts[this.accountRelation.accountId]
@@ -117,6 +116,9 @@ export default {
   },
   created() {
     // not clean but can't get VUEX to trigger a watch, this is a quick fix
+    this.accountMirrorURL = this.mirrorURL.concat(
+      this.accountRelation.accountId
+    );
     this.interval = setInterval(() => {
       this.relation = this.$store.getters.getAccounts[
         this.accountRelation.accountId
