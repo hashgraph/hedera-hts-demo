@@ -9,7 +9,6 @@ const {
   FileAppendTransaction,
   FileId,
   PrivateKey,
-  Hbar,
   Status
 } = require("@hashgraph/sdk");
 
@@ -37,17 +36,18 @@ export async function fileCreate(fileData) {
     const keys = [];
     keys.push(privateKey);
     const fileCreateTransaction = new FileCreateTransaction();
+
     if (largeFile) {
       // if we have a large file (> 4000 bytes), create the file with keys
       // then run file append
       // then remove keys
       fileCreateTransaction.setContents(fileData.slice(0, fileChunk));
-      fileCreateTransaction.setKeys(keys)
+      fileCreateTransaction.setKeys(keys);
     } else {
       fileCreateTransaction.setContents(fileData);
     }
 
-    let response = await fileCreateTransaction.setMaxTransactionFee(Hbar.from(10)).execute(client);
+    let response = await fileCreateTransaction.execute(client);
     let transactionReceipt = await response.getReceipt(client);
 
     if (transactionReceipt.status !== Status.Success) {
@@ -75,7 +75,6 @@ export async function fileCreate(fileData) {
       response = await new FileAppendTransaction()
           .setContents(fileData.slice(startIndex, startIndex + fileChunk))
           .setFileId(FileId.fromString(fileId))
-          .setMaxTransactionFee(Hbar.from(10))
           .execute(client);
       let transactionReceipt = await response.getReceipt(client);
 
