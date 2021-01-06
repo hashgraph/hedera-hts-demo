@@ -31,6 +31,11 @@ export function getUserAccounts() {
 
 export function getUserAccountsWithNames(exclude) {
   let accounts = [];
+  const account = {
+    accountId: "0.0.0",
+    name: ""
+  };
+  accounts.push(account);
   if (state.getters.numberOfAccounts !== 0) {
     for (const key in state.getters.getAccounts) {
       if (state.getters.getAccounts[key].account.wallet !== "Owner") {
