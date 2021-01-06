@@ -4,7 +4,7 @@
       <v-form ref="form" v-model="valid">
         <v-card>
           <v-card-title>
-            <span class="headline">Transfer</span>
+            <span class="headline">Transfer {{ name }}</span>
           </v-card-title>
           <v-card-subtitle v-if="isNFT" class="text-left">
             Transfer one Non Fungible Token

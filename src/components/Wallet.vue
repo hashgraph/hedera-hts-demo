@@ -244,7 +244,7 @@ export default {
         { text: "Token", align: "center", value: "tokenName" },
         { text: "Associated", align: "center", value: "related" },
         { text: "hBar Balance", align: "center", value: "hbarBalance" },
-        { text: "token Balance", align: "center", value: "tokenBalance" },
+        { text: "Token Balance", align: "center", value: "tokenBalance" },
         { text: "Frozen", align: "center", value: "freezeStatus" },
         { text: "KYCd", align: "center", value: "kycStatus" }
       ],
