@@ -59,7 +59,6 @@ export async function tokenCreate(token) {
     tx.setInitialSupply(token.initialSupply);
     tx.setTreasuryAccountId(token.treasury);
     tx.setAutoRenewAccountId(token.autoRenewAccount);
-    tx.setMaxTransactionFee(new Hbar(1));
     tx.setAutoRenewPeriod(autoRenewPeriod);
 
     if (token.adminKey) {
@@ -99,9 +98,7 @@ export async function tokenCreate(token) {
       // since the admin/kyc/... keys are all the same, a single sig is sufficient
       await tx.sign(sigKey);
     }
-
     const response = await tx.execute(client);
-
     const transactionReceipt = await response.getReceipt(client);
 
     if (transactionReceipt.status !== Status.Success) {
@@ -191,7 +188,6 @@ async function tokenTransactionWithAmount(
       transaction.setAccountId(instruction.accountId);
     }
     transaction.setAmount(instruction.amount);
-    transaction.setMaxTransactionFee(new Hbar(1));
 
     await transaction.signWithOperator(client);
     await transaction.sign(key);
@@ -229,7 +225,6 @@ async function tokenTransactionWithIdAndAccount(
   try {
     transaction.setTokenId(instruction.tokenId);
     transaction.setAccountId(instruction.accountId);
-    transaction.setMaxTransactionFee(new Hbar(1));
 
     await transaction.signWithOperator(client);
     await transaction.sign(key);
@@ -464,7 +459,6 @@ async function tokenAssociationTransaction(
   try {
     transaction.setTokenIds([tokenId]);
     transaction.setAccountId(account.accountId);
-    transaction.setMaxTransactionFee(new Hbar(1));
 
     await transaction.signWithOperator(client);
     await transaction.sign(userKey);
@@ -538,11 +532,13 @@ export async function tokenDissociate(tokenId, user) {
 
 export async function tokenSwap(
   from,
-  to,
+  token1To,
   token1,
   tokenQuantity1,
+  token2To,
   token2,
   tokenQuantity2,
+  hbarTo,
   hBars
 ) {
   const account = getAccountDetails(from);
@@ -550,27 +546,41 @@ export async function tokenSwap(
 
   try {
     const tx = await new TransferTransaction();
-    if (token1 !== "" && tokenQuantity1 !== 0) {
+    if (token1 !== "" && token1 !== 0 && tokenQuantity1 !== 0) {
       tx.addTokenTransfer(token1, account.accountId, -tokenQuantity1);
-      tx.addTokenTransfer(token1, to, tokenQuantity1);
+      tx.addTokenTransfer(token1, token1To, tokenQuantity1);
     }
-    if (token2 !== "" && tokenQuantity2 !== 0) {
+    if (token2 !== "" && token2 !== 0 && tokenQuantity2 !== 0) {
       tx.addTokenTransfer(token2, account.accountId, -tokenQuantity2);
-      tx.addTokenTransfer(token2, to, tokenQuantity2);
+      tx.addTokenTransfer(token2, token2To, tokenQuantity2);
     }
-    if (hBars !== 0) {
-      tx.addHbarTransfer(account.accountId, new Hbar(hBars));
-      tx.addHbarTransfer(to, new Hbar(-hBars));
+    if ((typeof(hBars) !== "undefined") && (hBars !== 0)) {
+      if (from === "Marketplace") {
+        tx.addHbarTransfer(token1To, new Hbar(-hBars));
+        tx.addHbarTransfer(hbarTo, new Hbar(hBars));
+      } else {
+        tx.addHbarTransfer(account.accountId, new Hbar(hBars));
+        tx.addHbarTransfer(hbarTo, new Hbar(-hBars));
+      }
     }
 
-    tx.setMaxTransactionFee(new Hbar(1));
     tx.freezeWith(client);
 
     // signature only required if transferring from the 'to' address, but
     // let's sign anyway for now
     //TODO: Only sign if necessary
-    const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(to));
-    await tx.sign(sigKey);
+    if (token1To !== "" && token1To !== "0.0.0" && tokenQuantity1 !== 0) {
+      const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(token1To));
+      await tx.sign(sigKey);
+    }
+    if (token2To !== "" && token2To !== "0.0.0" && tokenQuantity2 !== 0) {
+      const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(token2To));
+      await tx.sign(sigKey);
+    }
+    if (hbarTo !== "" && hbarTo !== "0.0.0" && hBars !== 0) {
+      const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(hbarTo));
+      await tx.sign(sigKey);
+    }
 
     const result = await tx.execute(client);
     const transactionReceipt = await result.getReceipt(client);
@@ -609,7 +619,6 @@ export async function tokenTransfer(
     const tx = await new TransferTransaction();
     tx.addTokenTransfer(tokenId, account.accountId, -quantity);
     tx.addTokenTransfer(tokenId, destination, quantity);
-    tx.setMaxTransactionFee(new Hbar(1));
     if (hbar !== 0) {
       // token recipient pays in hBar and signs transaction
       tx.addHbarTransfer(destination, new Hbar(-hbar));
@@ -658,7 +667,6 @@ export async function tokenDelete(token) {
   try {
     let tx = await new TokenDeleteTransaction();
     tx.setTokenId(token.tokenId);
-    tx.setMaxTransactionFee(new Hbar(1));
 
     await tx.signWithOperator(client);
     if (typeof token.adminKey !== "undefined") {
