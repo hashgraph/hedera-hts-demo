@@ -18,10 +18,11 @@ The demo enables you to:
 * Transfer from treasury (owner) to users
 * Transfer between users
 * Atomically transfer up to two tokens between users, with an optional hBar payment as one atomic transaction
+* Transfer tokens to a marketplace escrow account along with an offer price in hBar
 
 For convenience, accounts and tokens created during the demo will be persisted to a cookie and will be available when the demo is restarted.
 
-** Note: This is purely for demonstration purposes and should not be used as-is in production **
+_Note: This is purely for demonstration purposes and should not be used as-is in production_
 
 ## Prerequisites
 
@@ -39,7 +40,7 @@ Edit `.env` and setup the following variables
 
 * VUE_APP_OPERATOR_ID=0.0.xxxx Input your operator id 
 * VUE_APP_OPERATOR_KEY=302xxx Input your private key
-* VUE_APP_INITIAL_BALANCE=10
+* VUE_APP_INITIAL_BALANCE=100
 * VUE_APP_NETWORK=testnet (or mainnet)
 
 ## I just want to run it quickly
@@ -115,6 +116,16 @@ These properties (along with an image if necessary) as then stored in an immutab
 
 You may edit or add to the templates by editing the `/public/tokenTemplates.json` file, following guidelines from [the vjsf component](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/about).
 Note that if you wish to include a picture in your NFT specification, the property must be called `photo` since the UI depends on that field value.
+
+_Note: An alternative to using files on Hedera would be to host the file on a shared location and use a hash of the file as the symbol for the token so that the validity of the file can be verified at any time._  
+
+## Marketplace
+
+A pseudo-market place is enabled in the demo, this enables a token to be transferred to a market place (an escrow account of sorts) along with an offer price in hBar.
+
+One a token has been transferred to the market place, Alice or Bob can request transfer of the token from the marketplace to their account in exchange for the offered hBar value whereby they will own the token in exchange for the hBar value which will be transferred to the account that transferred the token to the market place in the first place.
+
+_Note: If Alice transferred a token to the market place, she's not able to buy the token, only Bob can. If the issuer (owner) of the token transferred to the marketplace, both Bob and Alice can buy it._
 
 ## Contributing
 
