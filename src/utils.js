@@ -43,7 +43,7 @@ export function getUserAccountsWithNames(exclude) {
           const account = {
             accountId: key,
             name: state.getters.getAccounts[key].account.wallet
-          }
+          };
           accounts.push(account);
         }
       }

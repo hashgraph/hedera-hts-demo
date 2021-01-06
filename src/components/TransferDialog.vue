@@ -9,8 +9,9 @@
           <v-card-subtitle v-if="isNFT" class="text-left">
             Transfer one Non Fungible Token
           </v-card-subtitle>
-          <v-card-subtitle v-if="! isNFT" class="text-left">
-            Transfer a Fungible Token, optionally exchanging hBar in one atomic transaction
+          <v-card-subtitle v-if="!isNFT" class="text-left">
+            Transfer a Fungible Token, optionally exchanging hBar in one atomic
+            transaction
           </v-card-subtitle>
           <v-card-text>
             <v-container>
@@ -34,23 +35,23 @@
                   ></v-select>
                 </v-col>
               </v-row>
-              <v-row v-if="! isNFT">
+              <v-row v-if="!isNFT">
                 <v-col cols="12">
                   <v-text-field
-                      label="Token Quantity* (includes decimals, for 100.02 input 10002)"
-                      :rules="quantityRules"
-                      v-model="quantity"
-                      required
+                    label="Token Quantity* (includes decimals, for 100.02 input 10002)"
+                    :rules="quantityRules"
+                    v-model="quantity"
+                    required
                   ></v-text-field>
                 </v-col>
               </v-row>
               <v-row v-if="destination === marketPlaceAccountId">
                 <v-col cols="12">
                   <v-text-field
-                      label="Offer* (offer price in hBar)"
-                      :rules="integerRules"
-                      v-model="offer"
-                      required
+                    label="Offer* (offer price in hBar)"
+                    :rules="integerRules"
+                    v-model="offer"
+                    required
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -90,7 +91,7 @@
 <script>
 import { EventBus } from "../eventBus";
 import { tokenTransfer } from "../service/tokenService";
-import {getAccountDetails, getUserAccountsWithNames} from "@/utils";
+import { getAccountDetails, getUserAccountsWithNames } from "@/utils";
 
 export default {
   name: "TransferDialog",
@@ -107,7 +108,9 @@ export default {
       tokenId: "",
       name: "",
       integerRules: [v => v == parseInt(v) || "Integer required"],
-      quantityRules: [v => v == parseInt(v) && v > 0|| "Integer greater than 0 required"],
+      quantityRules: [
+        v => (v == parseInt(v) && v > 0) || "Integer greater than 0 required"
+      ],
       transferFrom: "",
       isNFT: false
     };
@@ -117,9 +120,12 @@ export default {
       if (this.destination === "") {
         return false;
       }
-      if ((this.destination === this.marketPlaceAccountId) && (this.offer != 0)) {
+      if (this.destination === this.marketPlaceAccountId && this.offer != 0) {
         return true;
-      }  else if ((this.destination !== this.marketPlaceAccountId) && (this.quantity != 0)) {
+      } else if (
+        this.destination !== this.marketPlaceAccountId &&
+        this.quantity != 0
+      ) {
         return true;
       }
       return false;
@@ -144,8 +150,8 @@ export default {
           };
           this.$store.commit("addBid", bid);
         }
-        this.dialog = false
-      };
+        this.dialog = false;
+      }
     }
   },
   created() {
@@ -158,7 +164,7 @@ export default {
       this.user = operation.user;
       this.dialog = true;
       this.isNFT = operation.isNFT;
-      this.quantity = (this.isNFT) ? 1 : 0;
+      this.quantity = this.isNFT ? 1 : 0;
       this.offer = 0;
       this.name = operation.name;
     });

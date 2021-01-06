@@ -135,18 +135,22 @@ export default {
       kycKey: true,
       supplyKey: true,
       integerRules: [
-        v => (v == parseInt(v) && v >= 0) || "Integer greater or equal to 0 required"
+        v =>
+          (v == parseInt(v) && v >= 0) ||
+          "Integer greater or equal to 0 required"
       ],
       decimalsRules: [
-        v => (v == parseInt(v) && v >= 0) || "Integer greater or equal to 0 required"
+        v =>
+          (v == parseInt(v) && v >= 0) ||
+          "Integer greater or equal to 0 required"
       ],
       nameRules: [
-          v => !!v || "Input required",
-          v => v.length <= 100 || "Max length 100"
+        v => !!v || "Input required",
+        v => v.length <= 100 || "Max length 100"
       ],
       symbolRules: [
-          v => !!v || "Input required",
-          v => v.length <= 100 || "Max length 100"
+        v => !!v || "Input required",
+        v => v.length <= 100 || "Max length 100"
         // v => /^[a-zA-Z]*$/.test(v) || "Only letters are allowed"
       ]
     };

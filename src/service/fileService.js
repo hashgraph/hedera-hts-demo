@@ -1,6 +1,6 @@
-import { notifyError, notifySuccess} from "../utils";
+import { notifyError, notifySuccess } from "../utils";
 import { EventBus } from "@/eventBus";
-import {hederaClient} from "@/service/client";
+import { hederaClient } from "@/service/client";
 
 const {
   FileContentsQuery,
@@ -61,7 +61,7 @@ export async function fileCreate(fileData) {
       id: response.transactionId.toString(),
       type: "fileCreate",
       inputs: fileData.substr(0, 20),
-      outputs: "fileId=" + fileId,
+      outputs: "fileId=" + fileId
     };
 
     startIndex = startIndex + fileChunk;
@@ -73,9 +73,9 @@ export async function fileCreate(fileData) {
       await new Promise(r => setTimeout(r, 500));
       // append to file
       response = await new FileAppendTransaction()
-          .setContents(fileData.slice(startIndex, startIndex + fileChunk))
-          .setFileId(FileId.fromString(fileId))
-          .execute(client);
+        .setContents(fileData.slice(startIndex, startIndex + fileChunk))
+        .setFileId(FileId.fromString(fileId))
+        .execute(client);
       let transactionReceipt = await response.getReceipt(client);
 
       if (transactionReceipt.status !== Status.Success) {
@@ -90,9 +90,9 @@ export async function fileCreate(fileData) {
     if (largeFile) {
       // remove keys
       response = await new FileUpdateTransaction()
-          .setKeys([])
-          .setFileId(FileId.fromString(fileId))
-          .execute(client);
+        .setKeys([])
+        .setFileId(FileId.fromString(fileId))
+        .execute(client);
       transactionReceipt = await response.getReceipt(client);
 
       if (transactionReceipt.status !== Status.Success) {

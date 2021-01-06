@@ -43,7 +43,7 @@ function hederaClientLocal(operatorAccount, operatorPrivateKey) {
       client = Client.forMainnet();
       break;
     default:
-      throw new Error("VUE_APP_NETWORK must be \"testnet\" or \"mainnet\"");
+      throw new Error('VUE_APP_NETWORK must be "testnet" or "mainnet"');
   }
   client.setOperator(operatorAccount, operatorPrivateKey);
   return client;

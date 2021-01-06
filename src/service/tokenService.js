@@ -145,26 +145,24 @@ export async function tokenCreate(token) {
       };
 
       // automatically associate, grant, etc... for marketplace
-      tokenAssociate(token.tokenId, "Marketplace").then(
-          () => {
-            const marketAccountId = getAccountDetails("Marketplace").accountId;
-            notifySuccess("token association with marketplace successful")
-            if (token.kycKey) {
-              const instruction = {
-                tokenId: token.tokenId,
-                accountId: marketAccountId
-              };
-              tokenGrantKYC(instruction);
-            }
-            if ((token.freezeKey) && (token.defaultFreezeStatus)) {
-              const instruction = {
-                tokenId: token.tokenId,
-                accountId: marketAccountId
-              };
-              tokenUnFreeze(instruction)
-            }
-          }
-      );
+      tokenAssociate(token.tokenId, "Marketplace").then(() => {
+        const marketAccountId = getAccountDetails("Marketplace").accountId;
+        notifySuccess("token association with marketplace successful");
+        if (token.kycKey) {
+          const instruction = {
+            tokenId: token.tokenId,
+            accountId: marketAccountId
+          };
+          tokenGrantKYC(instruction);
+        }
+        if (token.freezeKey && token.defaultFreezeStatus) {
+          const instruction = {
+            tokenId: token.tokenId,
+            accountId: marketAccountId
+          };
+          tokenUnFreeze(instruction);
+        }
+      });
       // force refresh
       await store.dispatch("fetch");
       notifySuccess("token creation successful");
@@ -554,7 +552,7 @@ export async function tokenSwap(
       tx.addTokenTransfer(token2, account.accountId, -tokenQuantity2);
       tx.addTokenTransfer(token2, token2To, tokenQuantity2);
     }
-    if ((typeof(hBars) !== "undefined") && (hBars !== 0)) {
+    if (typeof hBars !== "undefined" && hBars !== 0) {
       if (from === "Marketplace") {
         tx.addHbarTransfer(token1To, new Hbar(-hBars));
         tx.addHbarTransfer(hbarTo, new Hbar(hBars));
@@ -570,15 +568,21 @@ export async function tokenSwap(
     // let's sign anyway for now
     //TODO: Only sign if necessary
     if (token1To !== "" && token1To !== "0.0.0" && tokenQuantity1 !== 0) {
-      const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(token1To));
+      const sigKey = await PrivateKey.fromString(
+        getPrivateKeyForAccount(token1To)
+      );
       await tx.sign(sigKey);
     }
     if (token2To !== "" && token2To !== "0.0.0" && tokenQuantity2 !== 0) {
-      const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(token2To));
+      const sigKey = await PrivateKey.fromString(
+        getPrivateKeyForAccount(token2To)
+      );
       await tx.sign(sigKey);
     }
     if (hbarTo !== "" && hbarTo !== "0.0.0" && hBars !== 0) {
-      const sigKey = await PrivateKey.fromString(getPrivateKeyForAccount(hbarTo));
+      const sigKey = await PrivateKey.fromString(
+        getPrivateKeyForAccount(hbarTo)
+      );
       await tx.sign(sigKey);
     }
 

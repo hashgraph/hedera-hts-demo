@@ -139,7 +139,9 @@ export default new Vuex.Store({
         // create user 3
         newAccount = await accountCreate("Marketplace");
         commit("setAccount", newAccount);
-        notifySuccess("Setting up demo 4/4 - Marketplace wallet account created");
+        notifySuccess(
+          "Setting up demo 4/4 - Marketplace wallet account created"
+        );
       }
       commit("setCurrentTokenId", undefined);
       notifySuccess("Demo Ready");

@@ -26,12 +26,12 @@ import NonFungibleComposer from "@/components/NonFungibleComposer";
 
 export default {
   name: "Composer",
-  components: {NonFungibleComposer, FungibleComposer},
+  components: { NonFungibleComposer, FungibleComposer },
   data: function() {
     return {
       fungible: "yes",
       dialog: false,
-      tabs: null,
+      tabs: null
     };
   },
   created() {
@@ -40,7 +40,7 @@ export default {
     });
     EventBus.$on("dialogClose", () => {
       this.dialog = false;
-    })
+    });
   },
   computed: {},
   methods: {}

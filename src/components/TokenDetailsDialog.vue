@@ -1,16 +1,18 @@
 <template>
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="600px">
-      <v-card :color=backgroundColor>
-        <v-toolbar :color=headingColor dark>
+      <v-card :color="backgroundColor">
+        <v-toolbar :color="headingColor" dark>
           <v-toolbar-title class="white--text">{{ title }}</v-toolbar-title>
           <v-spacer></v-spacer>
-          <v-toolbar-title class="white--text">{{ token.tokenId }}</v-toolbar-title>
+          <v-toolbar-title class="white--text">{{
+            token.tokenId
+          }}</v-toolbar-title>
         </v-toolbar>
         <v-card-text>
           <v-row v-if="token.isNFT">
             <v-col cols="12">
-            Token properties stored in Hedera File Id: {{ fileId }}
+              Token properties stored in Hedera File Id: {{ fileId }}
             </v-col>
           </v-row>
           <v-row v-if="!token.isNFT" dense>
@@ -135,63 +137,57 @@
           <v-container v-if="token.isNFT">
             <v-container v-if="imageData">
               <v-row dense align="center" justify="center">
-              <v-col cols="8">
-                <v-simple-table fixed-header height="200px">
-                  <template v-slot:default>
-                    <thead>
-                    <tr>
-                      <th class="text-left">
-                        Property
-                      </th>
-                      <th class="text-left">
-                        value
-                      </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr
-                        v-for="keyValue in keyValues"
-                        :key="keyValue.key"
-                    >
-                      <td class="text-left">{{ keyValue.key }}</td>
-                      <td class="text-left">{{ keyValue.value }}</td>
-                    </tr>
-                    </tbody>
-                  </template>
-                </v-simple-table>
-              </v-col>
-              <v-col cols="4">
-                <v-img v-if="imageData" :src="imageData" width="100%"></v-img>
-              </v-col>
+                <v-col cols="8">
+                  <v-simple-table fixed-header height="200px">
+                    <template v-slot:default>
+                      <thead>
+                        <tr>
+                          <th class="text-left">
+                            Property
+                          </th>
+                          <th class="text-left">
+                            value
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="keyValue in keyValues" :key="keyValue.key">
+                          <td class="text-left">{{ keyValue.key }}</td>
+                          <td class="text-left">{{ keyValue.value }}</td>
+                        </tr>
+                      </tbody>
+                    </template>
+                  </v-simple-table>
+                </v-col>
+                <v-col cols="4">
+                  <v-img v-if="imageData" :src="imageData" width="100%"></v-img>
+                </v-col>
               </v-row>
             </v-container>
             <v-container v-else>
               <v-row dense>
-              <v-col cols="12">
-                <v-simple-table fixed-header height="200px">
-                  <template v-slot:default>
-                    <thead>
-                    <tr>
-                      <th class="text-left">
-                        Property
-                      </th>
-                      <th class="text-left">
-                        Value
-                      </th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr
-                        v-for="keyValue in keyValues"
-                        :key="keyValue.key"
-                    >
-                      <td class="text-left">{{ keyValue.key }}</td>
-                      <td class="text-left">{{ keyValue.value }}</td>
-                    </tr>
-                    </tbody>
-                  </template>
-                </v-simple-table>
-              </v-col>
+                <v-col cols="12">
+                  <v-simple-table fixed-header height="200px">
+                    <template v-slot:default>
+                      <thead>
+                        <tr>
+                          <th class="text-left">
+                            Property
+                          </th>
+                          <th class="text-left">
+                            Value
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="keyValue in keyValues" :key="keyValue.key">
+                          <td class="text-left">{{ keyValue.key }}</td>
+                          <td class="text-left">{{ keyValue.value }}</td>
+                        </tr>
+                      </tbody>
+                    </template>
+                  </v-simple-table>
+                </v-col>
               </v-row>
             </v-container>
           </v-container>
@@ -209,7 +205,7 @@
 <script>
 import { EventBus } from "../eventBus";
 import { amountWithDecimals, secondsToParts } from "../utils";
-import {fileGetContents} from "@/service/fileService";
+import { fileGetContents } from "@/service/fileService";
 
 export default {
   name: "TokenDetailsDialog",
@@ -240,12 +236,14 @@ export default {
       vm.expiry = value.expiry;
       vm.autoRenewPeriod = secondsToParts(value.autoRenewPeriod);
       vm.headingColor = value.isNFT ? "" : "primary";
-      vm.title = value.isNFT ? value.name : value.name + " (" + value.symbol + ")";
+      vm.title = value.isNFT
+        ? value.name
+        : value.name + " (" + value.symbol + ")";
       vm.backgroundColor = value.isDeleted ? "red" : "white";
       vm.keyValues = [];
       if (value.isNFT) {
         // get file from Hedera
-        vm.fileId = value.symbol.replace("HEDERA://","");
+        vm.fileId = value.symbol.replace("HEDERA://", "");
         const fileData = await fileGetContents(vm.fileId);
         const fileDataString = new TextDecoder().decode(fileData);
         const tokenProperties = JSON.parse(fileDataString);
@@ -254,7 +252,7 @@ export default {
           delete tokenProperties.photo;
         }
         for (const key in tokenProperties) {
-          vm.keyValues.push({key: key, value : tokenProperties[key]});
+          vm.keyValues.push({ key: key, value: tokenProperties[key] });
         }
       }
     });

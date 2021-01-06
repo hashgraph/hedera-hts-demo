@@ -10,11 +10,19 @@
             hide-default-footer
           >
             <template v-slot:item.image="{ item }">
-              <v-img v-if="item.imageData" :src="item.imageData" max-width="50px" aspect-ratio="1"></v-img>
+              <v-img
+                v-if="item.imageData"
+                :src="item.imageData"
+                max-width="50px"
+                aspect-ratio="1"
+              ></v-img>
             </template>
 
             <template v-slot:item.tokenName="{ item }">
-              {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{ item.tokenId }}</a>)
+              {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{
+                item.tokenId
+              }}</a
+              >)
             </template>
 
             <template v-slot:item.freezeStatus="{ item }">
@@ -54,10 +62,10 @@
         </v-col>
       </v-row>
       <v-toolbar>
-      <v-tabs centered v-model="tabs">
-        <v-tab>Transfers and swaps</v-tab>
-        <v-tab>Market place</v-tab>
-      </v-tabs>
+        <v-tabs centered v-model="tabs">
+          <v-tab>Transfers and swaps</v-tab>
+          <v-tab>Market place</v-tab>
+        </v-tabs>
       </v-toolbar>
 
       <v-tabs-items v-model="tabs">
@@ -68,101 +76,101 @@
                 <v-row dense>
                   <v-col cols="3">
                     <v-select
-                        :items="accounts"
-                        item-text="name"
-                        item-value="accountId"
-                        label="To/from"
-                        v-model="destination1"
+                      :items="accounts"
+                      item-text="name"
+                      item-value="accountId"
+                      label="To/from"
+                      v-model="destination1"
                     ></v-select>
                   </v-col>
                   <v-col cols="3">
                     <v-select
-                        :items="accountTokens"
-                        item-text="tokenName"
-                        item-value="tokenId"
-                        label="Token 1"
-                        v-model="tokenToTransfer1"
+                      :items="accountTokens"
+                      item-text="tokenName"
+                      item-value="tokenId"
+                      label="First Token"
+                      v-model="tokenToTransfer1"
                     ></v-select>
                   </v-col>
                   <v-col cols="4" v-if="destination1 === marketPlaceAccountId">
                     <v-text-field
-                        label="Offer* (offer price in hBar)"
-                        :rules="integerRules"
-                        v-model="offer1"
-                        required
+                      label="Offer* (offer price in hBar)"
+                      :rules="integerRules"
+                      v-model="offer1"
+                      required
                     ></v-text-field>
                   </v-col>
                   <v-col v-else cols="4">
                     <v-text-field
-                        label="Token Quantity* (includes decimals, negative to receive)"
-                        :rules="integerRules"
-                        v-model="quantityToTransfer1"
-                        required
+                      label="Token Quantity* (includes decimals, negative to receive)"
+                      :rules="integerRules"
+                      v-model="quantityToTransfer1"
+                      required
                     ></v-text-field>
                   </v-col>
                 </v-row>
                 <v-row dense>
                   <v-col cols="3">
                     <v-select
-                        :items="accounts"
-                        item-text="name"
-                        item-value="accountId"
-                        label="To/from"
-                        v-model="destination2"
+                      :items="accounts"
+                      item-text="name"
+                      item-value="accountId"
+                      label="To/from"
+                      v-model="destination2"
                     ></v-select>
                   </v-col>
                   <v-col cols="3">
                     <v-select
-                        :items="accountTokens"
-                        item-text="tokenName"
-                        item-value="tokenId"
-                        label="Token 2"
-                        v-model="tokenToTransfer2"
+                      :items="accountTokens"
+                      item-text="tokenName"
+                      item-value="tokenId"
+                      label="Second Token"
+                      v-model="tokenToTransfer2"
                     ></v-select>
                   </v-col>
                   <v-col cols="4" v-if="destination2 === marketPlaceAccountId">
                     <v-text-field
-                        label="Offer* (offer price in hBar)"
-                        :rules="integerRules"
-                        v-model="offer2"
-                        required
+                      label="Offer* (offer price in hBar)"
+                      :rules="integerRules"
+                      v-model="offer2"
+                      required
                     ></v-text-field>
                   </v-col>
                   <v-col v-else cols="4">
                     <v-text-field
-                        label="Token Quantity* (includes decimals, negative to receive)"
-                        :rules="integerRules"
-                        v-model="quantityToTransfer2"
-                        required
+                      label="Token Quantity* (includes decimals, negative to receive)"
+                      :rules="integerRules"
+                      v-model="quantityToTransfer2"
+                      required
                     ></v-text-field>
                   </v-col>
                 </v-row>
                 <v-row dense>
                   <v-col cols="3">
                     <v-select
-                        :items="accounts"
-                        item-text="name"
-                        item-value="accountId"
-                        label="Hbar To/from"
-                        v-model="hbarTo"
+                      :items="accounts"
+                      item-text="name"
+                      item-value="accountId"
+                      label="Hbar To/from"
+                      v-model="hbarTo"
                     ></v-select>
                   </v-col>
                   <v-col cols="3">
                     <v-text-field
-                        label="hBar* (negative to send)"
-                        :rules="integerRules"
-                        v-model="hBars"
-                        :disabled="!hbarTo"
+                      label="hBar* (negative to send)"
+                      :rules="integerRules"
+                      v-model="hBars"
+                      :disabled="!hbarTo"
                     ></v-text-field>
                   </v-col>
                 </v-row>
               </v-card-text>
               <v-card-actions class="justify-end">
                 <v-btn
-                    text
-                    color="blue darken-1"
-                    @click="tokenSwap"
-                    :disabled="!formValid"
+                  text
+                  color="blue darken-1"
+                  @click="tokenSwap"
+                  :disabled="!formValid"
                 >
                   Transfer
                 </v-btn>
@@ -172,22 +180,26 @@
         </v-tab-item>
         <v-tab-item>
           <v-data-table
-              :headers="bidHeaders"
-              :items="bids"
-              class="elevation-1"
-              hide-default-footer
+            :headers="bidHeaders"
+            :items="bids"
+            class="elevation-1"
+            hide-default-footer
           >
             <template v-slot:item.tokenName="{ item }">
-              {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{ item.tokenId }}</a>)
+              {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{
+                item.tokenId
+              }}</a
+              >)
             </template>
 
             <template v-slot:item.actions="{ item }">
               <v-chip color="green dark">
                 <v-btn
-                    text
-                    :disabled="item.tokenOwner === walletInstance"
-                    @click="buy(item)"
-                >Buy</v-btn>
+                  text
+                  :disabled="item.tokenOwner === walletInstance"
+                  @click="buy(item)"
+                  >Buy</v-btn
+                >
               </v-chip>
             </template>
           </v-data-table>
@@ -199,11 +211,11 @@
 </template>
 
 <script>
-import {getAccountDetails, getUserAccountsWithNames} from "@/utils";
+import { getAccountDetails, getUserAccountsWithNames } from "@/utils";
 import { tokenAssociate, tokenDissociate } from "@/service/tokenService";
 import { tokenSwap } from "@/service/tokenService";
 import { EventBus } from "@/eventBus";
-import {fileGetContents} from "@/service/fileService";
+import { fileGetContents } from "@/service/fileService";
 import Vue from "vue";
 
 export default {
@@ -245,7 +257,7 @@ export default {
       accounts: getUserAccountsWithNames(this.walletInstance),
       marketPlaceAccountId: getAccountDetails("Marketplace").accountId,
       offer1: 0,
-      offer2: 0,
+      offer2: 0
     };
   },
   computed: {
@@ -260,7 +272,9 @@ export default {
             return false;
           }
         } else {
-          if (!this.quantityToTransfer1 === parseInt(this.quantityToTransfer1)) {
+          if (
+            !this.quantityToTransfer1 === parseInt(this.quantityToTransfer1)
+          ) {
             return false;
           }
         }
@@ -272,7 +286,9 @@ export default {
             return false;
           }
         } else {
-          if (!this.quantityToTransfer2 === parseInt(this.quantityToTransfer2)) {
+          if (
+            !this.quantityToTransfer2 === parseInt(this.quantityToTransfer2)
+          ) {
             return false;
           }
         }
@@ -292,7 +308,9 @@ export default {
     this.loadTokenData();
     // not clean but can't get VUEX to trigger a watch, this is a quick fix
     this.interval = setInterval(() => {
-      if (this.loading) { return; }
+      if (this.loading) {
+        return;
+      }
       this.loadTokenData();
       this.$forceUpdate();
     }, 1000);
@@ -305,19 +323,19 @@ export default {
       EventBus.$emit("busy", true);
 
       const result = await tokenSwap(
-          "Marketplace",
-          getAccountDetails(this.walletInstance).accountId,
-          bid.tokenId,
-          1,
-          "",
-          "",
-          0,
-          getAccountDetails(bid.tokenOwner).accountId,
-          bid.offerAmount
+        "Marketplace",
+        getAccountDetails(this.walletInstance).accountId,
+        bid.tokenId,
+        1,
+        "",
+        "",
+        0,
+        getAccountDetails(bid.tokenOwner).accountId,
+        bid.offerAmount
       );
 
       if (result) {
-          this.$store.commit("deleteBid", bid);
+        this.$store.commit("deleteBid", bid);
       }
       EventBus.$emit("busy", false);
     },
@@ -353,9 +371,9 @@ export default {
           mirrorURL: this.mirrorURL.concat(oneTokenId)
         };
         if (tokens[oneTokenId].symbol.includes("HEDERA://")) {
-          if (! this.tokenProperties[oneTokenId]) {
+          if (!this.tokenProperties[oneTokenId]) {
             // get the file for this token
-            const fileId = tokens[oneTokenId].symbol.replace("HEDERA://","");
+            const fileId = tokens[oneTokenId].symbol.replace("HEDERA://", "");
             const fileContents = await fileGetContents(fileId);
             const fileDataString = new TextDecoder().decode(fileContents);
             const tokenProperties = JSON.parse(fileDataString);

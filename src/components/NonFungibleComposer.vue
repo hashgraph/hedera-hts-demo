@@ -1,7 +1,8 @@
 <template>
   <v-container>
     <v-alert type="warning" v-if="photoSize > 4096">
-      This is a large image (size greater than 4kb) - A smaller size is preferable
+      This is a large image (size greater than 4kb) - A smaller size is
+      preferable
     </v-alert>
     <v-stepper v-model="step" alt-labels>
       <v-stepper-header>
@@ -13,7 +14,10 @@
           Template
         </v-stepper-step>
         <v-divider></v-divider>
-        <v-stepper-step :complete="step > STEP_PROPERTIES" :step="STEP_PROPERTIES">
+        <v-stepper-step
+          :complete="step > STEP_PROPERTIES"
+          :step="STEP_PROPERTIES"
+        >
           Properties
         </v-stepper-step>
         <v-divider></v-divider>
@@ -35,7 +39,7 @@
 
       <v-stepper-items>
         <v-stepper-content :step="STEP_NAME">
-          <v-card class="mb-12" :height=cardHeight flat>
+          <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-text>
               <v-form ref="nameForm" v-model="nameValid">
                 <v-row>
@@ -67,17 +71,17 @@
         </v-stepper-content>
 
         <v-stepper-content :step="STEP_TEMPLATE">
-          <v-card class="mb-12" :height=cardHeight flat>
+          <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-text>
               <v-form ref="templateForm">
                 <v-row>
                   <v-col cols="12">
                     <v-select
-                        label="Token Template*"
-                        v-model="tokenTemplate"
-                        :items="tokenTemplatesForSelection"
-                        @change="selectTemplate()"
-                        required
+                      label="Token Template*"
+                      v-model="tokenTemplate"
+                      :items="tokenTemplatesForSelection"
+                      @change="selectTemplate()"
+                      required
                     ></v-select>
                   </v-col>
                 </v-row>
@@ -95,7 +99,11 @@
               <v-btn text class="mr-2" @click="backStep">
                 Back
               </v-btn>
-              <v-btn color="primary" @click="nextStep" :disabled="tokenTemplate === ''">
+              <v-btn
+                color="primary"
+                @click="nextStep"
+                :disabled="tokenTemplate === ''"
+              >
                 Continue
               </v-btn>
             </v-col>
@@ -103,21 +111,21 @@
         </v-stepper-content>
 
         <v-stepper-content :step="STEP_PROPERTIES">
-          <v-card class="mb-12" :height=cardHeight flat>
+          <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-text>
               <v-row dense>
                 <v-col v-if="schema.properties.photo" cols="8">
                   <v-form v-model="valid">
-                    <v-jsf v-model="model" :schema="schema"/>
+                    <v-jsf v-model="model" :schema="schema" />
                   </v-form>
                 </v-col>
                 <v-col v-else cols="12">
                   <v-form v-model="valid">
-                    <v-jsf v-model="model" :schema="schema"/>
+                    <v-jsf v-model="model" :schema="schema" />
                   </v-form>
                 </v-col>
                 <v-col v-if="imageData" cols="4">
-                  <img v-if="imageData" :src="imageData" width="100%">
+                  <img v-if="imageData" :src="imageData" width="100%" />
                 </v-col>
               </v-row>
             </v-card-text>
@@ -142,7 +150,7 @@
         </v-stepper-content>
 
         <v-stepper-content :step="STEP_KYC">
-          <v-card class="mb-12" :height=cardHeight flat>
+          <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-text>
               <v-radio-group v-model="kyc">
                 <v-radio name="kyc" label="No" value="no"></v-radio>
@@ -170,7 +178,7 @@
         </v-stepper-content>
 
         <v-stepper-content :step="STEP_FREEZABLE">
-          <v-card class="mb-12" :height=cardHeight flat>
+          <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-text>
               <v-radio-group v-model="freeze">
                 <v-radio name="freeze" label="No" value="no"></v-radio>
@@ -207,7 +215,7 @@
         </v-stepper-content>
 
         <v-stepper-content :step="STEP_CREATE">
-          <v-card class="mb-12" :height=cardHeight flat>
+          <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-title
               >You're about to create a non fungible token named
               {{ name }}</v-card-title
@@ -246,11 +254,11 @@ import { EventBus } from "../eventBus";
 import { getAccountDetails } from "@/utils";
 import { PrivateKey } from "@hashgraph/sdk";
 import { tokenCreate } from "@/service/tokenService";
-import VJsf from '@koumoul/vjsf/lib/VJsf.js';
-import '@koumoul/vjsf/lib/VJsf.css';
-import '@koumoul/vjsf/lib/deps/third-party.js';
-import {fileCreate} from "@/service/fileService";
-import {loadTokenTemplates} from "@/service/tokenProperties";
+import VJsf from "@koumoul/vjsf/lib/VJsf.js";
+import "@koumoul/vjsf/lib/VJsf.css";
+import "@koumoul/vjsf/lib/deps/third-party.js";
+import { fileCreate } from "@/service/fileService";
+import { loadTokenTemplates } from "@/service/tokenProperties";
 
 export default {
   name: "NonFungibleComposer",
@@ -285,12 +293,12 @@ export default {
       },
       tokenTemplates: {},
       tokenTemplate: "",
-      tokenTemplatesForSelection: [],
-    }
+      tokenTemplatesForSelection: []
+    };
   },
   created() {
     this.init();
-    EventBus.$on("tokenCompose",() => {
+    EventBus.$on("tokenCompose", () => {
       this.init();
     });
   },
@@ -324,7 +332,7 @@ export default {
       if (this.tokenTemplate === "") {
         this.schema = {
           type: "object",
-              properties: {}
+          properties: {}
         };
       } else {
         this.schema = this.tokenTemplates[this.tokenTemplate];
@@ -342,7 +350,9 @@ export default {
         return undefined;
       }
       this.photoSize = this.model.photo.size;
-      return "data:" + this.model.photo.type + ";base64," + this.model.photo.data;
+      return (
+        "data:" + this.model.photo.type + ";base64," + this.model.photo.data
+      );
     },
     nextStep() {
       this.step = this.step + 1;
@@ -378,7 +388,7 @@ export default {
           adminKey: undefined,
           kycKey: this.kyc === "yes" ? privateKey.toString() : undefined,
           freezeKey: this.freeze === "yes" ? privateKey.toString() : undefined,
-          wipeKey:  undefined,
+          wipeKey: undefined,
           supplyKey: undefined,
           defaultFreezeStatus: this.defaultFreezeStatus,
           autoRenewAccount: ownerAccount.accountId,
