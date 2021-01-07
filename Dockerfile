@@ -1,4 +1,4 @@
-FROM node:14.5 AS build
+FROM node:14.9 AS build
 
 COPY ./package.json /srv/hedera-hts-demo/package.json
 COPY ./yarn.lock /srv/hedera-hts-demo/yarn.lock
