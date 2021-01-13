@@ -1,7 +1,7 @@
 <template>
   <v-card :color="cardColor">
     <v-card-title class="justify-center">
-      {{ owner }} (<a :href="accountMirrorURL" target="_blank">{{
+      {{ issuer }} (<a :href="accountMirrorURL" target="_blank">{{
         accountRelation.accountId
       }}</a
       >)
@@ -96,11 +96,11 @@ export default {
       dirty: false,
       mirrorURL: "https://testnet.dragonglass.me/hedera/search?q=",
 
-      owner: this.$store.getters.getAccounts[this.accountRelation.accountId]
+      issuer: this.$store.getters.getAccounts[this.accountRelation.accountId]
         .account.wallet,
       cardColor:
         this.$store.getters.getAccounts[this.accountRelation.accountId].account
-          .wallet === "Owner"
+          .wallet === "Issuer"
           ? "yellow lighten-4"
           : "",
       accountMirrorURL: "",

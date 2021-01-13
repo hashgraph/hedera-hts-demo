@@ -145,7 +145,7 @@ export default {
           const bid = {
             tokenId: this.tokenId,
             offerAmount: this.offer,
-            tokenOwner: this.user,
+            tokenIssuer: this.user,
             tokenName: this.name
           };
           this.$store.commit("addBid", bid);

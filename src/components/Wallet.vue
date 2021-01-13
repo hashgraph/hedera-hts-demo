@@ -196,7 +196,7 @@
               <v-chip color="green dark">
                 <v-btn
                   text
-                  :disabled="item.tokenOwner === walletInstance"
+                  :disabled="item.tokenIssuer === walletInstance"
                   @click="buy(item)"
                   >Buy</v-btn
                 >
@@ -330,7 +330,7 @@ export default {
         "",
         "",
         0,
-        getAccountDetails(bid.tokenOwner).accountId,
+        getAccountDetails(bid.tokenIssuer).accountId,
         bid.offerAmount
       );
 
@@ -437,7 +437,7 @@ export default {
           const bid = {
             tokenId: this.tokenToTransfer1,
             offerAmount: this.offer1,
-            tokenOwner: this.walletInstance
+            tokenIssuer: this.walletInstance
           };
           this.$store.commit("addBid", bid);
         }
@@ -445,7 +445,7 @@ export default {
           const bid = {
             tokenId: this.tokenToTransfer2,
             offerAmount: this.offer2,
-            tokenOwner: this.walletInstance
+            tokenIssuer: this.walletInstance
           };
           this.$store.commit("addBid", bid);
         }

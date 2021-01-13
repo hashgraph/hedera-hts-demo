@@ -189,7 +189,7 @@ export default {
         }
       }
 
-      const ownerAccount = getAccountDetails("Owner");
+      const issuerAccount = getAccountDetails("Issuer");
       const token = {
         name: this.name,
         symbol: this.symbol,
@@ -201,8 +201,8 @@ export default {
         wipeKey: this.wipeKey ? privateKey.toString() : undefined,
         supplyKey: this.supplyKey ? privateKey.toString() : undefined,
         defaultFreezeStatus: _defaultFreezeStatus,
-        autoRenewAccount: ownerAccount.accountId,
-        treasury: ownerAccount.accountId,
+        autoRenewAccount: issuerAccount.accountId,
+        treasury: issuerAccount.accountId,
         deleted: false,
         key: privateKey.toString()
       };

@@ -24,8 +24,8 @@ const {
   Status
 } = require("@hashgraph/sdk");
 
-function ownerClient() {
-  return hederaClientForUser("Owner");
+function issuerClient() {
+  return hederaClientForUser("Issuer");
 }
 
 export async function tokenGetInfo(token) {
@@ -48,7 +48,7 @@ export async function tokenGetInfo(token) {
 export async function tokenCreate(token) {
   let tokenResponse = {};
   const autoRenewPeriod = 7776000; // set to default 3 months
-  const ownerAccount = getAccountDetails("Owner").accountId.toString();
+  const issuerAccount = getAccountDetails("Issuer").accountId.toString();
   try {
     let additionalSig = false;
     let sigKey;
@@ -89,7 +89,7 @@ export async function tokenCreate(token) {
       sigKey = PrivateKey.fromString(token.key);
       tx.setSupplyKey(sigKey.publicKey);
     }
-    const client = ownerClient();
+    const client = issuerClient();
 
     await tx.signWithOperator(client);
 
@@ -131,7 +131,7 @@ export async function tokenCreate(token) {
         name: token.name,
         totalSupply: token.initialSupply,
         decimals: token.decimals,
-        autoRenewAccount: ownerAccount,
+        autoRenewAccount: issuerAccount,
         autoRenewPeriod: autoRenewPeriod,
         defaultFreezeStatus: token.defaultFreezeStatus,
         kycKey: token.kycKey,
@@ -141,7 +141,7 @@ export async function tokenCreate(token) {
         supplyKey: token.supplyKey,
         expiry: tokenInfo.expiry,
         isDeleted: false,
-        treasury: ownerAccount
+        treasury: issuerAccount
       };
 
       // automatically associate, grant, etc... for marketplace
@@ -258,7 +258,7 @@ export async function tokenBurn(instruction) {
   const token = state.getters.getTokens[instruction.tokenId];
   const supplyKey = PrivateKey.fromString(token.supplyKey);
   const tx = await new TokenBurnTransaction();
-  const client = ownerClient();
+  const client = issuerClient();
   const result = await tokenTransactionWithAmount(
     client,
     tx,
@@ -283,7 +283,7 @@ export async function tokenMint(instruction) {
   const token = state.getters.getTokens[instruction.tokenId];
   const supplyKey = PrivateKey.fromString(token.supplyKey);
   const tx = await new TokenMintTransaction();
-  const client = ownerClient();
+  const client = issuerClient();
   const result = await tokenTransactionWithAmount(
     client,
     tx,
@@ -308,7 +308,7 @@ export async function tokenWipe(instruction) {
   const token = state.getters.getTokens[instruction.tokenId];
   const supplyKey = PrivateKey.fromString(token.wipeKey);
   const tx = await new TokenWipeTransaction();
-  const client = ownerClient();
+  const client = issuerClient();
   const result = await tokenTransactionWithAmount(
     client,
     tx,
@@ -337,7 +337,7 @@ export async function tokenFreeze(instruction) {
   const freezeKey = PrivateKey.fromString(token.freezeKey);
   const tx = await new TokenFreezeTransaction();
   instruction.successMessage = "Account " + instruction.accountId + " frozen";
-  const client = ownerClient();
+  const client = issuerClient();
   const result = await tokenTransactionWithIdAndAccount(
     client,
     tx,
@@ -365,7 +365,7 @@ export async function tokenUnFreeze(instruction) {
   const tx = await new TokenUnfreezeTransaction();
   instruction.successMessage =
     "Account " + instruction.accountId + " defrosted";
-  const client = ownerClient();
+  const client = issuerClient();
   const result = await tokenTransactionWithIdAndAccount(
     client,
     tx,
@@ -393,7 +393,7 @@ export async function tokenGrantKYC(instruction) {
   const tx = await new TokenGrantKycTransaction();
   instruction.successMessage =
     "Account " + instruction.accountId + " KYC Granted";
-  const client = ownerClient();
+  const client = issuerClient();
   const result = await tokenTransactionWithIdAndAccount(
     client,
     tx,
@@ -421,7 +421,7 @@ export async function tokenRevokeKYC(instruction) {
   const tx = await new TokenRevokeKycTransaction();
   instruction.successMessage =
     "Account " + instruction.accountId + " KYC Revoked";
-  const client = ownerClient();
+  const client = issuerClient();
   const result = await tokenTransactionWithIdAndAccount(
     client,
     tx,
@@ -667,7 +667,7 @@ export async function tokenTransfer(
 }
 
 export async function tokenDelete(token) {
-  const client = ownerClient();
+  const client = issuerClient();
   try {
     let tx = await new TokenDeleteTransaction();
     tx.setTokenId(token.tokenId);

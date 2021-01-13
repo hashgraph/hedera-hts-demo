@@ -124,10 +124,10 @@ export default new Vuex.Store({
     async setup({ commit, state }) {
       if (Object.keys(state.accounts).length === 0) {
         // set ourselves up
-        // create owner account
-        let newAccount = await accountCreate("Owner");
+        // create issuer account
+        let newAccount = await accountCreate("Issuer");
         commit("setAccount", newAccount);
-        notifySuccess("Setting up demo 1/4 - owner account created");
+        notifySuccess("Setting up demo 1/4 - issuer account created");
         // create user 1
         newAccount = await accountCreate("Alice");
         commit("setAccount", newAccount);

@@ -378,7 +378,7 @@ export default {
       }
       const fileId = await fileCreate(JSON.stringify(modelToSave));
       if (fileId !== "") {
-        const ownerAccount = getAccountDetails("Owner");
+        const issuerAccount = getAccountDetails("Issuer");
 
         const token = {
           name: this.name,
@@ -391,8 +391,8 @@ export default {
           wipeKey: undefined,
           supplyKey: undefined,
           defaultFreezeStatus: this.defaultFreezeStatus,
-          autoRenewAccount: ownerAccount.accountId,
-          treasury: ownerAccount.accountId,
+          autoRenewAccount: issuerAccount.accountId,
+          treasury: issuerAccount.accountId,
           deleted: false,
           key: privateKey.toString()
         };

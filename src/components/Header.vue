@@ -17,10 +17,10 @@
     <v-btn
       class="ma-2"
       rounded
-      :color="ownerButtonColor"
-      @click="showUI('Owner')"
+      :color="issuerButtonColor"
+      @click="showUI('Issuer')"
     >
-      Owner ({{ walletOwner }})
+      Issuer ({{ walletIssuer }})
     </v-btn>
     <div v-if="numberOfAccounts !== 0">
       <v-btn
@@ -72,9 +72,9 @@ export default {
       numberOfTokens: this.$store.getters.numberOfTokens,
       walletId2: "",
       walletId1: "",
-      walletOwner: "",
+      walletIssuer: "",
       interval: undefined,
-      ownerButtonColor: "success",
+      issuerButtonColor: "success",
       aliceButtonColor: "primary",
       bobButtonColor: "primary"
     };
@@ -96,7 +96,7 @@ export default {
       if (this.numberOfAccounts === 4) {
         this.walletId1 = getAccountDetails("Alice").accountId;
         this.walletId2 = getAccountDetails("Bob").accountId;
-        this.walletOwner = getAccountDetails("Owner").accountId;
+        this.walletIssuer = getAccountDetails("Issuer").accountId;
       }
     },
     showCompose() {
@@ -107,18 +107,18 @@ export default {
     },
     showUI(ui) {
       switch (ui) {
-        case "Owner":
-          this.ownerButtonColor = "success";
+        case "Issuer":
+          this.issuerButtonColor = "success";
           this.aliceButtonColor = "primary";
           this.bobButtonColor = "primary";
           break;
         case "Alice":
-          this.ownerButtonColor = "primary";
+          this.issuerButtonColor = "primary";
           this.aliceButtonColor = "success";
           this.bobButtonColor = "primary";
           break;
         case "Bob":
-          this.ownerButtonColor = "primary";
+          this.issuerButtonColor = "primary";
           this.aliceButtonColor = "primary";
           this.bobButtonColor = "success";
           break;
@@ -138,7 +138,7 @@ export default {
       setTimeout(() => {
         this.$store.commit("reset");
         this.$store.dispatch("setup");
-        EventBus.$emit("viewChange", "Owner");
+        EventBus.$emit("viewChange", "Issuer");
       }, 3000);
     }
   }

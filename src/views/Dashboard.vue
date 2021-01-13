@@ -7,7 +7,7 @@
         color="primary"
       ></v-progress-circular>
     </v-overlay>
-    <div v-if="showUI === 'Owner'">
+    <div v-if="showUI === 'Issuer'">
       <div v-if="currentTokenId"><Accounts /></div>
       <div v-else><Tokens /></div>
     </div>
@@ -68,7 +68,7 @@ export default {
       footerColor: "primary",
       textColor: "white--text",
       busy: false,
-      showUI: "Owner",
+      showUI: "Issuer",
       walletKey: 0
     };
   },

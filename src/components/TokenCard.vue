@@ -149,7 +149,7 @@ export default {
         operation: "transfer",
         tokenId: this.tokenId,
         isNFT: this.token.isNFT,
-        user: "Owner",
+        user: "Issuer",
         name: this.token.name
       };
       EventBus.$emit("transferDialog", transfer);

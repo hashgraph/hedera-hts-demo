@@ -20,7 +20,7 @@ export function getUserAccounts() {
   let accounts = [];
   if (state.getters.numberOfAccounts !== 0) {
     for (const key in state.getters.getAccounts) {
-      if (state.getters.getAccounts[key].account.wallet !== "Owner") {
+      if (state.getters.getAccounts[key].account.wallet !== "Issuer") {
         accounts.push(key);
       }
     }
@@ -38,7 +38,7 @@ export function getUserAccountsWithNames(exclude) {
   accounts.push(account);
   if (state.getters.numberOfAccounts !== 0) {
     for (const key in state.getters.getAccounts) {
-      if (state.getters.getAccounts[key].account.wallet !== "Owner") {
+      if (state.getters.getAccounts[key].account.wallet !== "Issuer") {
         if (state.getters.getAccounts[key].account.wallet !== exclude) {
           const account = {
             accountId: key,

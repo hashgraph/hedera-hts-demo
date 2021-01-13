@@ -457,7 +457,7 @@ export default {
         this.defaultFreezeStatus = false;
       }
 
-      const ownerAccount = getAccountDetails("Owner");
+      const issuerAccount = getAccountDetails("Issuer");
       const token = {
         name: this.name,
         symbol: this.symbol,
@@ -469,8 +469,8 @@ export default {
         wipeKey: this.wipe === "yes" ? privateKey.toString() : undefined,
         supplyKey: this.variable === "yes" ? privateKey.toString() : undefined,
         defaultFreezeStatus: this.defaultFreezeStatus,
-        autoRenewAccount: ownerAccount.accountId,
-        treasury: ownerAccount.accountId,
+        autoRenewAccount: issuerAccount.accountId,
+        treasury: issuerAccount.accountId,
         deleted: false,
         key: privateKey.toString()
       };
