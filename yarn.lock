@@ -938,10 +938,10 @@
     "@types/node" "^13.7.0"
     long "^4.0.0"
 
-"@hashgraph/sdk@^2.0.12":
-  version "2.0.12"
-  resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-2.0.12.tgz#e65e3e5d38f5a4c2d74abb4daf0d3f1f69bef487"
-  integrity sha512-GTp+PfLZh0egVaZFNYXfEdgTv29h9xfZHEMcA6nhpbaOYDLgazovs6vJBmYo/AxNsgHDZK2bFtVAbhZRAyXpEQ==
+"@hashgraph/sdk@^2.0.14":
+  version "2.0.14"
+  resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-2.0.14.tgz#80332689363fbb25ef8b2a34f8127c7277cad061"
+  integrity sha512-OZ9Vd/ZlQdMrxZldYWNUXxOJGDAoZZg5QYPd0+iIlZDtAIKvQ8eFvlJ2wa4pmdUXH2cJ2vZv3AfTqM/MJnDdnQ==
   dependencies:
     "@grpc/grpc-js" "^1.2.0"
     "@hashgraph/cryptography" "^1.0.11"
