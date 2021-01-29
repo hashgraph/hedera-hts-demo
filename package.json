@@ -7,7 +7,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@hashgraph/sdk": "^2.0.14",
+    "@hashgraph/sdk": "^2.0.15",
     "@koumoul/vjsf": "^1.17.1",
     "bignumber.js": "^9.0.0",
     "core-js": "^3.6.5",

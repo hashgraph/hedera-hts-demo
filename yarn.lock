@@ -863,10 +863,10 @@
     lodash "^4.17.19"
     to-fast-properties "^2.0.0"
 
-"@grpc/grpc-js@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.2.0.tgz#4ff1ac4cdf7eb2af80d3c67316be9c2308d8d9bf"
-  integrity sha512-09H50V7rmz0gFrGz6IbP49z9A8+2p4yZYcNDEb7bytr90vWn52VBQE1a+LMBlrucmNN0wSsiCr3TJx+dStHTng==
+"@grpc/grpc-js@^1.2.2":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@grpc/grpc-js/-/grpc-js-1.2.5.tgz#d1ef9ae8b99c3b46bb6cc8c82be1aa80080b7300"
+  integrity sha512-CBCNwedw8McnEBq9jvoiJikws16WN0OiHFejQPovY71XkFWSiIqgvydYiDwpvIYDJmhPQ7qZNzW9BPndhXbx1Q==
   dependencies:
     "@types/node" "^12.12.47"
     google-auth-library "^6.1.1"
@@ -904,7 +904,7 @@
   dependencies:
     "@hapi/hoek" "^8.3.0"
 
-"@hashgraph/cryptography@^1.0.11":
+"@hashgraph/cryptography@^1.0.12":
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/@hashgraph/cryptography/-/cryptography-1.0.12.tgz#8c4b3900d10d0c6c5ff807f90aad0c45b3d2beb4"
   integrity sha512-uX0IzuOoE1LxAuc6+SVrc9WCEJWnRJNurAgEfycGKqfwUbCEWXHqTzUc/hDlB2NEv0M6g/cRVwtzatCHPGaJwQ==
@@ -938,13 +938,13 @@
     "@types/node" "^13.7.0"
     long "^4.0.0"
 
-"@hashgraph/sdk@^2.0.14":
-  version "2.0.14"
-  resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-2.0.14.tgz#80332689363fbb25ef8b2a34f8127c7277cad061"
-  integrity sha512-OZ9Vd/ZlQdMrxZldYWNUXxOJGDAoZZg5QYPd0+iIlZDtAIKvQ8eFvlJ2wa4pmdUXH2cJ2vZv3AfTqM/MJnDdnQ==
+"@hashgraph/sdk@^2.0.15":
+  version "2.0.15"
+  resolved "https://registry.yarnpkg.com/@hashgraph/sdk/-/sdk-2.0.15.tgz#66d93371809f8629086a47b6d5cf5e063aee05b2"
+  integrity sha512-WNjltm2dgjc8D/DYfeyiiuzWB9osMiwcJ/9TKrs0/Yq3U311OkxmxSkTFRQ94cl3a3qcCwOscwzX0K9lLv+uTA==
   dependencies:
-    "@grpc/grpc-js" "^1.2.0"
-    "@hashgraph/cryptography" "^1.0.11"
+    "@grpc/grpc-js" "^1.2.2"
+    "@hashgraph/cryptography" "^1.0.12"
     "@hashgraph/proto" "^1.0.19"
     bignumber.js "^9.0.1"
     long "^4.0.0"
