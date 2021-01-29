@@ -387,7 +387,7 @@ export default {
       name: "",
       symbol: "",
       decimals: "",
-      initialSupply: "",
+      initialSupply: 0,
       defaultFreezeStatus: false
     };
   },
@@ -414,7 +414,7 @@ export default {
       this.name = "";
       this.symbol = "";
       this.decimals = "";
-      this.initialSupply = "";
+      this.initialSupply = "0";
       this.defaultFreezeStatus = false;
     },
     nextStep() {
