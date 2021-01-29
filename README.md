@@ -43,6 +43,10 @@ Edit `.env` and setup the following variables
 * VUE_APP_INITIAL_BALANCE=100
 * VUE_APP_NETWORK=testnet (or mainnet)
 
+optionally you may set
+* VUE_APP_MAX_QUERY_PAYMENT=10 max allowed query payment
+* VUE_APP_MAX_TX_FEE=10 max allowed transaction fee
+
 ## I just want to run it quickly
 
 You can deploy the UI with docker-compose after you have edited the `.env` file above.
