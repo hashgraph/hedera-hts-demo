@@ -11,6 +11,7 @@
     "@koumoul/vjsf": "^1.17.1",
     "bignumber.js": "^9.0.0",
     "core-js": "^3.6.5",
+    "nft.storage": "^0.4.1",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
     "vuetify": "^2.2.11",

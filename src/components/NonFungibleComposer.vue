@@ -57,9 +57,7 @@
           </v-card>
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
@@ -90,15 +88,11 @@
           </v-card>
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
               <v-btn
                 color="primary"
                 @click="nextStep"
@@ -133,18 +127,12 @@
 
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
-              <v-btn color="primary" @click="nextStep">
-                Continue
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -161,18 +149,12 @@
 
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
-              <v-btn color="primary" @click="nextStep">
-                Continue
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -198,18 +180,12 @@
 
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
-              <v-btn color="primary" @click="nextStep">
-                Continue
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -229,18 +205,12 @@
 
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
-              <v-btn color="primary" @click="createToken()">
-                Proceed
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="createToken()"> Proceed </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -364,6 +334,7 @@ export default {
       EventBus.$emit("dialogClose");
     },
     async createToken() {
+      // check if we create a HEDERA-stored metadata or IPFS
       EventBus.$emit("busy", true);
       const privateKey = await PrivateKey.generate();
 
@@ -376,13 +347,18 @@ export default {
       if (typeof this.imageBase64() !== "undefined") {
         modelToSave.photo = this.imageBase64();
       }
-      const fileId = await fileCreate(JSON.stringify(modelToSave));
+      const fileId = await fileCreate(
+        JSON.stringify(modelToSave),
+        this.model.Storage
+      );
       if (fileId !== "") {
         const issuerAccount = getAccountDetails("Issuer");
 
         const token = {
           name: this.name,
-          symbol: "hedera://" + fileId,
+          symbol:
+            (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") +
+            fileId,
           decimals: 0,
           initialSupply: 1,
           adminKey: undefined,

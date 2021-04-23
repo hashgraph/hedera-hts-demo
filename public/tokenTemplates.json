@@ -23,6 +23,17 @@
           }
         }
       },
+      "Storage": {
+        "type": "string",
+        "title": "Storage",
+        "enum": [
+          "HEDERA",
+          "IPFS"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
       "Quality": {
         "type": "string",
         "title": "Quality",

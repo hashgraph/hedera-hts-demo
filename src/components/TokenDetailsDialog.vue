@@ -11,8 +11,11 @@
         </v-toolbar>
         <v-card-text>
           <v-row v-if="token.isNFT">
-            <v-col cols="12">
+            <v-col cols="12" v-if="token.fileStorageProtocol === 'HEDERA'">
               Token properties stored in Hedera File Id: {{ fileId }}
+            </v-col>
+            <v-col cols="12" v-if="token.fileStorageProtocol === 'IPFS'">
+              Token properties stored in IPFS File Id: {{ fileId }}
             </v-col>
           </v-row>
           <v-row v-if="!token.isNFT" dense>
@@ -240,19 +243,34 @@ export default {
         ? value.name
         : value.name + " (" + value.symbol + ")";
       vm.backgroundColor = value.isDeleted ? "red" : "white";
+      vm.fileStorageProtocol = value.fileStorageProtocol;
       vm.keyValues = [];
       if (value.isNFT) {
-        // get file from Hedera
-        vm.fileId = value.symbol.replace("HEDERA://", "");
-        const fileData = await fileGetContents(vm.fileId);
-        const fileDataString = new TextDecoder().decode(fileData);
-        const tokenProperties = JSON.parse(fileDataString);
-        if (tokenProperties.photo) {
-          vm.imageData = tokenProperties.photo;
-          delete tokenProperties.photo;
-        }
-        for (const key in tokenProperties) {
-          vm.keyValues.push({ key: key, value: tokenProperties[key] });
+        if (value.fileStorageProtocol === "HEDERA") {
+          // get file from Hedera
+          vm.fileId = value.symbol.replace("HEDERA://", "");
+          const fileData = await fileGetContents(vm.fileId);
+          const fileDataString = new TextDecoder().decode(fileData);
+          const tokenProperties = JSON.parse(fileDataString);
+          if (tokenProperties.photo) {
+            vm.imageData = tokenProperties.photo;
+            delete tokenProperties.photo;
+          }
+          for (const key in tokenProperties) {
+            vm.keyValues.push({ key: key, value: tokenProperties[key] });
+          }
+        } else if (value.fileStorageProtocol === "IPFS") {
+          vm.fileId = value.symbol.replace("IPFS://", "");
+          const fileData = await fileGetContents(vm.fileId, "IPFS");
+          const tokenProperties = await fileData.json();
+
+          if (tokenProperties.photo) {
+            vm.imageData = tokenProperties.photo;
+            delete tokenProperties.photo;
+          }
+          for (const key in tokenProperties) {
+            vm.keyValues.push({ key: key, value: tokenProperties[key] });
+          }
         }
       }
     });
