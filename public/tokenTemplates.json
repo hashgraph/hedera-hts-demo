@@ -25,7 +25,7 @@
       },
       "Storage": {
         "type": "string",
-        "title": "Storage",
+        "title": "Metadata Storage",
         "enum": [
           "HEDERA",
           "IPFS"
@@ -94,6 +94,17 @@
           }
         }
       },
+      "Storage": {
+        "type": "string",
+        "title": "Metadata Storage",
+        "enum": [
+          "HEDERA",
+          "IPFS"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
       "SkinColor": {
         "type": "string",
         "title": "Skin Color",
@@ -154,6 +165,17 @@
           "x-props": {
             "dense": true
           }
+        }
+      },
+      "Storage": {
+        "type": "string",
+        "title": "Metadata Storage",
+        "enum": [
+          "HEDERA",
+          "IPFS"
+        ],
+        "x-props": {
+          "dense": true
         }
       },
       "Breed": {

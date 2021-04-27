@@ -122,15 +122,27 @@ export async function fileCreate(fileData, storage = "HEDERA") {
     return fileId;
   } else {
     // Store file in IPFS
-    const NFT_STORAGE_API_KEY = process.env.VUE_APP_NFT_STORAGE_API_KEY;
-    if (NFT_STORAGE_API_KEY) {
-      const nftStorageClient = new NFTStorage({ token: NFT_STORAGE_API_KEY });
-      const content = new Blob([fileData], { type: "application/json" });
-      const cid = await nftStorageClient.storeBlob(content);
-      console.log(cid);
-      return cid;
-    } else {
-      //TODO: API KEY IS EMPTY
+    try {
+      const NFT_STORAGE_API_KEY = process.env.VUE_APP_NFT_STORAGE_API_KEY;
+      if (NFT_STORAGE_API_KEY) {
+        const nftStorageClient = new NFTStorage({ token: NFT_STORAGE_API_KEY });
+        const content = new Blob([fileData], { type: "application/json" });
+        return await nftStorageClient.storeBlob(content);
+      } else {
+        const NO_API_KEY_ERROR =
+          "You don't seem to have an NFT.STORAGE API key in your .env file. Please\n" +
+          "      get a new API key at https://nft.storage/, add it to .env file and restart\n" +
+          "      the server.";
+        notifyError(NO_API_KEY_ERROR);
+        console.error(NO_API_KEY_ERROR);
+
+        return "";
+      }
+    } catch (err) {
+      notifyError(err.message);
+      console.error(err);
+
+      return "";
     }
   }
 }

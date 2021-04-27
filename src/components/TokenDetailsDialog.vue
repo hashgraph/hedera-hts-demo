@@ -138,6 +138,15 @@
             </v-col>
           </v-row>
           <v-container v-if="token.isNFT">
+            <v-row
+              dense
+              align="center"
+              justify="center"
+              v-if="token.isNFT && !keyValues.length"
+            >
+              <v-progress-circular indeterminate></v-progress-circular>
+              Waiting for file availability.
+            </v-row>
             <v-container v-if="imageData">
               <v-row dense align="center" justify="center">
                 <v-col cols="8">

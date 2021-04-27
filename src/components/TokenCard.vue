@@ -20,8 +20,8 @@
         <v-col cols="6">Symbol</v-col>
         <v-col v-if="fileMirrorURL" cols="6"
           ><a :title="token.symbol" :href="fileMirrorURL" target="_blank">{{
-            token.symbol.length > 20
-              ? token.symbol.substr(0, 19) + "&hellip;"
+            token.symbol.length > 19
+              ? token.symbol.substr(0, 18) + "&hellip;"
               : token.symbol
           }}</a></v-col
         >
@@ -87,7 +87,7 @@ export default {
   data: function() {
     return {
       token: {
-        fileStorageProtocol: "HEDERA"
+        fileStorageProtocol: null
       },
       dirty: false,
       isDeleted: false,
@@ -108,6 +108,7 @@ export default {
       this.token.symbol.includes("HEDERA://") ||
       this.token.symbol.includes("IPFS://");
     if (this.token.isNFT) {
+      // Check if this NFT token metadata stored on Hedera File Service or on IPFS.
       if (this.token.symbol.includes("HEDERA://")) {
         this.fileMirrorURL = this.mirrorURL.concat(
           this.token.symbol.replace("HEDERA://", "")
