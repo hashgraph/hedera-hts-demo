@@ -19,8 +19,10 @@
       <v-row>
         <v-col cols="6">Symbol</v-col>
         <v-col v-if="fileMirrorURL" cols="6"
-          ><a :href="fileMirrorURL" target="_blank">{{
-            token.symbol
+          ><a :title="token.symbol" :href="fileMirrorURL" target="_blank">{{
+            token.symbol.length > 19
+              ? token.symbol.substr(0, 18) + "&hellip;"
+              : token.symbol
           }}</a></v-col
         >
         <v-col v-else cols="6">{{ token.symbol }}</v-col>
@@ -84,7 +86,9 @@ export default {
   },
   data: function() {
     return {
-      token: {},
+      token: {
+        fileStorageProtocol: null
+      },
       dirty: false,
       isDeleted: false,
       defaultFreezeStatus: false,
@@ -100,11 +104,23 @@ export default {
     this.token = this.$store.getters.getTokens[this.tokenId];
     this.defaultFreezeStatus = this.token.defaultFreezeStatus;
 
-    this.token.isNFT = this.token.symbol.includes("HEDERA://");
+    this.token.isNFT =
+      this.token.symbol.includes("HEDERA://") ||
+      this.token.symbol.includes("IPFS://");
     if (this.token.isNFT) {
-      this.fileMirrorURL = this.mirrorURL.concat(
-        this.token.symbol.replace("HEDERA://", "")
-      );
+      // Check if this NFT token metadata stored on Hedera File Service or on IPFS.
+      if (this.token.symbol.includes("HEDERA://")) {
+        this.fileMirrorURL = this.mirrorURL.concat(
+          this.token.symbol.replace("HEDERA://", "")
+        );
+        this.token.fileStorageProtocol = "HEDERA";
+      } else if (this.token.symbol.includes("IPFS://")) {
+        // If the file is stored on IPFS - we resolve to the Cloudfare's IPFS viewer.
+        this.fileMirrorURL =
+          "https://cloudflare-ipfs.com/ipfs/" +
+          this.token.symbol.replace("IPFS://", "");
+        this.token.fileStorageProtocol = "IPFS";
+      }
     }
 
     if (this.isDeleted) {
@@ -194,14 +210,17 @@ export default {
 h3 {
   margin: 40px 0 0;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }

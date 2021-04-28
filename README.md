@@ -121,7 +121,8 @@ These properties (along with an image if necessary) as then stored in an immutab
 You may edit or add to the templates by editing the `/public/tokenTemplates.json` file, following guidelines from [the vjsf component](https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/about).
 Note that if you wish to include a picture in your NFT specification, the property must be called `photo` since the UI depends on that field value.
 
-_Note: An alternative to using files on Hedera would be to host the file on a shared location and use a hash of the file as the symbol for the token so that the validity of the file can be verified at any time._  
+_Note: An alternative to using files on Hedera would be to host the file on a shared location and use a hash of the file as the symbol for the token so that the validity of the file can be verified at any time.
+We demonstrate usage of IPFS storage using [nft.storage](https://nft.storage) integration. You can create your API key on https://nft.storage and add it to your .env file to enable IPFS upload._
 
 ## Marketplace
 

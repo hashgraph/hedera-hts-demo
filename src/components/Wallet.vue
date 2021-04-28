@@ -383,6 +383,18 @@ export default {
           }
           oneToken.imageData = this.tokenProperties[oneTokenId].photo;
         }
+        if (tokens[oneTokenId].symbol.includes("IPFS://")) {
+          if (!this.tokenProperties[oneTokenId]) {
+            // get the file for this token
+            const fileId = tokens[oneTokenId].symbol.replace("IPFS://", "");
+            const fileContents = await fileGetContents(fileId, "IPFS");
+            const fileContentsJson = await fileContents.json();
+            if (fileContentsJson.photo) {
+              Vue.set(this.tokenProperties, oneTokenId, fileContentsJson);
+            }
+          }
+          oneToken.imageData = this.tokenProperties[oneTokenId].photo;
+        }
         if (typeof accountRelations[oneTokenId] !== "undefined") {
           oneToken.related = "Yes";
           oneToken.hbarBalance = accountRelations[oneTokenId].hbarBalance;

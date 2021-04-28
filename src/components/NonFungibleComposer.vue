@@ -1,9 +1,22 @@
 <template>
   <v-container>
-    <v-alert type="warning" v-if="photoSize > 4096">
+    <v-alert
+      type="warning"
+      v-if="photoSize > 4096 && this.model.Storage === 'HEDERA'"
+    >
       This is a large image (size greater than 4kb) - A smaller size is
-      preferable
+      preferable for Hedera File Service. Alternatively, use IPFS.
     </v-alert>
+
+    <v-alert
+      type="warning"
+      v-if="this.model.Storage === 'IPFS' && !NFT_STORAGE_API_KEY"
+    >
+      You don't seem to have an NFT.STORAGE API key in your .env file. Please
+      get a new API key at https://nft.storage/, add it to .env file and restart
+      the server.
+    </v-alert>
+
     <v-stepper v-model="step" alt-labels>
       <v-stepper-header>
         <v-stepper-step :complete="step > STEP_NAME" :step="STEP_NAME">
@@ -57,9 +70,7 @@
           </v-card>
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
@@ -90,15 +101,11 @@
           </v-card>
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
               <v-btn
                 color="primary"
                 @click="nextStep"
@@ -133,18 +140,12 @@
 
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
-              <v-btn color="primary" @click="nextStep">
-                Continue
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -161,18 +162,12 @@
 
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
-              <v-btn color="primary" @click="nextStep">
-                Continue
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -198,18 +193,12 @@
 
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
-              <v-btn color="primary" @click="nextStep">
-                Continue
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -229,18 +218,12 @@
 
           <v-row>
             <v-col>
-              <v-btn text @click="cancel">
-                Cancel
-              </v-btn>
+              <v-btn text @click="cancel"> Cancel </v-btn>
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn text class="mr-2" @click="backStep">
-                Back
-              </v-btn>
-              <v-btn color="primary" @click="createToken()">
-                Proceed
-              </v-btn>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="createToken()"> Proceed </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -276,7 +259,9 @@ export default {
       kyc: "no",
       freeze: "no",
       photoSize: 0,
+      isHederaFileService: false,
       cardHeight: 300,
+      NFT_STORAGE_API_KEY: process.env.VUE_APP_NFT_STORAGE_API_KEY,
       nameRules: [
         v => !!v || "Input required",
         v => v.length <= 100 || "Max length 100"
@@ -354,6 +339,11 @@ export default {
         "data:" + this.model.photo.type + ";base64," + this.model.photo.data
       );
     },
+    onStorageChange(e) {
+      // this.isHederaFileService
+      console.log(this);
+      console.log(e);
+    },
     nextStep() {
       this.step = this.step + 1;
     },
@@ -376,13 +366,18 @@ export default {
       if (typeof this.imageBase64() !== "undefined") {
         modelToSave.photo = this.imageBase64();
       }
-      const fileId = await fileCreate(JSON.stringify(modelToSave));
+      const fileId = await fileCreate(
+        JSON.stringify(modelToSave),
+        this.model.Storage
+      );
       if (fileId !== "") {
         const issuerAccount = getAccountDetails("Issuer");
 
         const token = {
           name: this.name,
-          symbol: "hedera://" + fileId,
+          symbol:
+            (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") +
+            fileId,
           decimals: 0,
           initialSupply: 1,
           adminKey: undefined,

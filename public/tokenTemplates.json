@@ -23,6 +23,17 @@
           }
         }
       },
+      "Storage": {
+        "type": "string",
+        "title": "Metadata Storage",
+        "enum": [
+          "HEDERA",
+          "IPFS"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
       "Quality": {
         "type": "string",
         "title": "Quality",
@@ -81,6 +92,17 @@
           "x-props": {
             "dense": true
           }
+        }
+      },
+      "Storage": {
+        "type": "string",
+        "title": "Metadata Storage",
+        "enum": [
+          "HEDERA",
+          "IPFS"
+        ],
+        "x-props": {
+          "dense": true
         }
       },
       "SkinColor": {
@@ -143,6 +165,17 @@
           "x-props": {
             "dense": true
           }
+        }
+      },
+      "Storage": {
+        "type": "string",
+        "title": "Metadata Storage",
+        "enum": [
+          "HEDERA",
+          "IPFS"
+        ],
+        "x-props": {
+          "dense": true
         }
       },
       "Breed": {
