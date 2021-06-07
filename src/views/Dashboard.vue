@@ -19,6 +19,7 @@
     <MintBurnDialog />
     <TransferDialog />
     <ComposerDialog />
+    <LoyaltyComposerDialog />
     <TransactionsDrawer />
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
       <v-card flat tile width="100%" :class="footerColor">
@@ -41,6 +42,7 @@ import TokenCreateDialog from "../components/TokenCreateDialog";
 import TransferDialog from "../components/TransferDialog";
 import TransactionsDrawer from "@/components/TransactionsDrawer";
 import ComposerDialog from "../components/ComposerDialog";
+import LoyaltyComposerDialog from "../components/LoyaltyComposerDialog";
 
 let timer;
 
@@ -55,7 +57,8 @@ export default {
     TokenCreateDialog,
     Tokens,
     Accounts,
-    Wallet
+    Wallet,
+    LoyaltyComposerDialog
   },
   computed: {
     currentTokenId() {

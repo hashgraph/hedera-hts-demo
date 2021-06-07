@@ -1,0 +1,46 @@
+{
+  "helpCompletingThisFile": "https://koumoul-dev.github.io/vuetify-jsonschema-form/latest/about",
+  "giftcard": {
+    "type": "object",
+    "properties": {
+      "photo": {
+        "type": "object",
+        "title": "Photo",
+        "contentMediaType": "image/*",
+        "writeOnly": true,
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "data": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "x-props": {
+            "dense": true
+          }
+        }
+      },
+      "Storage": {
+        "type": "string",
+        "title": "Metadata Storage",
+        "enum": [
+          "HEDERA",
+          "IPFS"
+        ],
+        "x-props": {
+          "dense": true
+        }
+      },
+      "Value": {
+        "type": "string",
+        "title": "Gift Card Value",
+        "x-props": {
+          "dense": true
+        }
+      }
+    }
+  }
+}

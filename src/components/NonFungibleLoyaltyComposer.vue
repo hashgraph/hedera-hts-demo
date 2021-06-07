@@ -34,17 +34,6 @@
           Properties
         </v-stepper-step>
         <v-divider></v-divider>
-        <v-stepper-step :complete="step > STEP_KYC" :step="STEP_KYC">
-          KYC
-        </v-stepper-step>
-        <v-divider></v-divider>
-        <v-stepper-step
-          :complete="step > STEP_FREEZABLE"
-          :step="STEP_FREEZABLE"
-        >
-          Freezable
-        </v-stepper-step>
-        <v-divider></v-divider>
         <v-stepper-step :complete="step > STEP_CREATE" :step="STEP_CREATE">
           Create
         </v-stepper-step>
@@ -150,59 +139,6 @@
           </v-row>
         </v-stepper-content>
 
-        <v-stepper-content :step="STEP_KYC">
-          <v-card class="mb-12" :height="cardHeight" flat>
-            <v-card-text>
-              <v-radio-group v-model="kyc">
-                <v-radio name="kyc" label="No" value="no"></v-radio>
-                <v-radio name="kyc" label="Yes" value="yes"></v-radio>
-              </v-radio-group>
-            </v-card-text>
-          </v-card>
-
-          <v-row>
-            <v-col>
-              <v-btn text @click="cancel"> Cancel </v-btn>
-            </v-col>
-            <v-spacer></v-spacer>
-            <v-col>
-              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
-              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
-            </v-col>
-          </v-row>
-        </v-stepper-content>
-
-        <v-stepper-content :step="STEP_FREEZABLE">
-          <v-card class="mb-12" :height="cardHeight" flat>
-            <v-card-text>
-              <v-radio-group v-model="freeze">
-                <v-radio name="freeze" label="No" value="no"></v-radio>
-                <v-radio name="freeze" label="Yes" value="yes"></v-radio>
-              </v-radio-group>
-              <v-row>
-                <v-col cols="6">
-                  <v-checkbox
-                    v-model="defaultFreezeStatus"
-                    :disabled="freeze === 'no'"
-                    label="Default"
-                  ></v-checkbox>
-                </v-col>
-              </v-row>
-            </v-card-text>
-          </v-card>
-
-          <v-row>
-            <v-col>
-              <v-btn text @click="cancel"> Cancel </v-btn>
-            </v-col>
-            <v-spacer></v-spacer>
-            <v-col>
-              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
-              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
-            </v-col>
-          </v-row>
-        </v-stepper-content>
-
         <v-stepper-content :step="STEP_CREATE">
           <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-title
@@ -244,20 +180,18 @@ import { fileCreate } from "@/service/fileService";
 import { loadTokenTemplates } from "@/service/tokenProperties";
 
 export default {
-  name: "NonFungibleComposer",
+  name: "NonFungibleLoyaltyComposer",
   components: { VJsf },
   data: function() {
     return {
       STEP_NAME: 1,
       STEP_TEMPLATE: 2,
       STEP_PROPERTIES: 3,
-      STEP_KYC: 4,
-      STEP_FREEZABLE: 5,
-      STEP_CREATE: 6,
+      STEP_CREATE: 4,
       nameValid: false,
       step: 1,
-      kyc: "no",
-      freeze: "no",
+      kyc: "yes",
+      freeze: "yes",
       photoSize: 0,
       isHederaFileService: false,
       cardHeight: 300,
@@ -283,7 +217,7 @@ export default {
   },
   created() {
     this.init();
-    EventBus.$on("tokenCompose", () => {
+    EventBus.$on("tokenCreateLoyalty", () => {
       this.init();
     });
   },
@@ -295,8 +229,8 @@ export default {
   methods: {
     init() {
       this.nameValid = false;
-      this.kyc = "no";
-      this.freeze = "no";
+      this.kyc = "yes";
+      this.freeze = "yes";
       this.step = 1;
       //
       this.name = "";
@@ -304,7 +238,7 @@ export default {
       this.defaultFreezeStatus = false;
       this.template = "";
       this.photoSize = 0;
-      this.tokenTemplates = loadTokenTemplates();
+      this.tokenTemplates = loadTokenTemplates("tokenLoyaltyTemplates.json");
       this.tokenTemplatesForSelection = [];
       for (const templateItem in this.tokenTemplates) {
         if (templateItem !== "helpCompletingThisFile") {

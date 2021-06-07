@@ -51,6 +51,9 @@
     <v-btn icon @click="showCompose()">
       <v-icon>mdi-music</v-icon>
     </v-btn>
+    <v-btn icon @click="showCreateLoyalty()">
+      <v-icon>mdi-tag-heart</v-icon>
+    </v-btn>
     <v-btn icon @click="showTransactions()">
       <v-icon>mdi-download-network</v-icon>
     </v-btn>
@@ -104,6 +107,9 @@ export default {
     },
     showCreate() {
       EventBus.$emit("tokenCreate", "");
+    },
+    showCreateLoyalty() {
+      EventBus.$emit("tokenCreateLoyalty", "");
     },
     showUI(ui) {
       switch (ui) {
