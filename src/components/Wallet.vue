@@ -1,23 +1,22 @@
 <template>
   <v-container>
     <div v-if="accountId">
-      <v-row>
-        <v-col cols="12">
+      <v-toolbar>
+        <v-tabs centered v-model="tabs">
+          <v-tab>Buy Gift Cards</v-tab>
+          <v-tab>Transfers and swaps</v-tab>
+          <v-tab>Buy Items</v-tab>
+        </v-tabs>
+      </v-toolbar>
+
+      <v-tabs-items v-model="tabs">
+        <v-tab-item>
           <v-data-table
-            :headers="tokenHeaders"
-            :items="accountTokens"
+            :headers="bidHeaders"
+            :items="bids"
             class="elevation-1"
             hide-default-footer
           >
-            <template v-slot:item.image="{ item }">
-              <v-img
-                v-if="item.imageData"
-                :src="item.imageData"
-                max-width="50px"
-                aspect-ratio="1"
-              ></v-img>
-            </template>
-
             <template v-slot:item.tokenName="{ item }">
               {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{
                 item.tokenId
@@ -25,50 +24,22 @@
               >)
             </template>
 
-            <template v-slot:item.freezeStatus="{ item }">
-              <v-chip :color="getColor(item.freezeStatus, true)" dark>
-                {{ item.freezeStatus }}
-              </v-chip>
+            <template v-slot:item.image="{ item }">
+              <div v-if="!item.template || item.template !== 'giftcard'"></div>
             </template>
 
-            <template v-slot:item.kycStatus="{ item }">
-              <v-chip :color="getColor(item.kycStatus, false)" dark>
-                {{ item.kycStatus }}
+            <template v-slot:item.actions="{ item }">
+              <v-chip color="green dark">
+                <v-btn
+                  text
+                  :disabled="item.tokenIssuer === walletInstance"
+                  @click="buy(item)"
+                  >Buy
+                </v-btn>
               </v-chip>
-            </template>
-
-            <template v-slot:item.related="{ item }">
-              <v-chip :color="getColor(item.related, false)" dark>
-                {{ item.related }}
-              </v-chip>
-              <v-btn
-                v-if="item.related === 'No'"
-                color="blue darken-1"
-                text
-                @click="associate(item.tokenId)"
-              >
-                <v-icon>mdi-link-variant</v-icon>
-              </v-btn>
-              <v-btn
-                v-else
-                color="blue darken-1"
-                text
-                @click="dissociate(item.tokenId)"
-              >
-                <v-icon>mdi-link-variant-off</v-icon>
-              </v-btn>
             </template>
           </v-data-table>
-        </v-col>
-      </v-row>
-      <v-toolbar>
-        <v-tabs centered v-model="tabs">
-          <v-tab>Transfers and swaps</v-tab>
-          <v-tab>Market place</v-tab>
-        </v-tabs>
-      </v-toolbar>
-
-      <v-tabs-items v-model="tabs">
+        </v-tab-item>
         <v-tab-item>
           <v-form ref="form" v-model="valid">
             <v-card class="mx-auto">
@@ -85,7 +56,7 @@
                   </v-col>
                   <v-col cols="3">
                     <v-select
-                      :items="accountTokens"
+                      :items="accountTokens.concat(accountGiftcards)"
                       item-text="tokenName"
                       item-value="tokenId"
                       label="First Token"
@@ -179,30 +150,201 @@
           </v-form>
         </v-tab-item>
         <v-tab-item>
-          <v-data-table
-            :headers="bidHeaders"
-            :items="bids"
-            class="elevation-1"
-            hide-default-footer
-          >
-            <template v-slot:item.tokenName="{ item }">
-              {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{
-                item.tokenId
-              }}</a
-              >)
-            </template>
+          <v-container>
+            <v-card outlined class="mx-auto" max-width="500">
+              <v-img
+                src="https://cdn.shopify.com/s/files/1/0046/8412/0133/products/tshirt_Purple_1024x1024@2x.jpg?v=1542158969"
+                max-width="200"
+                class="mx-auto"
+              ></v-img>
+              <v-card-actions>
+                <v-btn class="ma-2 mx-auto" rounded width="300">
+                  Buy
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-container>
+        </v-tab-item>
+      </v-tabs-items>
 
-            <template v-slot:item.actions="{ item }">
-              <v-chip color="green dark">
-                <v-btn
-                  text
-                  :disabled="item.tokenIssuer === walletInstance"
-                  @click="buy(item)"
-                  >Buy</v-btn
-                >
-              </v-chip>
-            </template>
-          </v-data-table>
+      <br />
+      <h1>Your Wallet</h1>
+      <v-toolbar>
+        <v-tabs centered v-model="tabsWallet">
+          <v-tab>Loyalty Tokens</v-tab>
+          <v-tab>Gift Cards</v-tab>
+        </v-tabs>
+      </v-toolbar>
+
+      <v-tabs-items v-model="tabsWallet">
+        <v-tab-item>
+          <v-row>
+            <v-col cols="12">
+              <v-data-table
+                :headers="tokenHeaders"
+                :items="accountTokens"
+                class="elevation-1"
+                hide-default-footer
+              >
+                <template v-slot:item.image="{ item }">
+                  <v-card
+                    elevation="2"
+                    v-if="item.template === 'giftcard'"
+                    width="400"
+                    height="240"
+                    :style="{
+                      backgroundColor: item.color,
+                      borderRadius: '15px',
+                      padding: '10px',
+                      margin: '20px'
+                    }"
+                    :href="item.mirrorURL"
+                    target="_blank"
+                  >
+                    <v-card-title>{{ item.company }}</v-card-title>
+                    <v-img
+                      v-if="item.imageData"
+                      :src="item.imageData"
+                      max-width="50px"
+                      aspect-ratio="1"
+                    ></v-img>
+                  </v-card>
+                  <div
+                    v-if="!item.template || item.template !== 'giftcard'"
+                  ></div>
+                </template>
+
+                <template v-slot:item.tokenName="{ item }">
+                  {{ item.tokenName }} (<a
+                    :href="item.mirrorURL"
+                    target="_blank"
+                    >{{ item.tokenId }}</a
+                  >)
+                </template>
+
+                <template v-slot:item.freezeStatus="{ item }">
+                  <v-chip :color="getColor(item.freezeStatus, true)" dark>
+                    {{ item.freezeStatus }}
+                  </v-chip>
+                </template>
+
+                <template v-slot:item.kycStatus="{ item }">
+                  <v-chip :color="getColor(item.kycStatus, false)" dark>
+                    {{ item.kycStatus }}
+                  </v-chip>
+                </template>
+
+                <template v-slot:item.related="{ item }">
+                  <v-chip :color="getColor(item.related, false)" dark>
+                    {{ item.related }}
+                  </v-chip>
+                  <v-btn
+                    v-if="item.related === 'No'"
+                    color="blue darken-1"
+                    text
+                    @click="associate(item.tokenId)"
+                  >
+                    <v-icon>mdi-link-variant</v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-else
+                    color="blue darken-1"
+                    text
+                    @click="dissociate(item.tokenId)"
+                  >
+                    <v-icon>mdi-link-variant-off</v-icon>
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-col>
+          </v-row>
+        </v-tab-item>
+
+        <v-tab-item>
+          <v-row>
+            <v-col cols="12">
+              <v-data-table
+                :headers="giftcardHeaders"
+                :items="accountGiftcards"
+                class="elevation-1"
+                hide-default-footer
+              >
+                <template v-slot:item.image="{ item }">
+                  <v-card
+                    outlined
+                    elevation="2"
+                    v-if="item.template === 'giftcard'"
+                    width="400"
+                    height="240"
+                    :style="{
+                      backgroundColor: item.color,
+                      borderRadius: '15px',
+                      padding: '10px',
+                      margin: '20px',
+                      opacity: item.tokenBalance === 1 ? 1 : 0.5
+                    }"
+                    :href="item.mirrorURL"
+                    target="_blank"
+                  >
+                    <v-card-text>
+                      <v-img
+                        v-if="item.imageData"
+                        :src="item.imageData"
+                        max-width="70px"
+                        class="mx-auto"
+                      ></v-img>
+                      <h1 class="text-h4" :style="{ color: item.fontColor }">
+                        {{ item.company }}
+                      </h1>
+                      <h2 class="text-h5" :style="{ color: item.fontColor }">
+                        Card Value: {{ item.cardValue }}
+                      </h2>
+                    </v-card-text>
+                  </v-card>
+                </template>
+
+                <template v-slot:item.imageURL="{ item }">
+                  <a :href="item.imageURL" target="_blank">
+                    <v-icon>mdi-file-document</v-icon>
+                  </a>
+                </template>
+
+                <template v-slot:item.freezeStatus="{ item }">
+                  <v-chip :color="getColor(item.freezeStatus, true)" dark>
+                    {{ item.freezeStatus }}
+                  </v-chip>
+                </template>
+
+                <template v-slot:item.kycStatus="{ item }">
+                  <v-chip :color="getColor(item.kycStatus, false)" dark>
+                    {{ item.kycStatus }}
+                  </v-chip>
+                </template>
+
+                <template v-slot:item.related="{ item }">
+                  <v-chip :color="getColor(item.related, false)" dark>
+                    {{ item.related }}
+                  </v-chip>
+                  <v-btn
+                    v-if="item.related === 'No'"
+                    color="blue darken-1"
+                    text
+                    @click="associate(item.tokenId)"
+                  >
+                    <v-icon>mdi-link-variant</v-icon>
+                  </v-btn>
+                  <v-btn
+                    v-else
+                    color="blue darken-1"
+                    text
+                    @click="dissociate(item.tokenId)"
+                  >
+                    <v-icon>mdi-link-variant-off</v-icon>
+                  </v-btn>
+                </template>
+              </v-data-table>
+            </v-col>
+          </v-row>
         </v-tab-item>
       </v-tabs-items>
     </div>
@@ -236,6 +378,7 @@ export default {
       hbarTo: "",
       hBars: 0,
       accountTokens: [],
+      accountGiftcards: [],
       bids: [],
       tokenProperties: [],
       integerRules: [v => v == parseInt(v) || "Integer required"],
@@ -248,12 +391,21 @@ export default {
         { text: "Frozen", align: "center", value: "freezeStatus" },
         { text: "KYCd", align: "center", value: "kycStatus" }
       ],
+      giftcardHeaders: [
+        { text: "Gift Card", align: "center", value: "image" },
+        { text: "Metadata", align: "center", value: "imageURL" },
+        { text: "Associated", align: "center", value: "related" },
+        { text: "Owned", align: "center", value: "tokenBalance" },
+        { text: "Frozen", align: "center", value: "freezeStatus" },
+        { text: "KYCd", align: "center", value: "kycStatus" }
+      ],
       bidHeaders: [
         { text: "Token", align: "center", value: "tokenName" },
-        { text: "Offer", align: "center", value: "offerAmount" },
+        { text: "Price", align: "center", value: "offerAmount" },
         { text: "", align: "center", value: "actions" }
       ],
       tabs: null,
+      tabsWallet: null,
       accounts: getUserAccountsWithNames(this.walletInstance),
       marketPlaceAccountId: getAccountDetails("Marketplace").accountId,
       offer1: 0,
@@ -322,6 +474,8 @@ export default {
     async buy(bid) {
       EventBus.$emit("busy", true);
 
+      await this.associate(bid.tokenId);
+
       const result = await tokenSwap(
         "Marketplace",
         getAccountDetails(this.walletInstance).accountId,
@@ -347,6 +501,7 @@ export default {
     async loadTokenData() {
       this.loading = true;
       this.accountTokens = [];
+      this.accountGiftcards = [];
       this.bids = [];
 
       for (const bid in this.$store.getters.getBids) {
@@ -371,9 +526,9 @@ export default {
           mirrorURL: this.mirrorURL.concat(oneTokenId)
         };
         if (tokens[oneTokenId].symbol.includes("HEDERA://")) {
+          const fileId = tokens[oneTokenId].symbol.replace("HEDERA://", "");
           if (!this.tokenProperties[oneTokenId]) {
             // get the file for this token
-            const fileId = tokens[oneTokenId].symbol.replace("HEDERA://", "");
             const fileContents = await fileGetContents(fileId);
             const fileDataString = new TextDecoder().decode(fileContents);
             const tokenProperties = JSON.parse(fileDataString);
@@ -382,11 +537,12 @@ export default {
             }
           }
           oneToken.imageData = this.tokenProperties[oneTokenId].photo;
+          oneToken.imageURL = `https://testnet.dragonglass.me/hedera/search?q=${fileId}`;
         }
         if (tokens[oneTokenId].symbol.includes("IPFS://")) {
+          const fileId = tokens[oneTokenId].symbol.replace("IPFS://", "");
           if (!this.tokenProperties[oneTokenId]) {
             // get the file for this token
-            const fileId = tokens[oneTokenId].symbol.replace("IPFS://", "");
             const fileContents = await fileGetContents(fileId, "IPFS");
             const fileContentsJson = await fileContents.json();
             if (fileContentsJson.photo) {
@@ -394,11 +550,29 @@ export default {
             }
           }
           oneToken.imageData = this.tokenProperties[oneTokenId].photo;
+          oneToken.imageURL = `https://cloudflare-ipfs.com/ipfs/${fileId}`;
+        }
+        if (this.tokenProperties[oneTokenId]) {
+          if (
+            this.tokenProperties[oneTokenId].Template &&
+            this.tokenProperties[oneTokenId].Template !== null
+          ) {
+            oneToken.template = this.tokenProperties[oneTokenId].Template;
+            if (oneToken.template === "giftcard") {
+              oneToken.color = this.tokenProperties[oneTokenId].Color;
+              oneToken.value = this.tokenProperties[oneTokenId].Value;
+              oneToken.company = this.tokenProperties[oneTokenId].CompanyName;
+              oneToken.cardValue = this.tokenProperties[oneTokenId].Value;
+              oneToken.fontColor = this.tokenProperties[oneTokenId].FontColor;
+            }
+          }
         }
         if (typeof accountRelations[oneTokenId] !== "undefined") {
           oneToken.related = "Yes";
-          oneToken.hbarBalance = accountRelations[oneTokenId].hbarBalance;
-          oneToken.tokenBalance = accountRelations[oneTokenId].balance;
+          oneToken.hbarBalance = Number(
+            accountRelations[oneTokenId].hbarBalance
+          );
+          oneToken.tokenBalance = Number(accountRelations[oneTokenId].balance);
           if (accountRelations[oneTokenId].freezeStatus === null) {
             oneToken.freezeStatus = "n/a";
           } else {
@@ -414,7 +588,13 @@ export default {
               : "No";
           }
         }
-        this.accountTokens.push(oneToken);
+        if (oneToken.template === "giftcard") {
+          if (oneToken.related === "Yes" && oneToken.tokenBalance > 0) {
+            this.accountGiftcards.push(oneToken);
+          }
+        } else {
+          this.accountTokens.push(oneToken);
+        }
       }
       this.loading = false;
     },
@@ -473,14 +653,17 @@ export default {
 h3 {
   margin: 40px 0 0;
 }
+
 ul {
   list-style-type: none;
   padding: 0;
 }
+
 li {
   display: inline-block;
   margin: 0 10px;
 }
+
 a {
   color: #42b983;
 }

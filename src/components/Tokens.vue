@@ -3,7 +3,7 @@
     <v-container>
       <v-layout row wrap>
         <v-col cols="4" v-for="token in tokens" :key="token.tokenId">
-          <TokenCard v-bind:tokenId="token.tokenId"></TokenCard>
+          <TokenCard v-bind:tokenId="token.tokenId" />
         </v-col>
       </v-layout>
     </v-container>
@@ -30,6 +30,11 @@ export default {
       } else {
         return this.$store.getters.getTokens;
       }
+    }
+  },
+  methods: {
+    debug(content) {
+      console.log(content);
     }
   }
 };

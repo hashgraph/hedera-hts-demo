@@ -10,7 +10,7 @@
         width="40"
       />
     </div>
-    <div>Hedera Token Service Demo</div>
+    <div>Hedera Token Service Loyalty Demo</div>
 
     <v-spacer></v-spacer>
 
@@ -45,12 +45,6 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn icon @click="showCreate()">
-      <v-icon>mdi-plus</v-icon>
-    </v-btn>
-    <v-btn icon @click="showCompose()">
-      <v-icon>mdi-music</v-icon>
-    </v-btn>
     <v-btn icon @click="showCreateLoyalty()">
       <v-icon>mdi-tag-heart</v-icon>
     </v-btn>

@@ -231,6 +231,7 @@ export default {
       this.nameValid = false;
       this.kyc = "yes";
       this.freeze = "yes";
+      this.wipe = "yes";
       this.step = 1;
       //
       this.name = "";
@@ -314,10 +315,10 @@ export default {
             fileId,
           decimals: 0,
           initialSupply: 1,
-          adminKey: undefined,
+          adminKey: this.wipe === "yes" ? privateKey.toString() : undefined,
           kycKey: this.kyc === "yes" ? privateKey.toString() : undefined,
           freezeKey: this.freeze === "yes" ? privateKey.toString() : undefined,
-          wipeKey: undefined,
+          wipeKey: this.wipe === "yes" ? privateKey.toString() : undefined,
           supplyKey: undefined,
           defaultFreezeStatus: this.defaultFreezeStatus,
           autoRenewAccount: issuerAccount.accountId,

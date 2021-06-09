@@ -36,8 +36,11 @@ export async function tokenGetInfo(token) {
       .setTokenId(token.tokenId)
       .execute(client);
 
+    console.log(info);
+
     tokenResponse.totalSupply = info.totalSupply;
     tokenResponse.expiry = info.expirationTime.toDate();
+    tokenResponse.isDeleted = info.isDeleted;
   } catch (err) {
     notifyError(err.message);
   }
@@ -140,7 +143,7 @@ export async function tokenCreate(token) {
         adminKey: token.adminKey,
         supplyKey: token.supplyKey,
         expiry: tokenInfo.expiry,
-        isDeleted: false,
+        isDeleted: tokenInfo.isDeleted,
         treasury: issuerAccount
       };
 

@@ -3,9 +3,32 @@
   "giftcard": {
     "type": "object",
     "properties": {
+      "CompanyName": {
+        "type": "string",
+        "title": "Company Name",
+        "x-props": {
+          "dense": true
+        }
+      },
+      "Color": {
+        "type": "string",
+        "title": "Card Color",
+        "enum": ["White", "Black", "Red", "Blue"],
+        "x-props": {
+          "dense": true
+        }
+      },
+      "FontColor": {
+        "type": "string",
+        "title": "Font Color",
+        "enum": ["White", "Black", "Red", "Blue"],
+        "x-props": {
+          "dense": true
+        }
+      },
       "photo": {
         "type": "object",
-        "title": "Photo",
+        "title": "Logo",
         "contentMediaType": "image/*",
         "writeOnly": true,
         "properties": {
@@ -26,10 +49,7 @@
       "Storage": {
         "type": "string",
         "title": "Metadata Storage",
-        "enum": [
-          "HEDERA",
-          "IPFS"
-        ],
+        "enum": ["HEDERA", "IPFS"],
         "x-props": {
           "dense": true
         }
@@ -39,6 +59,14 @@
         "title": "Gift Card Value",
         "x-props": {
           "dense": true
+        }
+      },
+      "Template": {
+        "type": "string",
+        "default": "giftcard",
+        "readOnly": true,
+        "x-props": {
+          "dense": false
         }
       }
     }
