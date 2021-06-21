@@ -3,8 +3,8 @@
     <v-dialog v-model="dialog" persistent max-width="800px">
       <v-toolbar>
         <v-tabs centered v-model="tabs">
-          <v-tab>Fungible Loyalty Token</v-tab>
-          <v-tab>Gift Card</v-tab>
+          <v-tab>Loyalty Points</v-tab>
+          <v-tab>Gift/Product Card</v-tab>
         </v-tabs>
       </v-toolbar>
       <v-tabs-items v-model="tabs">

@@ -3,9 +3,9 @@
     <div v-if="accountId">
       <v-toolbar>
         <v-tabs centered v-model="tabs">
-          <v-tab>Buy Gift Cards</v-tab>
+          <v-tab>Gift Cards Marketplace</v-tab>
           <v-tab>Transfers and swaps</v-tab>
-          <v-tab>Buy Items</v-tab>
+          <v-tab>Redemption Marketplace</v-tab>
         </v-tabs>
       </v-toolbar>
 
@@ -385,7 +385,7 @@ export default {
       tokenHeaders: [
         { text: "", align: "center", value: "image" },
         { text: "Token", align: "center", value: "tokenName" },
-        { text: "Associated", align: "center", value: "related" },
+        { text: "Subscribed", align: "center", value: "related" },
         { text: "hBar Balance", align: "center", value: "hbarBalance" },
         { text: "Token Balance", align: "center", value: "tokenBalance" },
         { text: "Frozen", align: "center", value: "freezeStatus" },
@@ -394,7 +394,7 @@ export default {
       giftcardHeaders: [
         { text: "Gift Card", align: "center", value: "image" },
         { text: "Metadata", align: "center", value: "imageURL" },
-        { text: "Associated", align: "center", value: "related" },
+        { text: "Subscribed", align: "center", value: "related" },
         { text: "Owned", align: "center", value: "tokenBalance" },
         { text: "Frozen", align: "center", value: "freezeStatus" },
         { text: "KYCd", align: "center", value: "kycStatus" }

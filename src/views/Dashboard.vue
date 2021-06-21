@@ -20,6 +20,7 @@
     <TransferDialog />
     <ComposerDialog />
     <LoyaltyComposerDialog />
+    <RedemptionItemComposer />
     <TransactionsDrawer />
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
       <v-card flat tile width="100%" :class="footerColor">
@@ -43,6 +44,7 @@ import TransferDialog from "../components/TransferDialog";
 import TransactionsDrawer from "@/components/TransactionsDrawer";
 import ComposerDialog from "../components/ComposerDialog";
 import LoyaltyComposerDialog from "../components/LoyaltyComposerDialog";
+import RedemptionItemComposer from "../components/RedemptionItemComposer";
 
 let timer;
 
@@ -58,7 +60,8 @@ export default {
     Tokens,
     Accounts,
     Wallet,
-    LoyaltyComposerDialog
+    LoyaltyComposerDialog,
+    RedemptionItemComposer
   },
   computed: {
     currentTokenId() {

@@ -14,6 +14,7 @@ export default new Vuex.Store({
     tokens: {},
     accounts: {},
     bids: {},
+    redeemableItems: {},
     currentTokenId: undefined,
     enablePoll: false
   },
@@ -42,10 +43,17 @@ export default new Vuex.Store({
     deleteBid(state, bid) {
       Vue.delete(state.bids, bid.tokenId);
     },
+    addRedeemableItem(state, redeemableItem) {
+      Vue.set(state.redeemableItems, redeemableItem.itemName, redeemableItem);
+    },
+    deleteRedeemableItem(state, redeemableItem) {
+      Vue.delete(state.redeemableItems, redeemableItem.itemName);
+    },
     reset(state) {
       state.accounts = {};
       state.tokens = {};
       state.bids = {};
+      state.redeemableItems = {};
       state.currentTokenId = undefined;
     },
     wipeAccount(state, wipeInstruction) {
@@ -94,6 +102,13 @@ export default new Vuex.Store({
         return {};
       } else {
         return state.bids;
+      }
+    },
+    getRedeemableItems(state) {
+      if (typeof state.redeemableItems === "undefined") {
+        return {};
+      } else {
+        return state.redeemableItems;
       }
     },
     currentTokenId(state) {

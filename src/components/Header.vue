@@ -46,7 +46,10 @@
     <v-spacer></v-spacer>
 
     <v-btn icon @click="showCreateLoyalty()">
-      <v-icon>mdi-tag-heart</v-icon>
+      <v-icon>mdi-wallet-giftcard</v-icon>
+    </v-btn>
+    <v-btn icon @click="showCreateRedeemableItem()">
+      <v-icon>mdi-shopping</v-icon>
     </v-btn>
     <v-btn icon @click="showTransactions()">
       <v-icon>mdi-download-network</v-icon>
@@ -104,6 +107,9 @@ export default {
     },
     showCreateLoyalty() {
       EventBus.$emit("tokenCreateLoyalty", "");
+    },
+    showCreateRedeemableItem() {
+      EventBus.$emit("redeemableItemDialog", "");
     },
     showUI(ui) {
       switch (ui) {

@@ -34,6 +34,10 @@
           Properties
         </v-stepper-step>
         <v-divider></v-divider>
+        <v-stepper-step :complete="step > STEP_KYC" :step="STEP_KYC">
+          KYC
+        </v-stepper-step>
+        <v-divider></v-divider>
         <v-stepper-step :complete="step > STEP_CREATE" :step="STEP_CREATE">
           Create
         </v-stepper-step>
@@ -163,6 +167,28 @@
             </v-col>
           </v-row>
         </v-stepper-content>
+
+        <v-stepper-content :step="STEP_KYC">
+          <v-card class="mb-12" :height="cardHeight" flat>
+            <v-card-text>
+              <v-radio-group v-model="kyc">
+                <v-radio name="kyc" label="No" value="no"></v-radio>
+                <v-radio name="kyc" label="Yes" value="yes"></v-radio>
+              </v-radio-group>
+            </v-card-text>
+          </v-card>
+
+          <v-row>
+            <v-col>
+              <v-btn text @click="cancel"> Cancel </v-btn>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
+              <v-btn color="primary" @click="nextStep"> Continue </v-btn>
+            </v-col>
+          </v-row>
+        </v-stepper-content>
       </v-stepper-items>
     </v-stepper>
   </v-container>
@@ -187,7 +213,8 @@ export default {
       STEP_NAME: 1,
       STEP_TEMPLATE: 2,
       STEP_PROPERTIES: 3,
-      STEP_CREATE: 4,
+      STEP_KYC: 4,
+      STEP_CREATE: 5,
       nameValid: false,
       step: 1,
       kyc: "yes",
