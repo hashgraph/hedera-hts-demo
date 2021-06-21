@@ -151,18 +151,22 @@
         </v-tab-item>
         <v-tab-item>
           <v-container>
-            <v-card outlined class="mx-auto" max-width="500">
-              <v-img
-                src="https://cdn.shopify.com/s/files/1/0046/8412/0133/products/tshirt_Purple_1024x1024@2x.jpg?v=1542158969"
-                max-width="200"
-                class="mx-auto"
-              ></v-img>
-              <v-card-actions>
-                <v-btn class="ma-2 mx-auto" rounded width="300">
-                  Buy
+            <v-data-table
+              :items="redemptionMarketplaceItems"
+              :headers="redemptionMarketplaceHeaders"
+            >
+              <template v-slot:item.controls="props">
+                <v-btn
+                  class="mx-2"
+                  dark
+                  small
+                  color="blue"
+                  @click="onRedeemClick(props.item)"
+                >
+                  Redeem
                 </v-btn>
-              </v-card-actions>
-            </v-card>
+              </template>
+            </v-data-table>
           </v-container>
         </v-tab-item>
       </v-tabs-items>
@@ -379,6 +383,7 @@ export default {
       hBars: 0,
       accountTokens: [],
       accountGiftcards: [],
+      redemptionMarketplaceItems: [],
       bids: [],
       tokenProperties: [],
       integerRules: [v => v == parseInt(v) || "Integer required"],
@@ -403,6 +408,10 @@ export default {
         { text: "Token", align: "center", value: "tokenName" },
         { text: "Price", align: "center", value: "offerAmount" },
         { text: "", align: "center", value: "actions" }
+      ],
+      redemptionMarketplaceHeaders: [
+        { text: "Item Name", value: "itemName" },
+        { text: "Item Action", value: "controls", sortable: false }
       ],
       tabs: null,
       tabsWallet: null,
@@ -493,6 +502,10 @@ export default {
       }
       EventBus.$emit("busy", false);
     },
+    onRedeemClick(item) {
+      //  TODO: Implement redemption popup
+      console.log(item);
+    },
     getColor(status, reverseLogic) {
       if (status === "n/a") return "grey";
       else if (status === "Yes") return reverseLogic ? "red" : "green";
@@ -503,10 +516,21 @@ export default {
       this.accountTokens = [];
       this.accountGiftcards = [];
       this.bids = [];
+      this.redemptionMarketplaceItems = [];
 
       for (const bid in this.$store.getters.getBids) {
         this.bids.push(this.$store.getters.getBids[bid]);
       }
+
+      const redeemableItemNames = Object.keys(
+        this.$store.getters.getRedeemableItems
+      );
+
+      redeemableItemNames.forEach(itemName => {
+        this.redemptionMarketplaceItems.push(
+          this.$store.getters.getRedeemableItems[itemName]
+        );
+      });
 
       const accountRelations = this.$store.getters.getAccounts[this.accountId]
         .tokenRelationships;

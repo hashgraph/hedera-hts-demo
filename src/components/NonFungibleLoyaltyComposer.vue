@@ -301,11 +301,6 @@ export default {
         "data:" + this.model.photo.type + ";base64," + this.model.photo.data
       );
     },
-    onStorageChange(e) {
-      // this.isHederaFileService
-      console.log(this);
-      console.log(e);
-    },
     nextStep() {
       this.step = this.step + 1;
     },

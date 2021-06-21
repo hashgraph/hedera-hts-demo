@@ -42,7 +42,7 @@
                             <v-text-field
                               label="Name*"
                               :rules="nameRules"
-                              v-model="name"
+                              v-model="itemName"
                               required
                             ></v-text-field>
                           </v-col>
@@ -115,14 +115,8 @@
                     <v-card-title
                       >You're about to create a redeemable item for the
                       marketplace
-                      {{ name }}
+                      {{ itemName }}
                     </v-card-title>
-                    <v-card-text align="left">
-                      <P
-                        >It will be immutable and could be used as a deed or
-                        title.</P
-                      >
-                    </v-card-text>
                   </v-card>
 
                   <v-row>
@@ -133,8 +127,8 @@
                     <v-col>
                       <v-btn text class="mr-2" @click="backStep"> Back</v-btn>
                       <v-btn color="primary" @click="createRedeemableItem()">
-                        Proceed</v-btn
-                      >
+                        Proceed
+                      </v-btn>
                     </v-col>
                   </v-row>
                 </v-stepper-content>
@@ -175,7 +169,7 @@ export default {
         v => !!v || "Input required",
         v => v.length <= 100 || "Max length 100"
       ],
-      name: "",
+      itemName: "",
       symbol: "",
       defaultFreezeStatus: false,
       ///
@@ -226,8 +220,9 @@ export default {
       this.nameValid = false;
       this.step = 1;
       //
-      this.name = "";
+      this.itemName = "";
       this.tokensEnabled = [];
+      this.tokensEnabledPrice = [];
 
       for (const templateItem in this.tokenTemplates) {
         if (templateItem !== "helpCompletingThisFile") {
@@ -261,10 +256,6 @@ export default {
         "data:" + this.model.photo.type + ";base64," + this.model.photo.data
       );
     },
-    onStorageChange(e) {
-      console.log(this);
-      console.log(e);
-    },
     nextStep() {
       this.step = this.step + 1;
     },
@@ -277,7 +268,25 @@ export default {
     async createRedeemableItem() {
       EventBus.$emit("busy", true);
 
+      const redeemableItem = {};
+      redeemableItem.itemName = this.itemName;
+      redeemableItem.tokensEnabled = {};
+
+      const enabledTokenIds = Object.keys(this.tokensEnabled);
+
+      enabledTokenIds.forEach(tokenId => {
+        const isEnabled = this.tokensEnabled[tokenId];
+        if (isEnabled)
+          redeemableItem.tokensEnabled[tokenId] = Number(
+            this.tokensEnabledPrice[tokenId]
+          );
+      });
+
+      this.$store.commit("addRedeemableItem", redeemableItem);
+
       EventBus.$emit("dialogClose");
+
+      console.log(this.$store.getters.getRedeemableItems);
 
       EventBus.$emit("busy", false);
     },
