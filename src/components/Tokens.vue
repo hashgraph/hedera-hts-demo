@@ -32,11 +32,7 @@ export default {
       }
     }
   },
-  methods: {
-    debug(content) {
-      console.log(content);
-    }
-  }
+  methods: {}
 };
 </script>
 

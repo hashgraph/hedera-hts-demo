@@ -71,25 +71,35 @@
                   <v-card class="mb-12" :height="cardHeight" flat>
                     <v-card-text>
                       <v-form ref="selectTokensForm">
-                        <v-row v-for="token in tokens" :key="token.tokenId">
-                          <v-col cols="12" sm="4" md="4">
-                            <v-checkbox
-                              v-model="tokensEnabled[token.tokenId]"
-                              class="ex4"
-                              hide-details
-                            >
-                              <template v-slot:label>
-                                {{ token.name }} ({{ token.symbol }})
-                              </template>
-                            </v-checkbox>
-                            <v-text-field
-                              :disabled="!tokensEnabled[token.tokenId]"
-                              :label="`Price in ${token.symbol}`"
-                              v-model="tokensEnabledPrice[token.tokenId]"
-                              type="number"
-                            ></v-text-field>
-                          </v-col>
-                        </v-row>
+                        <v-virtual-scroll
+                          :items="tokens"
+                          :item-height="60"
+                          height="300"
+                        >
+                          <template v-slot:default="{ item }">
+                            <v-list-item>
+                              <v-list-item-content>
+                                <v-checkbox
+                                  v-model="tokensEnabled[item.tokenId]"
+                                  hide-details
+                                  :style="{ 'margin-bottom': '25px' }"
+                                >
+                                  <template v-slot:label>
+                                    {{ item.name }}
+                                  </template>
+                                </v-checkbox>
+                              </v-list-item-content>
+                              <v-list-item-action>
+                                <v-text-field
+                                  :disabled="!tokensEnabled[item.tokenId]"
+                                  :label="`Price in ${item.name}`"
+                                  v-model="tokensEnabledPrice[item.tokenId]"
+                                  type="number"
+                                ></v-text-field>
+                              </v-list-item-action>
+                            </v-list-item>
+                          </template>
+                        </v-virtual-scroll>
                       </v-form>
                     </v-card-text>
                   </v-card>
@@ -143,12 +153,8 @@
 
 <script>
 import { EventBus } from "@/eventBus";
-import { getAccountDetails } from "@/utils";
-import { PrivateKey } from "@hashgraph/sdk";
-import { tokenCreate } from "@/service/tokenService";
 import "@koumoul/vjsf/lib/VJsf.css";
 import "@koumoul/vjsf/lib/deps/third-party.js";
-import { fileCreate } from "@/service/fileService";
 
 export default {
   name: "RedemptionItemComposer",
@@ -193,6 +199,8 @@ export default {
   created() {
     this.init();
     EventBus.$on("redeemableItemDialog", () => {
+      this.init();
+      this.loadTokens();
       this.dialog = true;
     });
     EventBus.$on("dialogClose", () => {
@@ -285,55 +293,6 @@ export default {
       this.$store.commit("addRedeemableItem", redeemableItem);
 
       EventBus.$emit("dialogClose");
-
-      console.log(this.$store.getters.getRedeemableItems);
-
-      EventBus.$emit("busy", false);
-    },
-    async createToken() {
-      EventBus.$emit("busy", true);
-      const privateKey = await PrivateKey.generate();
-
-      if (!this.freeze) {
-        this.defaultFreezeStatus = false;
-      }
-
-      // create an immutable file with the token properties
-      let modelToSave = this.model;
-      if (typeof this.imageBase64() !== "undefined") {
-        modelToSave.photo = this.imageBase64();
-      }
-      const fileId = await fileCreate(
-        JSON.stringify(modelToSave),
-        this.model.Storage
-      );
-      if (fileId !== "") {
-        const issuerAccount = getAccountDetails("Issuer");
-
-        const token = {
-          name: this.name,
-          symbol:
-            (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") +
-            fileId,
-          decimals: 0,
-          initialSupply: 1,
-          adminKey: this.wipe === "yes" ? privateKey.toString() : undefined,
-          kycKey: this.kyc === "yes" ? privateKey.toString() : undefined,
-          freezeKey: this.freeze === "yes" ? privateKey.toString() : undefined,
-          wipeKey: this.wipe === "yes" ? privateKey.toString() : undefined,
-          supplyKey: undefined,
-          defaultFreezeStatus: this.defaultFreezeStatus,
-          autoRenewAccount: issuerAccount.accountId,
-          treasury: issuerAccount.accountId,
-          deleted: false,
-          key: privateKey.toString()
-        };
-        const newToken = await tokenCreate(token);
-        if (typeof newToken.tokenId !== "undefined") {
-          this.$store.commit("setToken", newToken);
-          EventBus.$emit("dialogClose");
-        }
-      }
 
       EventBus.$emit("busy", false);
     }

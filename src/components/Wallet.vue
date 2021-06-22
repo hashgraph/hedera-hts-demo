@@ -1,5 +1,7 @@
 <template>
   <v-container>
+    <RedeemPopup></RedeemPopup>
+
     <div v-if="accountId">
       <v-toolbar>
         <v-tabs centered v-model="tabs">
@@ -166,6 +168,10 @@
                   Redeem
                 </v-btn>
               </template>
+
+              <template v-slot:item.owned="props">
+                {{ getUserOwnedRedeemableItems(props.item) }}
+              </template>
             </v-data-table>
           </v-container>
         </v-tab-item>
@@ -175,7 +181,7 @@
       <h1>Your Wallet</h1>
       <v-toolbar>
         <v-tabs centered v-model="tabsWallet">
-          <v-tab>Loyalty Tokens</v-tab>
+          <v-tab>"Top Up" Tokens</v-tab>
           <v-tab>Gift Cards</v-tab>
         </v-tabs>
       </v-toolbar>
@@ -363,9 +369,11 @@ import { tokenSwap } from "@/service/tokenService";
 import { EventBus } from "@/eventBus";
 import { fileGetContents } from "@/service/fileService";
 import Vue from "vue";
+import RedeemPopup from "@/components/RedeemPopup";
 
 export default {
   name: "Wallet",
+  components: { RedeemPopup },
   props: ["walletInstance"],
   data: function() {
     return {
@@ -411,7 +419,8 @@ export default {
       ],
       redemptionMarketplaceHeaders: [
         { text: "Item Name", value: "itemName" },
-        { text: "Item Action", value: "controls", sortable: false }
+        { text: "Item Action", value: "controls", sortable: false },
+        { text: "Owned", value: "owned", sortable: false }
       ],
       tabs: null,
       tabsWallet: null,
@@ -502,9 +511,22 @@ export default {
       }
       EventBus.$emit("busy", false);
     },
+    getUserOwnedRedeemableItems(item) {
+      const userOwnedRedeemableItems = this.$store.getters
+        .getUserOwnedRedeemableItems;
+      if (
+        userOwnedRedeemableItems[this.accountId] &&
+        userOwnedRedeemableItems[this.accountId][item.itemName]
+      ) {
+        return userOwnedRedeemableItems[this.accountId][item.itemName];
+      }
+      return "0";
+    },
     onRedeemClick(item) {
-      //  TODO: Implement redemption popup
-      console.log(item);
+      EventBus.$emit("redeemableItemRedeem", {
+        item,
+        user: getAccountDetails(this.walletInstance)
+      });
     },
     getColor(status, reverseLogic) {
       if (status === "n/a") return "grey";
