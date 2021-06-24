@@ -181,7 +181,7 @@
       <h1>Your Wallet</h1>
       <v-toolbar>
         <v-tabs centered v-model="tabsWallet">
-          <v-tab>"Top Up" Tokens</v-tab>
+          <v-tab>Loyalty Tokens</v-tab>
           <v-tab>Gift Cards</v-tab>
         </v-tabs>
       </v-toolbar>

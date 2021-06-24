@@ -319,7 +319,6 @@
               >An admin key will be able to update it.</P
             >
             <P v-else>It will be immutable.</P>
-            <P>{{ tokenUsages() }}</P>
           </v-card-text>
         </v-card>
 
@@ -480,29 +479,6 @@ export default {
         EventBus.$emit("dialogClose");
       }
       EventBus.$emit("busy", false);
-    },
-    tokenUsages() {
-      let details = "";
-      if (this.fractional === "yes") {
-        if (this.variable === "yes") {
-          // fungible, fractional, variable
-          details = "It could be used as a currency.";
-        } else {
-          // fungible, fractional, fixed
-          details = "It could be used for an ICO.";
-        }
-      } else {
-        if (this.variable === "yes") {
-          // fungible, whole, variable
-          details =
-            "It could be used as a stock keeping unit, stock or loyalty.";
-        } else {
-          // fungible, whole, fixed
-          details = "It could be used as a bond.";
-        }
-      }
-
-      return details;
     },
     tokenCompliance() {
       let details = "";
