@@ -3,7 +3,7 @@
 
 # Hedera Token Service (HTS) demo
 
-This demo is a user interface written in Javascript (Vue.JS) to illustrate the use of the Hedera Token Service. When first launched, the demo will create three accounts as follows:
+This demo is a user interface written in Javascript (Vue.JS) to illustrate the use of the Hedera Token Service for loyalty points and giftcards usecase. When first launched, the demo will create three accounts as follows:
 * An account for the owner/admin of new tokens
 * Two accounts representing users (wallet holders) that will use the token, Alice and Bob
 * Another account representing a marketplace (escrow) for the purpose of holding tokens that have been offered for sale
@@ -11,7 +11,7 @@ This demo is a user interface written in Javascript (Vue.JS) to illustrate the u
 Each account is credited some hBar to fund their activity on Hedera.
 
 The demo enables you to:
-* Create tokens
+* Create loyalty point and giftcard tokens
 * Mint and Burn
 * Associate and Dissociate tokens to/from accounts
 * Manage KYC and Freeze for token/account relationships
@@ -93,8 +93,8 @@ If you are running docker-compose, the url is `http://localhost:8080`.
 The Header has links for the following:
 * An admin page where you can manage tokens
 * Accounts for the users
-* A `+` button to add a token
-* A button to show a list of transactions that were executed while running the demo (newest at the top)
+* A button to add a new token
+* A button to add a new redeemable item 
 * A button to reset (nuke) the demo. This will remove all traces of the tokens and accounts in your browser and re-create a clean demo environment with three new accounts.
 
 Once a token is created, you can:
@@ -112,7 +112,7 @@ Clicking on the accounts button (left most) will show which accounts are current
 Choosing one of the user accounts in the header allows you to associate or dissociate the account from a token.
 Once associated (and subject to the account being KYCd and unfrozen if appropriate for the token), you can transfer to the other user account.
 
-## NFTs
+## NFTs/Giftcards
 
 Support for creating NFTs is demonstrated in the composer whereby a set of templates (driven from `/public/tokenTemplates.json`) are available within the UI when creating an NFT.
 Each template carries a set of properties that are input during the token creation.
