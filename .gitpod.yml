@@ -1,7 +1,7 @@
 tasks:
   - name: Loyalty Demo
     init: yarn
-    command: yarn run serve
+    command: yarn run serve --host 0.0.0.0 --disable-host-check
 
 ports:
   - port: 8080
