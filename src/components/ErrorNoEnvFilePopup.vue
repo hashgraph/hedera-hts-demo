@@ -15,9 +15,10 @@
                   <a href="https://portal.hedera.com/" target="_blank"
                     >register</a
                   >
-                  for a Hedera Testnet account and populate .env file with your
-                  Testnet credentials. <br />Once done, restart the server by
-                  running <br /><code
+                  for a Hedera Testnet account and populate
+                  <code>.env</code> file in the project source with your Testnet
+                  credentials. <br />Once done, restart the server by running
+                  <br /><code
                     >yarn run serve --host 0.0.0.0 --disable-host-check</code
                   ><br />
                   in Terminal to restart the server.
