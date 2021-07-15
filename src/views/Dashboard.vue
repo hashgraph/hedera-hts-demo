@@ -20,6 +20,7 @@
     <TransferDialog />
     <ComposerDialog />
     <TransactionsDrawer />
+    <ErrorNoEnvFilePopup />
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
       <v-card flat tile width="100%" :class="footerColor">
         <v-card-text :class="textColor">
@@ -41,12 +42,14 @@ import TokenCreateDialog from "../components/TokenCreateDialog";
 import TransferDialog from "../components/TransferDialog";
 import TransactionsDrawer from "@/components/TransactionsDrawer";
 import ComposerDialog from "../components/ComposerDialog";
+import ErrorNoEnvFilePopup from "@/components/ErrorNoEnvFilePopup";
 
 let timer;
 
 export default {
   name: "Dashboard",
   components: {
+    ErrorNoEnvFilePopup,
     TransactionsDrawer,
     ComposerDialog,
     TransferDialog,
