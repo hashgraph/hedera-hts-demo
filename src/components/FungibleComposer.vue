@@ -408,6 +408,7 @@ export default {
       this.step = 1;
       //
       this.name = "";
+      this.type = TokenType.FungibleCommon,
       this.symbol = "";
       this.decimals = "";
       this.initialSupply = "0";
@@ -457,7 +458,6 @@ export default {
       const token = {
         name: this.name,
         symbol: this.symbol,
-        type: TokenType.FungibleCommon,
         decimals: this.decimals === "" ? 0 : this.decimals,
         initialSupply: this.initialSupply,
         adminKey: this.mutable === "yes" ? privateKey.toString() : undefined,

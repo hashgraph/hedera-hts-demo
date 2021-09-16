@@ -52,8 +52,9 @@ export async function tokenCreate(token) {
   try {
     let additionalSig = false;
     let sigKey;
-    const tx = await new TokenCreateTransaction();
+    const tx = new TokenCreateTransaction();
     tx.setTokenName(token.name);
+    tx.setType(token.type)
     tx.setTokenSymbol(token.symbol.toUpperCase());
     tx.setDecimals(token.decimals);
     tx.setInitialSupply(token.initialSupply);
@@ -128,6 +129,7 @@ export async function tokenCreate(token) {
       tokenResponse = {
         tokenId: token.tokenId.toString(),
         symbol: token.symbol.toUpperCase(),
+        type: token.tokenType,
         name: token.name,
         totalSupply: token.initialSupply,
         decimals: token.decimals,

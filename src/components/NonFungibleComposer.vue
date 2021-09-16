@@ -27,10 +27,7 @@
           Template
         </v-stepper-step>
         <v-divider></v-divider>
-        <v-stepper-step
-          :complete="step > STEP_PROPERTIES"
-          :step="STEP_PROPERTIES"
-        >
+        <v-stepper-step :complete="step > STEP_PROPERTIES" :step="STEP_PROPERTIES">
           Properties
         </v-stepper-step>
         <v-divider></v-divider>
@@ -38,10 +35,7 @@
           KYC
         </v-stepper-step>
         <v-divider></v-divider>
-        <v-stepper-step
-          :complete="step > STEP_FREEZABLE"
-          :step="STEP_FREEZABLE"
-        >
+        <v-stepper-step :complete="step > STEP_FREEZABLE" :step="STEP_FREEZABLE">
           Freezable
         </v-stepper-step>
         <v-divider></v-divider>
@@ -235,7 +229,7 @@
 <script>
 import { EventBus } from "../eventBus";
 import { getAccountDetails } from "@/utils";
-import { PrivateKey } from "@hashgraph/sdk";
+import { PrivateKey, TokenType } from "@hashgraph/sdk";
 import { tokenCreate } from "@/service/tokenService";
 import VJsf from "@koumoul/vjsf/lib/VJsf.js";
 import "@koumoul/vjsf/lib/VJsf.css";
@@ -300,6 +294,7 @@ export default {
       this.step = 1;
       //
       this.name = "";
+      this.type = TokenType.NonFungibleUnique,
       this.symbol = "";
       this.defaultFreezeStatus = false;
       this.template = "";
