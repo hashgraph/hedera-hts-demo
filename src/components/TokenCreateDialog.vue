@@ -151,7 +151,6 @@ export default {
       symbolRules: [
         v => !!v || "Input required",
         v => v.length <= 100 || "Max length 100"
-        // v => /^[a-zA-Z]*$/.test(v) || "Only letters are allowed"
       ]
     };
   },

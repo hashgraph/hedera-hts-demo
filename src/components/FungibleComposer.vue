@@ -5,10 +5,7 @@
         Name
       </v-stepper-step>
       <v-divider></v-divider>
-      <v-stepper-step
-        :complete="step > STEP_FRACTIONAL"
-        :step="STEP_FRACTIONAL"
-      >
+      <v-stepper-step :complete="step > STEP_FRACTIONAL" :step="STEP_FRACTIONAL">
         Fractional
       </v-stepper-step>
       <v-divider></v-divider>
@@ -347,7 +344,7 @@
 <script>
 import { EventBus } from "../eventBus";
 import { getAccountDetails } from "@/utils";
-import { PrivateKey } from "@hashgraph/sdk";
+import { PrivateKey, TokenType } from "@hashgraph/sdk";
 import { tokenCreate } from "@/service/tokenService";
 
 export default {
@@ -382,7 +379,6 @@ export default {
       symbolRules: [
         v => !!v || "Input required",
         v => v.length <= 100 || "Max length 100"
-        // v => /^[a-zA-Z]*$/.test(v) || "Only letters are allowed"
       ],
       name: "",
       symbol: "",
@@ -461,6 +457,7 @@ export default {
       const token = {
         name: this.name,
         symbol: this.symbol,
+        type: TokenType.FungibleCommon,
         decimals: this.decimals === "" ? 0 : this.decimals,
         initialSupply: this.initialSupply,
         adminKey: this.mutable === "yes" ? privateKey.toString() : undefined,
