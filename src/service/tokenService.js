@@ -54,7 +54,7 @@ export async function tokenCreate(token) {
     let sigKey;
     const tx = new TokenCreateTransaction();
     tx.setTokenName(token.name);
-    tx.setType(token.type)
+    tx.setTokenType(token.tokenType);
     tx.setTokenSymbol(token.symbol.toUpperCase());
     tx.setDecimals(token.decimals);
     tx.setInitialSupply(token.initialSupply);

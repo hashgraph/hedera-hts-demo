@@ -408,7 +408,7 @@ export default {
       this.step = 1;
       //
       this.name = "";
-      this.type = TokenType.FungibleCommon,
+      this.tokenType = TokenType.FungibleCommon,
       this.symbol = "";
       this.decimals = "";
       this.initialSupply = "0";
@@ -457,6 +457,7 @@ export default {
       const issuerAccount = getAccountDetails("Issuer");
       const token = {
         name: this.name,
+        tokenType: TokenType.FungibleCommon,
         symbol: this.symbol,
         decimals: this.decimals === "" ? 0 : this.decimals,
         initialSupply: this.initialSupply,

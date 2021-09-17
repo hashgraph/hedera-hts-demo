@@ -294,7 +294,7 @@ export default {
       this.step = 1;
       //
       this.name = "";
-      this.type = TokenType.NonFungibleUnique,
+      this.tokenType = TokenType.NonFungibleUnique,
       this.symbol = "";
       this.defaultFreezeStatus = false;
       this.template = "";
