@@ -46,13 +46,14 @@ export async function tokenGetInfo(token) {
 }
 
 export async function tokenCreate(token) {
+
   let tokenResponse = {};
   const autoRenewPeriod = 7776000; // set to default 3 months
   const issuerAccount = getAccountDetails("Issuer").accountId.toString();
   try {
     let additionalSig = false;
     let sigKey;
-    const tx = new TokenCreateTransaction();
+    const tx = await new TokenCreateTransaction();
     tx.setTokenName(token.name);
     tx.setTokenType(token.tokenType);
     tx.setTokenSymbol(token.symbol.toUpperCase());
@@ -91,7 +92,7 @@ export async function tokenCreate(token) {
       tx.setSupplyKey(sigKey.publicKey);
     }
     const client = issuerClient();
-
+    tx.freezeWith(client);
     await tx.signWithOperator(client);
 
     if (additionalSig) {
@@ -280,12 +281,15 @@ export async function tokenBurn(instruction) {
 }
 
 export async function tokenMint(instruction) {
+  console.log(instruction);
   instruction.successMessage =
     "Minted " + instruction.amount + " for token " + instruction.tokenId;
-  const token = state.getters.getTokens[instruction.tokenId];
-  const supplyKey = PrivateKey.fromString(token.supplyKey);
-  const tx = await new TokenMintTransaction();
+    console.log(instruction);
+    
+  const supplyKey = PrivateKey.fromString(instruction.supplyKey);
+  const tx = new TokenMintTransaction();
   const client = issuerClient();
+  
   const result = await tokenTransactionWithAmount(
     client,
     tx,

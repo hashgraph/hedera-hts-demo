@@ -236,6 +236,7 @@ import "@koumoul/vjsf/lib/VJsf.css";
 import "@koumoul/vjsf/lib/deps/third-party.js";
 import { fileCreate } from "@/service/fileService";
 import { loadTokenTemplates } from "@/service/tokenProperties";
+import { tokenMint } from '../service/tokenService';
 
 export default {
   name: "NonFungibleComposer",
@@ -298,6 +299,7 @@ export default {
       this.symbol = "";
       this.defaultFreezeStatus = false;
       this.template = "";
+      this.metadata = "";
       this.photoSize = 0;
       this.tokenTemplates = loadTokenTemplates();
       this.tokenTemplatesForSelection = [];
@@ -379,14 +381,23 @@ export default {
           kycKey: this.kyc === "yes" ? privateKey.toString() : undefined,
           freezeKey: this.freeze === "yes" ? privateKey.toString() : undefined,
           wipeKey: undefined,
-          supplyKey: undefined,
+          supplyKey: privateKey.toString(),
           defaultFreezeStatus: this.defaultFreezeStatus,
           autoRenewAccount: issuerAccount.accountId,
           treasury: issuerAccount.accountId,
           deleted: false,
           key: privateKey.toString()
         };
-        const newToken = await tokenCreate(token);
+        let newToken = await tokenCreate(token);
+
+        newToken.isNFT =
+          newToken.symbol.includes("HEDERA://") ||
+          newToken.symbol.includes("IPFS://");
+
+       if (newToken.isNFT) {
+          await tokenMint(newToken);
+        }
+
         if (typeof newToken.tokenId !== "undefined") {
           this.$store.commit("setToken", newToken);
           EventBus.$emit("dialogClose");
