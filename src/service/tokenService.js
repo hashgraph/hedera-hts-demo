@@ -281,7 +281,6 @@ export async function tokenBurn(instruction) {
 }
 
 export async function tokenMint(instruction) {
-  console.log(instruction);
   instruction.successMessage =
     "Minted " + instruction.amount + " for token " + instruction.tokenId;
     console.log(instruction);
