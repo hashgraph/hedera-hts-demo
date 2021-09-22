@@ -21,6 +21,7 @@ const {
   TokenUnfreezeTransaction,
   TokenWipeTransaction,
   Hbar,
+  CustomFixedFee,
   Status
 } = require("@hashgraph/sdk");
 
@@ -46,7 +47,6 @@ export async function tokenGetInfo(token) {
 }
 
 export async function tokenCreate(token) {
-
   let tokenResponse = {};
   const autoRenewPeriod = 7776000; // set to default 3 months
   const issuerAccount = getAccountDetails("Issuer").accountId.toString();
@@ -62,6 +62,13 @@ export async function tokenCreate(token) {
     tx.setTreasuryAccountId(token.treasury);
     tx.setAutoRenewAccountId(token.autoRenewAccount);
     tx.setAutoRenewPeriod(autoRenewPeriod);
+    
+    if(token.customFees) {
+      let fee = new CustomFixedFee();
+      fee.setAmount(Number(token.customFees));
+      fee.setFeeCollectorAccountId(issuerAccount);
+      tx.setCustomFees([fee]);
+    }
 
     if (token.adminKey) {
       sigKey = PrivateKey.fromString(token.key);
@@ -96,13 +103,13 @@ export async function tokenCreate(token) {
     await tx.signWithOperator(client);
 
     if (additionalSig) {
-      // TODO: should sign with every key (check docs)
-      // since the admin/kyc/... keys are all the same, a single sig is sufficient
       await tx.sign(sigKey);
     }
+
     const response = await tx.execute(client);
     const transactionReceipt = await response.getReceipt(client);
-
+    
+    console.log(transactionReceipt);
     if (transactionReceipt.status !== Status.Success) {
       notifyError(transactionReceipt.status.toString());
     } else {
@@ -132,6 +139,7 @@ export async function tokenCreate(token) {
         symbol: token.symbol.toUpperCase(),
         type: token.tokenType,
         name: token.name,
+        customFees: token.customFees,
         totalSupply: token.initialSupply,
         decimals: token.decimals,
         autoRenewAccount: issuerAccount,
@@ -172,6 +180,7 @@ export async function tokenCreate(token) {
     }
     return tokenResponse;
   } catch (err) {
+    console.log("error!!!!");
     notifyError(err.message);
     return {};
   }
@@ -183,12 +192,10 @@ async function tokenTransactionWithAmount(
   instruction,
   key
 ) {
+  
   try {
-    transaction.setTokenId(instruction.tokenId);
-    if (typeof instruction.accountId !== "undefined") {
-      transaction.setAccountId(instruction.accountId);
-    }
-    transaction.setAmount(instruction.amount);
+    transaction.setTokenId(instruction.tokenId.toString());
+    transaction.setAmount(1);
 
     await transaction.signWithOperator(client);
     await transaction.sign(key);
@@ -283,7 +290,6 @@ export async function tokenBurn(instruction) {
 export async function tokenMint(instruction) {
   instruction.successMessage =
     "Minted " + instruction.amount + " for token " + instruction.tokenId;
-    console.log(instruction);
     
   const supplyKey = PrivateKey.fromString(instruction.supplyKey);
   const tx = new TokenMintTransaction();
@@ -300,7 +306,7 @@ export async function tokenMint(instruction) {
       id: result.transactionId,
       type: "tokenMint",
       inputs:
-        "tokenId=" + instruction.tokenId + ", Amount=" + instruction.amount
+        "tokenId=" + instruction.tokenId + ", Amount=" + 1
     };
     EventBus.$emit("addTransaction", transaction);
   }

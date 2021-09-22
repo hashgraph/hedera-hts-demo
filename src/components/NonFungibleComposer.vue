@@ -2,16 +2,14 @@
   <v-container>
     <v-alert
       type="warning"
-      v-if="photoSize > 4096 && this.model.Storage === 'HEDERA'"
-    >
+      v-if="photoSize > 4096 && this.model.Storage === 'HEDERA'">
       This is a large image (size greater than 4kb) - A smaller size is
       preferable for Hedera File Service. Alternatively, use IPFS.
     </v-alert>
 
     <v-alert
       type="warning"
-      v-if="this.model.Storage === 'IPFS' && !NFT_STORAGE_API_KEY"
-    >
+      v-if="this.model.Storage === 'IPFS' && !NFT_STORAGE_API_KEY">
       You don't seem to have an NFT.STORAGE API key in your .env file. Please
       get a new API key at https://nft.storage/, add it to .env file and restart
       the server.
@@ -29,6 +27,10 @@
         <v-divider></v-divider>
         <v-stepper-step :complete="step > STEP_PROPERTIES" :step="STEP_PROPERTIES">
           Properties
+        </v-stepper-step>
+        <v-divider></v-divider>
+        <v-stepper-step :complete="step > STEP_CUSTOMFEES" :step="STEP_CUSTOMFEES">
+          Custom Fees
         </v-stepper-step>
         <v-divider></v-divider>
         <v-stepper-step :complete="step > STEP_KYC" :step="STEP_KYC">
@@ -144,6 +146,35 @@
           </v-row>
         </v-stepper-content>
 
+        <v-stepper-content :step="STEP_CUSTOMFEES">
+          <v-card class="mb-12" :height="cardHeight" flat>
+            <v-card-text>
+              <v-form ref="customFeeForm" v-model="customFeeValid">
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field
+                      label="Custom Fees*"
+                      :rules="customFeeRules"
+                      v-model="customFees"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+          </v-card>
+          <v-row>
+            <v-col>
+              <v-btn text @click="cancel"> Cancel </v-btn>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-btn color="primary" @click="nextStep" :disabled="!customFeeValid">
+                Continue
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-stepper-content>
+
         <v-stepper-content :step="STEP_KYC">
           <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-text>
@@ -246,10 +277,12 @@ export default {
       STEP_NAME: 1,
       STEP_TEMPLATE: 2,
       STEP_PROPERTIES: 3,
-      STEP_KYC: 4,
-      STEP_FREEZABLE: 5,
-      STEP_CREATE: 6,
+      STEP_CUSTOMFEES: 4,
+      STEP_KYC: 5,
+      STEP_FREEZABLE: 6,
+      STEP_CREATE: 7,
       nameValid: false,
+      customFeeValid: false,
       step: 1,
       kyc: "no",
       freeze: "no",
@@ -261,7 +294,12 @@ export default {
         v => !!v || "Input required",
         v => v.length <= 100 || "Max length 100"
       ],
+      customFeeRules: [
+        n => !!n || "Please enter an integer",
+        n => !isNaN(parseInt(n)) || "Please enter a number"
+      ],
       name: "",
+      customFees: 0,
       symbol: "",
       defaultFreezeStatus: false,
       ///
@@ -290,6 +328,7 @@ export default {
   methods: {
     init() {
       this.nameValid = false;
+      this.customFeeValid = false;
       this.kyc = "no";
       this.freeze = "no";
       this.step = 1;
@@ -301,6 +340,7 @@ export default {
       this.template = "";
       this.metadata = "";
       this.photoSize = 0;
+      this.customFees = 0;
       this.tokenTemplates = loadTokenTemplates();
       this.tokenTemplatesForSelection = [];
       for (const templateItem in this.tokenTemplates) {
@@ -373,8 +413,8 @@ export default {
         const token = {
           name: this.name,
           symbol:
-            (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") +
-            fileId,
+            (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") + fileId,
+          customFees: this.customFees,
           decimals: 0,
           initialSupply: 1,
           adminKey: undefined,
@@ -388,14 +428,15 @@ export default {
           deleted: false,
           key: privateKey.toString()
         };
-        let newToken = await tokenCreate(token);
 
+        let newToken = await tokenCreate(token);
+        
         newToken.isNFT =
           newToken.symbol.includes("HEDERA://") ||
           newToken.symbol.includes("IPFS://");
 
        if (newToken.isNFT) {
-          await tokenMint(newToken);
+          await tokenMint(token);
         }
 
         if (typeof newToken.tokenId !== "undefined") {
