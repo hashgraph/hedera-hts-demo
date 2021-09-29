@@ -152,6 +152,18 @@
               <v-form ref="customFeeForm" v-model="customFeeValid">
                 <v-row>
                   <v-col cols="12">
+                    Custom fees are fees that are distributed to the specified accounts each time the token is transferred programmatically. 
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="4">
+                    <v-select
+                      label="Custom Fee Type:"
+                      :items="customFeeOptions">
+                    </v-select>
+                  </v-col>
+
+                  <v-col cols="8">
                     <v-text-field
                       label="Custom Fees*"
                       :rules="customFeeRules"
@@ -298,6 +310,8 @@ export default {
         n => !!n || "Please enter an integer",
         n => !isNaN(parseInt(n)) || "Please enter a number"
       ],
+      customFeeOptions: ['Custom', 'Fixed', 'Royalty'],
+      selectedFeeOption: "",
       name: "",
       customFees: 0,
       symbol: "",
