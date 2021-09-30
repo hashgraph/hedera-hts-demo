@@ -305,7 +305,7 @@
       <v-stepper-content :step="STEP_CREATE">
         <v-card class="mb-12" height="200px" flat>
           <v-card-title>
-            You're about to create a fungible token named {{ name }} ({{
+            You're about to create a fungible common token named {{ name }} ({{
               symbol.toUpperCase()
             }})
           </v-card-title>

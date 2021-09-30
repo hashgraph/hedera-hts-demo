@@ -3,8 +3,8 @@
     <v-dialog v-model="dialog" persistent max-width="800px">
       <v-toolbar>
         <v-tabs centered v-model="tabs">
-          <v-tab>Fungible</v-tab>
-          <v-tab>Non Fungible</v-tab>
+          <v-tab>Fungible Common</v-tab>
+          <v-tab>Non Fungible Unique</v-tab>
         </v-tabs>
       </v-toolbar>
       <v-tabs-items v-model="tabs">
