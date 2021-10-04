@@ -29,6 +29,10 @@
           Properties
         </v-stepper-step>
         <v-divider></v-divider>
+        <v-stepper-step :complete="step > STEP_MAXSUPPLY" :step="STEP_MAXSUPPLY">
+          Supply
+        </v-stepper-step>
+        <v-divider></v-divider>
         <v-stepper-step :complete="step > STEP_CUSTOMFEES" :step="STEP_CUSTOMFEES">
           Custom Fees
         </v-stepper-step>
@@ -142,6 +146,40 @@
             <v-col>
               <v-btn text class="mr-2" @click="backStep"> Back </v-btn>
               <v-btn color="primary" @click="nextStep"> Continue </v-btn>
+            </v-col>
+          </v-row>
+        </v-stepper-content>
+
+        <v-stepper-content :step="STEP_MAXSUPPLY">
+          <v-card class="mb-12" :height="cardHeight" flat>
+            <v-card-text>
+              <v-form ref="supplyForm" v-model="supplyValid">
+                <v-row>
+                  <v-col cols="12">
+                    The maximum number of NFTs that can be minted. 
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="8">
+                    <v-text-field
+                      label="Maximum Supply*"
+                      :rules="supplyRules"
+                      v-model="maxSupply"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+          </v-card>
+          <v-row>
+            <v-col>
+              <v-btn text @click="cancel"> Cancel </v-btn>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-btn color="primary" @click="nextStep" :disabled="!supplyValid">
+                Continue
+              </v-btn>
             </v-col>
           </v-row>
         </v-stepper-content>
@@ -289,12 +327,14 @@ export default {
       STEP_NAME: 1,
       STEP_TEMPLATE: 2,
       STEP_PROPERTIES: 3,
-      STEP_CUSTOMFEES: 4,
-      STEP_KYC: 5,
-      STEP_FREEZABLE: 6,
-      STEP_CREATE: 7,
+      STEP_MAXSUPPLY: 4,
+      STEP_CUSTOMFEES: 5,
+      STEP_KYC: 6,
+      STEP_FREEZABLE: 7,
+      STEP_CREATE: 8,
       nameValid: false,
       customFeeValid: false,
+      supplyValid: false,
       step: 1,
       kyc: "no",
       freeze: "no",
@@ -310,10 +350,15 @@ export default {
         n => !!n || "Please enter an integer",
         n => !isNaN(parseInt(n)) || "Please enter a number"
       ],
+      supplyRules: [
+        n => !!n || "Please enter an integer",
+        n => !isNaN(parseInt(n)) || "Please enter a number"
+      ],
       customFeeOptions: ['Custom', 'Fixed', 'Royalty'],
       selectedFeeOption: "",
       name: "",
       customFees: 0,
+      maxSupply: 0,
       symbol: "",
       defaultFreezeStatus: false,
       ///
@@ -343,6 +388,7 @@ export default {
     init() {
       this.nameValid = false;
       this.customFeeValid = false;
+      this.supplyValid = false;
       this.kyc = "no";
       this.freeze = "no";
       this.step = 1;
@@ -355,6 +401,7 @@ export default {
       this.metadata = "";
       this.photoSize = 0;
       this.customFees = 0;
+      this.maxSupply = 0;
       this.tokenTemplates = loadTokenTemplates();
       this.tokenTemplatesForSelection = [];
       for (const templateItem in this.tokenTemplates) {
@@ -429,9 +476,11 @@ export default {
           symbol:
             (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") + fileId,
           customFees: this.customFees,
+          maxSupply: this.maxSupply,
           decimals: 0,
-          initialSupply: 1,
+          initialSupply: 0,
           adminKey: undefined,
+          tokenType: TokenType.NonFungibleUnique,
           kycKey: this.kyc === "yes" ? privateKey.toString() : undefined,
           freezeKey: this.freeze === "yes" ? privateKey.toString() : undefined,
           wipeKey: undefined,
@@ -440,7 +489,8 @@ export default {
           autoRenewAccount: issuerAccount.accountId,
           treasury: issuerAccount.accountId,
           deleted: false,
-          key: privateKey.toString()
+          key: privateKey.toString(),
+          schema: this.schema
         };
 
         let newToken = await tokenCreate(token);
