@@ -35,6 +35,10 @@
         <v-col cols="6">Supply</v-col>
         <v-col cols="6">{{ totalSupply }}</v-col>
       </v-row>
+      <v-row>
+        <v-col cols="6">Serial Number</v-col>
+        <v-col cols="6">{{ serial }}</v-col>
+      </v-row>
     </v-card-text>
     <v-card-actions class="justify-center">
       <v-btn color="blue darken-1" icon @click="showAccounts">

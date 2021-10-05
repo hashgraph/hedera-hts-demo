@@ -9,7 +9,7 @@
             class="elevation-1"
             hide-default-footer
           >
-            <template v-slot:item.image="{ item }">
+            <template v-slot:[`item.image`]="{ item }">
               <v-img
                 v-if="item.imageData"
                 :src="item.imageData"
@@ -18,26 +18,26 @@
               ></v-img>
             </template>
 
-            <template v-slot:item.tokenName="{ item }">
+            <template v-slot:[`item.tokenName`]="{ item }">
               {{ item.tokenName }} (<a :href="mirrorURL" target="_blank">{{
                 item.tokenId
               }}</a
               >)
             </template>
 
-            <template v-slot:item.freezeStatus="{ item }">
+            <template v-slot:[`item.freezeStatus`]="{ item }">
               <v-chip :color="getColor(item.freezeStatus, true)" dark>
                 {{ item.freezeStatus }}
               </v-chip>
             </template>
 
-            <template v-slot:item.kycStatus="{ item }">
+            <template v-slot:[`item.kycStatus`]="{ item }">
               <v-chip :color="getColor(item.kycStatus, false)" dark>
                 {{ item.kycStatus }}
               </v-chip>
             </template>
 
-            <template v-slot:item.related="{ item }">
+            <template v-slot:[`item.related`]="{ item }">
               <v-chip :color="getColor(item.related, false)" dark>
                 {{ item.related }}
               </v-chip>
@@ -357,6 +357,7 @@ export default {
         .tokenRelationships;
       // cycle all available tokens
       const tokens = this.$store.getters.getTokens;
+
       for (const oneTokenId in tokens) {
         const oneToken = {
           tokenId: oneTokenId,

@@ -500,7 +500,8 @@ export default {
           newToken.symbol.includes("IPFS://");
 
        if (newToken.isNFT) {
-          await tokenMint(token);
+          let tokenInfo = await tokenMint(token);
+          newToken.serialNumber = tokenInfo.serialNumber;
         }
 
         if (typeof newToken.tokenId !== "undefined") {

@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import { accountCreate } from "../service/accountCreate";
 import { accountGetInfo } from "../service/accountGetInfo";
-import { tokenGetInfo } from "../service/tokenService";
+import { tokenGetInfo, nftGetInfo } from "../service/tokenService";
 import { notifySuccess } from "../utils";
 import { EventBus } from "../eventBus";
 Vue.use(Vuex);
@@ -177,6 +177,7 @@ export default new Vuex.Store({
           return;
         }
         const token = state.tokens[key];
+        
         const tokenUpdate = await tokenGetInfo(token);
         commit("setToken", tokenUpdate);
       }

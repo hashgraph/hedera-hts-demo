@@ -39,6 +39,8 @@ export async function tokenGetInfo(token) {
 
     tokenResponse.totalSupply = info.totalSupply;
     tokenResponse.expiry = info.expirationTime.toDate();
+    tokenResponse.customFees = info.customFees;
+
   } catch (err) {
     notifyError(err.message);
   }
@@ -109,7 +111,6 @@ export async function tokenCreate(token) {
     const response = await tx.execute(client);
     const transactionReceipt = await response.getReceipt(client);
     
-    console.log(transactionReceipt);
     if (transactionReceipt.status !== Status.Success) {
       notifyError(transactionReceipt.status.toString());
     } else {
@@ -194,15 +195,21 @@ async function tokenTransactionWithAmount(
 ) {
   
   try {
+    if(instruction.initialSupply > 0){
+      transaction.setAmount(instruction.amount);
+    }
+    else {
+      transaction.setMetadata([[Buffer.from(instruction.symbol)]]);
+    }
     transaction.setTokenId(instruction.tokenId.toString());
-    transaction.setAmount(1);
-
+    
     await transaction.signWithOperator(client);
     await transaction.sign(key);
 
     const response = await transaction.execute(client);
-
+  
     const transactionReceipt = await response.getReceipt(client);
+
     if (transactionReceipt.status !== Status.Success) {
       notifyError(transactionReceipt.status.toString());
       return {
@@ -214,7 +221,8 @@ async function tokenTransactionWithAmount(
     notifySuccess(instruction.successMessage);
     return {
       status: true,
-      transactionId: response.transactionId.toString()
+      transactionId: response.transactionId.toString(),
+      serialNumber: transactionReceipt.serials[0]
     };
   } catch (err) {
     notifyError(err.message);
@@ -306,11 +314,11 @@ export async function tokenMint(instruction) {
       id: result.transactionId,
       type: "tokenMint",
       inputs:
-        "tokenId=" + instruction.tokenId + ", Amount=" + 1
+        "tokenId=" + instruction.tokenId + ", Amount=" + 1 + "Serial Number=" + result.serial
     };
     EventBus.$emit("addTransaction", transaction);
   }
-  return result.status;
+  return result;
 }
 
 export async function tokenWipe(instruction) {
