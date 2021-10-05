@@ -37,7 +37,7 @@
       </v-row>
       <v-row>
         <v-col cols="6">Serial Number</v-col>
-        <v-col cols="6">{{ serial }}</v-col>
+        <v-col cols="6">{{ token.serialNumber }}</v-col>
       </v-row>
     </v-card-text>
     <v-card-actions class="justify-center">

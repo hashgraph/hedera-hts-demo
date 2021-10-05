@@ -3,7 +3,7 @@ import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
 import { accountCreate } from "../service/accountCreate";
 import { accountGetInfo } from "../service/accountGetInfo";
-import { tokenGetInfo, nftGetInfo } from "../service/tokenService";
+import { tokenGetInfo } from "../service/tokenService";
 import { notifySuccess } from "../utils";
 import { EventBus } from "../eventBus";
 Vue.use(Vuex);

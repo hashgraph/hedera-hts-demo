@@ -181,7 +181,6 @@ export async function tokenCreate(token) {
     }
     return tokenResponse;
   } catch (err) {
-    console.log("error!!!!");
     notifyError(err.message);
     return {};
   }

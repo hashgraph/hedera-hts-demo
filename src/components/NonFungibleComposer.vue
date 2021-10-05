@@ -2,14 +2,16 @@
   <v-container>
     <v-alert
       type="warning"
-      v-if="photoSize > 4096 && this.model.Storage === 'HEDERA'">
+      v-if="photoSize > 4096 && this.model.Storage === 'HEDERA'"
+    >
       This is a large image (size greater than 4kb) - A smaller size is
       preferable for Hedera File Service. Alternatively, use IPFS.
     </v-alert>
 
     <v-alert
       type="warning"
-      v-if="this.model.Storage === 'IPFS' && !NFT_STORAGE_API_KEY">
+      v-if="this.model.Storage === 'IPFS' && !NFT_STORAGE_API_KEY"
+    >
       You don't seem to have an NFT.STORAGE API key in your .env file. Please
       get a new API key at https://nft.storage/, add it to .env file and restart
       the server.
@@ -25,15 +27,24 @@
           Template
         </v-stepper-step>
         <v-divider></v-divider>
-        <v-stepper-step :complete="step > STEP_PROPERTIES" :step="STEP_PROPERTIES">
+        <v-stepper-step
+          :complete="step > STEP_PROPERTIES"
+          :step="STEP_PROPERTIES"
+        >
           Properties
         </v-stepper-step>
         <v-divider></v-divider>
-        <v-stepper-step :complete="step > STEP_MAXSUPPLY" :step="STEP_MAXSUPPLY">
+        <v-stepper-step
+          :complete="step > STEP_MAXSUPPLY"
+          :step="STEP_MAXSUPPLY"
+        >
           Supply
         </v-stepper-step>
         <v-divider></v-divider>
-        <v-stepper-step :complete="step > STEP_CUSTOMFEES" :step="STEP_CUSTOMFEES">
+        <v-stepper-step
+          :complete="step > STEP_CUSTOMFEES"
+          :step="STEP_CUSTOMFEES"
+        >
           Custom Fees
         </v-stepper-step>
         <v-divider></v-divider>
@@ -41,7 +52,10 @@
           KYC
         </v-stepper-step>
         <v-divider></v-divider>
-        <v-stepper-step :complete="step > STEP_FREEZABLE" :step="STEP_FREEZABLE">
+        <v-stepper-step
+          :complete="step > STEP_FREEZABLE"
+          :step="STEP_FREEZABLE"
+        >
           Freezable
         </v-stepper-step>
         <v-divider></v-divider>
@@ -156,7 +170,7 @@
               <v-form ref="supplyForm" v-model="supplyValid">
                 <v-row>
                   <v-col cols="12">
-                    The maximum number of NFTs that can be minted. 
+                    The maximum number of NFTs that can be minted.
                   </v-col>
                 </v-row>
                 <v-row>
@@ -190,14 +204,17 @@
               <v-form ref="customFeeForm" v-model="customFeeValid">
                 <v-row>
                   <v-col cols="12">
-                    Custom fees are fees that are distributed to the specified accounts each time the token is transferred programmatically. 
+                    Custom fees are fees that are distributed to the specified
+                    accounts each time the token is transferred
+                    programmatically.
                   </v-col>
                 </v-row>
                 <v-row>
                   <v-col cols="4">
                     <v-select
                       label="Custom Fee Type:"
-                      :items="customFeeOptions">
+                      :items="customFeeOptions"
+                    >
                     </v-select>
                   </v-col>
 
@@ -218,7 +235,11 @@
             </v-col>
             <v-spacer></v-spacer>
             <v-col>
-              <v-btn color="primary" @click="nextStep" :disabled="!customFeeValid">
+              <v-btn
+                color="primary"
+                @click="nextStep"
+                :disabled="!customFeeValid"
+              >
                 Continue
               </v-btn>
             </v-col>
@@ -317,12 +338,12 @@ import "@koumoul/vjsf/lib/VJsf.css";
 import "@koumoul/vjsf/lib/deps/third-party.js";
 import { fileCreate } from "@/service/fileService";
 import { loadTokenTemplates } from "@/service/tokenProperties";
-import { tokenMint } from '../service/tokenService';
+import { tokenMint } from "../service/tokenService";
 
 export default {
   name: "NonFungibleComposer",
   components: { VJsf },
-  data: function() {
+  data: function () {
     return {
       STEP_NAME: 1,
       STEP_TEMPLATE: 2,
@@ -343,18 +364,18 @@ export default {
       cardHeight: 300,
       NFT_STORAGE_API_KEY: process.env.VUE_APP_NFT_STORAGE_API_KEY,
       nameRules: [
-        v => !!v || "Input required",
-        v => v.length <= 100 || "Max length 100"
+        (v) => !!v || "Input required",
+        (v) => v.length <= 100 || "Max length 100",
       ],
       customFeeRules: [
-        n => !!n || "Please enter an integer",
-        n => !isNaN(parseInt(n)) || "Please enter a number"
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a number",
       ],
       supplyRules: [
-        n => !!n || "Please enter an integer",
-        n => !isNaN(parseInt(n)) || "Please enter a number"
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a number",
       ],
-      customFeeOptions: ['Custom', 'Fixed', 'Royalty'],
+      customFeeOptions: ["Custom", "Fixed", "Royalty"],
       selectedFeeOption: "",
       name: "",
       customFees: 0,
@@ -366,11 +387,11 @@ export default {
       model: {},
       schema: {
         type: "object",
-        properties: {}
+        properties: {},
       },
       tokenTemplates: {},
       tokenTemplate: "",
-      tokenTemplatesForSelection: []
+      tokenTemplatesForSelection: [],
     };
   },
   created() {
@@ -382,7 +403,7 @@ export default {
   computed: {
     imageData() {
       return this.imageBase64();
-    }
+    },
   },
   methods: {
     init() {
@@ -394,8 +415,7 @@ export default {
       this.step = 1;
       //
       this.name = "";
-      this.tokenType = TokenType.NonFungibleUnique,
-      this.symbol = "";
+      (this.tokenType = TokenType.NonFungibleUnique), (this.symbol = "");
       this.defaultFreezeStatus = false;
       this.template = "";
       this.metadata = "";
@@ -415,7 +435,7 @@ export default {
       if (this.tokenTemplate === "") {
         this.schema = {
           type: "object",
-          properties: {}
+          properties: {},
         };
       } else {
         this.schema = this.tokenTemplates[this.tokenTemplate];
@@ -474,7 +494,8 @@ export default {
         const token = {
           name: this.name,
           symbol:
-            (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") + fileId,
+            (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") +
+            fileId,
           customFees: this.customFees,
           maxSupply: this.maxSupply,
           decimals: 0,
@@ -490,16 +511,16 @@ export default {
           treasury: issuerAccount.accountId,
           deleted: false,
           key: privateKey.toString(),
-          schema: this.schema
+          schema: this.schema,
         };
 
         let newToken = await tokenCreate(token);
-        
+
         newToken.isNFT =
           newToken.symbol.includes("HEDERA://") ||
           newToken.symbol.includes("IPFS://");
 
-       if (newToken.isNFT) {
+        if (newToken.isNFT) {
           let tokenInfo = await tokenMint(token);
           newToken.serialNumber = tokenInfo.serialNumber;
         }
@@ -548,8 +569,8 @@ export default {
     tokenDetails() {
       let details = "It will be non-fractional with a fixed supply of 1.";
       return details;
-    }
-  }
+    },
+  },
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->
