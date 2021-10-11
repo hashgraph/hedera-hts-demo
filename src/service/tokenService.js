@@ -22,7 +22,10 @@ const {
   TokenWipeTransaction,
   Hbar,
   CustomFixedFee,
-  Status
+  Status,
+  CustomFractionalFee,
+  CustomRoyaltyFee,
+  CustomFee
 } = require("@hashgraph/sdk");
 
 function issuerClient() {
@@ -65,11 +68,27 @@ export async function tokenCreate(token) {
     tx.setAutoRenewAccountId(token.autoRenewAccount);
     tx.setAutoRenewPeriod(autoRenewPeriod);
     
-    if(token.customFees) {
-      let fee = new CustomFixedFee();
-      fee.setAmount(Number(token.customFees));
+    if(token.customFeeSelected !== " ") {
+      let fee = new CustomFee();
+      if(token.customFeeSelected === "fixed"){
+        fee = new CustomFixedFee();
+        fee.setAmount(Number(token.customFees));
+        tx.setCustomFees([fee]);
+      }
+      else if(token.customFeeSelected === "fractional"){
+        fee = new CustomFractionalFee();
+        fee.setNumerator(parseInt(token.customFeeNumerator))
+        fee.setDenominator(parseInt(token.customFeeDenominator))
+      }
+      else if(token.customFeeSelected === "royalty"){
+        fee = new CustomRoyaltyFee();
+        fee.setNumerator(parseInt(token.customFeeNumerator))
+        fee.setDenominator(parseInt(token.customFeeDenominator))
+      }
+      else {
+        notifyError("Custom Fee Error");
+      }
       fee.setFeeCollectorAccountId(issuerAccount);
-      tx.setCustomFees([fee]);
     }
 
     if (token.adminKey) {

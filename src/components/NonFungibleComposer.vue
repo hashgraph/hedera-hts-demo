@@ -211,22 +211,57 @@
                 </v-row>
                 <v-row>
                   <v-col cols="4">
-                    <v-select
-                      label="Custom Fee Type:"
-                      :items="customFeeOptions"
-                    >
-                    </v-select>
+                    <v-radio-group v-model="customFeeSelected">
+                      <v-radio
+                        name="customFeeSelected"
+                        label="No Custom Fees"
+                        value=" "
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
+                        label="Fixed"
+                        value="fixed"
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
+                        label="Fractional"
+                        value="fractional"
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
+                        label="Royalty"
+                        value="royalty"
+                      ></v-radio>
+                    </v-radio-group>
                   </v-col>
-
-                  <v-col cols="8">
+                  <v-col cols="5">
                     <v-text-field
-                      label="Custom Fees*"
+                      v-if="customFeeSelected === 'fixed'"
+                      label="Fixed Fee*"
                       :rules="customFeeRules"
                       v-model="customFees"
                     ></v-text-field>
                   </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      v-if="customFeeSelected === 'fractional' || customFeeSelected === 'royalty'"
+                      label="numerator*"
+                      required
+                      v-model="customFeeNumerator"
+                      :rules="numeratorRules"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      v-if="customFeeSelected === 'fractional'|| customFeeSelected === 'royalty'"
+                      label="denominator*"
+                      required
+                      v-model="customFeeDenominator"
+                      :rules="denominatorRules"
+                    ></v-text-field>
+                  </v-col>
                 </v-row>
-              </v-form>
+              </v-form> 
             </v-card-text>
           </v-card>
           <v-row>
@@ -371,14 +406,25 @@ export default {
         (n) => !!n || "Please enter an integer",
         (n) => !isNaN(parseInt(n)) || "Please enter a number",
       ],
+      numeratorRules: [
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a valid number less than the denominator",
+      ],
+      denominatorRules: [
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a valid number less than the denominator"
+      ],
       supplyRules: [
         (n) => !!n || "Please enter an integer",
         (n) => !isNaN(parseInt(n)) || "Please enter a number",
       ],
-      customFeeOptions: ["Custom", "Fixed", "Royalty"],
+      customFeeOptions: ["Fractional", "Fixed", "Royalty"],
       selectedFeeOption: "",
       name: "",
       customFees: 0,
+      customFeeSelected: "fixed",
+      customFeeNumerator: 0,
+      customFeeDenominator: 0,
       maxSupply: 0,
       symbol: "",
       defaultFreezeStatus: false,
@@ -421,6 +467,9 @@ export default {
       this.metadata = "";
       this.photoSize = 0;
       this.customFees = 0;
+      this.customFeeNumerator = 0;
+      this.customFeeDenominator = 0;
+      this.customFeesSelected = "";
       this.maxSupply = 0;
       this.tokenTemplates = loadTokenTemplates();
       this.tokenTemplatesForSelection = [];
@@ -497,6 +546,9 @@ export default {
             (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") +
             fileId,
           customFees: this.customFees,
+          customFeeNumerator: this.customFeeNumerator,
+          customFeeDenominator: this.customFeeDenominator,
+          customFeeSelected: this.customFeeSelected,
           maxSupply: this.maxSupply,
           decimals: 0,
           initialSupply: 0,
