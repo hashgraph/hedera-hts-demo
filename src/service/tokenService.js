@@ -86,7 +86,7 @@ export async function tokenCreate(token) {
         fee.setDenominator(parseInt(token.customFeeDenominator))
       }
       else {
-        notifyError("Custom Fee Error");
+        //notifyError("Custom Fee Error");
       }
       fee.setFeeCollectorAccountId(issuerAccount);
     }
@@ -182,7 +182,8 @@ export async function tokenCreate(token) {
         if (token.kycKey) {
           const instruction = {
             tokenId: token.tokenId,
-            accountId: marketAccountId
+            accountId: marketAccountId,
+            kycKey: token.kycKey
           };
           tokenGrantKYC(instruction);
         }
@@ -315,7 +316,7 @@ export async function tokenBurn(instruction) {
 
 export async function tokenMint(instruction) {
   instruction.successMessage =
-    "Minted " + instruction.amount + " for token " + instruction.tokenId;
+    "Minted token " + instruction.tokenId;
     
   const supplyKey = PrivateKey.fromString(instruction.supplyKey);
   const tx = new TokenMintTransaction();
@@ -425,8 +426,7 @@ export async function tokenUnFreeze(instruction) {
 }
 
 export async function tokenGrantKYC(instruction) {
-  const token = state.getters.getTokens[instruction.tokenId];
-  const kycKey = PrivateKey.fromString(token.kycKey);
+  const kycKey = PrivateKey.fromString(instruction.kycKey);
   const tx = await new TokenGrantKycTransaction();
   instruction.successMessage =
     "Account " + instruction.accountId + " KYC Granted";
