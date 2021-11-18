@@ -79,6 +79,18 @@
             </v-col>
           </v-row>
 
+          <v-row v-if="token.customFees" dense>
+            <v-col cols="6"
+              ><v-text-field
+                label="Custom Fees"
+                :value="customFees"
+                outlined
+                dense
+                disabled
+              ></v-text-field>
+            </v-col>
+          </v-row>
+
           <v-row dense>
             <v-col cols="4">
               <v-checkbox
@@ -216,7 +228,7 @@
 </template>
 <script>
 import { EventBus } from "../eventBus";
-import { amountWithDecimals, secondsToParts } from "../utils";
+import { amountWithDecimals, secondsToParts, amountWithFraction } from "../utils";
 import { fileGetContents } from "@/service/fileService";
 
 export default {
@@ -229,6 +241,7 @@ export default {
       initialSupply: 0,
       supply: 0,
       expiry: 0,
+      customFees: undefined,
       autoRenewPeriod: "",
       headingColor: "primary",
       title: "",
@@ -246,6 +259,20 @@ export default {
       vm.token = value;
       vm.supply = amountWithDecimals(value.totalSupply, value.decimals);
       vm.expiry = value.expiry;
+
+      if(value.customFees){
+        vm.customFees = [];
+        for (const key in value.customFees) {
+          const customFee = value.customFees[key];
+
+          if(customFee.amount){
+            vm.customFees.push(parseInt(customFee.amount) + " Hbar");
+          }
+          else{
+            vm.customFees.push(amountWithFraction(value.customFees[key]));
+          }
+        }
+      }
       vm.autoRenewPeriod = secondsToParts(value.autoRenewPeriod);
       vm.headingColor = value.isNFT ? "" : "primary";
       vm.title = value.isNFT

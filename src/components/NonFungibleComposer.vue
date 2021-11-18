@@ -413,7 +413,7 @@ export default {
         (n) => !!n || "Please enter an integer",
         (n) => !isNaN(parseInt(n)) || "Please enter a number",
       ],
-      customFeeOptions: ["Fractional", "Fixed", "Royalty"],
+      customFeeOptions: ["Fixed", "Royalty"],
       selectedFeeOption: "",
       name: "",
       customFees: 0,
