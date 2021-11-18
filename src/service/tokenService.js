@@ -76,14 +76,17 @@ export async function tokenCreate(token) {
         tx.setCustomFees([fee]);
       }
       else if(token.customFeeSelected === "fractional"){
+        //modify to only allow this for fungible common
         fee = new CustomFractionalFee();
         fee.setNumerator(parseInt(token.customFeeNumerator))
         fee.setDenominator(parseInt(token.customFeeDenominator))
+        tx.setCustomFees([fee]);
       }
       else if(token.customFeeSelected === "royalty"){
         fee = new CustomRoyaltyFee();
         fee.setNumerator(parseInt(token.customFeeNumerator))
         fee.setDenominator(parseInt(token.customFeeDenominator))
+        tx.setCustomFees([fee]);
       }
       else {
         //notifyError("Custom Fee Error");
