@@ -211,6 +211,11 @@
                       ></v-radio>
                       <v-radio
                         name="customFeeSelected"
+                        label="Fractional"
+                        value="fractional"
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
                         label="Royalty"
                         value="royalty"
                       ></v-radio>
@@ -226,7 +231,7 @@
                   </v-col>
                   <v-col cols="4">
                     <v-text-field
-                      v-if="customFeeSelected === 'royalty'"
+                      v-if="customFeeSelected === 'royalty' || customFeeSelected === 'fractional'"
                       label="numerator*"
                       required
                       v-model="customFeeNumerator"
@@ -235,7 +240,7 @@
                   </v-col>
                   <v-col cols="4">
                     <v-text-field
-                      v-if="customFeeSelected === 'royalty'"
+                      v-if="customFeeSelected === 'royalty' || customFeeSelected === 'fractional'"
                       label="denominator*"
                       required
                       v-model="customFeeDenominator"
