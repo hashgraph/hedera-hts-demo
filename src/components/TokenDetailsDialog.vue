@@ -79,7 +79,7 @@
             </v-col>
           </v-row>
 
-          <v-row v-if="token.customFees.length > 0" dense>
+          <v-row v-if="token.customFees" dense>
             <v-col cols="6"
               ><v-text-field
                 label="Custom Fees"

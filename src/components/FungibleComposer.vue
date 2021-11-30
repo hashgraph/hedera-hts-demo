@@ -202,7 +202,7 @@
                       <v-radio
                         name="customFeeSelected"
                         label="No Custom Fees"
-                        value=" "
+                        value="none"
                       ></v-radio>
                       <v-radio
                         name="customFeeSelected"
@@ -260,7 +260,6 @@
               <v-btn
                 color="primary"
                 @click="nextStep"
-                :disabled="!customFeeValid"
               >
                 Continue
               </v-btn>
@@ -448,6 +447,7 @@ export default {
       STEP_FREEZABLE: 8,
       STEP_CREATE: 9,
       nameValid: false,
+      customFeeValid: false,
       decimalsValid: false,
       supplyValid: false,
       step: 1,
@@ -472,8 +472,6 @@ export default {
         v => !!v || "Input required",
         v => v.length <= 100 || "Max length 100"
       ],
-      customFeeOptions: ["Fixed", "Fractional", "Royalty"],
-      selectedFeeOption: "",
       name: "",
       customFees: 0,
       customFeeSelected: "fixed",
@@ -495,6 +493,7 @@ export default {
   methods: {
     init() {
       this.nameValid = false;
+      this.customFeeValid = false;
       this.decimalsValid = false;
       this.supplyValid = false;
       this.fractional = "no";
