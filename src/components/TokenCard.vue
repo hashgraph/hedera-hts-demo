@@ -35,13 +35,17 @@
         <v-col cols="6">Supply</v-col>
         <v-col cols="6">{{ totalSupply }}</v-col>
       </v-row>
+      <v-row>
+        <v-col cols="6">Serial Number</v-col>
+        <v-col cols="6">{{ token.serialNumber }}</v-col>
+      </v-row>
     </v-card-text>
     <v-card-actions class="justify-center">
       <v-btn color="blue darken-1" icon @click="showAccounts">
         <v-icon>mdi-account-multiple</v-icon>
       </v-btn>
       <v-btn
-        :disabled="!this.token.supplyKey"
+        :disabled="!this.token.supplyKey || this.token.isNFT"
         color="blue darken-1"
         icon
         @click="mintToken"
@@ -104,9 +108,6 @@ export default {
     this.token = this.$store.getters.getTokens[this.tokenId];
     this.defaultFreezeStatus = this.token.defaultFreezeStatus;
 
-    this.token.isNFT =
-      this.token.symbol.includes("HEDERA://") ||
-      this.token.symbol.includes("IPFS://");
     if (this.token.isNFT) {
       // Check if this NFT token metadata stored on Hedera File Service or on IPFS.
       if (this.token.symbol.includes("HEDERA://")) {

@@ -108,3 +108,7 @@ export function secondsToParts(seconds) {
   }
   return result;
 }
+
+export function amountWithFraction(customFee) {
+  return parseInt(customFee.numerator) + " / " + customFee.denominator;
+}

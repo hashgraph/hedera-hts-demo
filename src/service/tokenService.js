@@ -21,7 +21,11 @@ const {
   TokenUnfreezeTransaction,
   TokenWipeTransaction,
   Hbar,
-  Status
+  CustomFixedFee,
+  Status,
+  CustomFractionalFee,
+  CustomRoyaltyFee,
+  CustomFee
 } = require("@hashgraph/sdk");
 
 function issuerClient() {
@@ -38,6 +42,8 @@ export async function tokenGetInfo(token) {
 
     tokenResponse.totalSupply = info.totalSupply;
     tokenResponse.expiry = info.expirationTime.toDate();
+    tokenResponse.customFees = info.customFees;
+
   } catch (err) {
     notifyError(err.message);
   }
@@ -54,12 +60,39 @@ export async function tokenCreate(token) {
     let sigKey;
     const tx = await new TokenCreateTransaction();
     tx.setTokenName(token.name);
+    tx.setTokenType(token.tokenType);
     tx.setTokenSymbol(token.symbol.toUpperCase());
     tx.setDecimals(token.decimals);
     tx.setInitialSupply(token.initialSupply);
     tx.setTreasuryAccountId(token.treasury);
     tx.setAutoRenewAccountId(token.autoRenewAccount);
     tx.setAutoRenewPeriod(autoRenewPeriod);
+    
+    if(token.customFeeSelected !== " ") {
+      let fee = new CustomFee();
+      if(token.customFeeSelected === "fixed"){
+        fee = new CustomFixedFee();
+        fee.setAmount(Number(token.customFees));
+        tx.setCustomFees([fee]);
+      }
+      else if(token.customFeeSelected === "fractional"){
+        //modify to only allow this for fungible common
+        fee = new CustomFractionalFee();
+        fee.setNumerator(parseInt(token.customFeeNumerator))
+        fee.setDenominator(parseInt(token.customFeeDenominator))
+        tx.setCustomFees([fee]);
+      }
+      else if(token.customFeeSelected === "royalty"){
+        fee = new CustomRoyaltyFee();
+        fee.setNumerator(parseInt(token.customFeeNumerator))
+        fee.setDenominator(parseInt(token.customFeeDenominator))
+        tx.setCustomFees([fee]);
+      }
+      else {
+        //notifyError("Custom Fee Error");
+      }
+      fee.setFeeCollectorAccountId(issuerAccount);
+    }
 
     if (token.adminKey) {
       sigKey = PrivateKey.fromString(token.key);
@@ -90,17 +123,16 @@ export async function tokenCreate(token) {
       tx.setSupplyKey(sigKey.publicKey);
     }
     const client = issuerClient();
-
+    tx.freezeWith(client);
     await tx.signWithOperator(client);
 
     if (additionalSig) {
-      // TODO: should sign with every key (check docs)
-      // since the admin/kyc/... keys are all the same, a single sig is sufficient
       await tx.sign(sigKey);
     }
+
     const response = await tx.execute(client);
     const transactionReceipt = await response.getReceipt(client);
-
+    
     if (transactionReceipt.status !== Status.Success) {
       notifyError(transactionReceipt.status.toString());
     } else {
@@ -128,7 +160,9 @@ export async function tokenCreate(token) {
       tokenResponse = {
         tokenId: token.tokenId.toString(),
         symbol: token.symbol.toUpperCase(),
+        type: token.tokenType,
         name: token.name,
+        customFees: token.customFees,
         totalSupply: token.initialSupply,
         decimals: token.decimals,
         autoRenewAccount: issuerAccount,
@@ -151,7 +185,8 @@ export async function tokenCreate(token) {
         if (token.kycKey) {
           const instruction = {
             tokenId: token.tokenId,
-            accountId: marketAccountId
+            accountId: marketAccountId,
+            kycKey: token.kycKey
           };
           tokenGrantKYC(instruction);
         }
@@ -180,19 +215,23 @@ async function tokenTransactionWithAmount(
   instruction,
   key
 ) {
+  
   try {
-    transaction.setTokenId(instruction.tokenId);
-    if (typeof instruction.accountId !== "undefined") {
-      transaction.setAccountId(instruction.accountId);
+    if(instruction.initialSupply > 0){
+      transaction.setAmount(instruction.amount);
     }
-    transaction.setAmount(instruction.amount);
-
+    else {
+      transaction.setMetadata([[Buffer.from(instruction.symbol)]]);
+    }
+    transaction.setTokenId(instruction.tokenId.toString());
+    
     await transaction.signWithOperator(client);
     await transaction.sign(key);
 
     const response = await transaction.execute(client);
-
+  
     const transactionReceipt = await response.getReceipt(client);
+
     if (transactionReceipt.status !== Status.Success) {
       notifyError(transactionReceipt.status.toString());
       return {
@@ -204,7 +243,8 @@ async function tokenTransactionWithAmount(
     notifySuccess(instruction.successMessage);
     return {
       status: true,
-      transactionId: response.transactionId.toString()
+      transactionId: response.transactionId.toString(),
+      serialNumber: transactionReceipt.serials[0]
     };
   } catch (err) {
     notifyError(err.message);
@@ -279,11 +319,12 @@ export async function tokenBurn(instruction) {
 
 export async function tokenMint(instruction) {
   instruction.successMessage =
-    "Minted " + instruction.amount + " for token " + instruction.tokenId;
-  const token = state.getters.getTokens[instruction.tokenId];
-  const supplyKey = PrivateKey.fromString(token.supplyKey);
-  const tx = await new TokenMintTransaction();
+    "Minted token " + instruction.tokenId;
+    
+  const supplyKey = PrivateKey.fromString(instruction.supplyKey);
+  const tx = new TokenMintTransaction();
   const client = issuerClient();
+  
   const result = await tokenTransactionWithAmount(
     client,
     tx,
@@ -295,11 +336,11 @@ export async function tokenMint(instruction) {
       id: result.transactionId,
       type: "tokenMint",
       inputs:
-        "tokenId=" + instruction.tokenId + ", Amount=" + instruction.amount
+        "tokenId=" + instruction.tokenId + ", Amount=" + 1 + "Serial Number=" + result.serial
     };
     EventBus.$emit("addTransaction", transaction);
   }
-  return result.status;
+  return result;
 }
 
 export async function tokenWipe(instruction) {
@@ -388,8 +429,7 @@ export async function tokenUnFreeze(instruction) {
 }
 
 export async function tokenGrantKYC(instruction) {
-  const token = state.getters.getTokens[instruction.tokenId];
-  const kycKey = PrivateKey.fromString(token.kycKey);
+  const kycKey = PrivateKey.fromString(instruction.kycKey);
   const tx = await new TokenGrantKycTransaction();
   instruction.successMessage =
     "Account " + instruction.accountId + " KYC Granted";

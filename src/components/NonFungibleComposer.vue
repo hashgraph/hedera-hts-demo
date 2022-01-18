@@ -34,6 +34,20 @@
           Properties
         </v-stepper-step>
         <v-divider></v-divider>
+        <v-stepper-step
+          :complete="step > STEP_MAXSUPPLY"
+          :step="STEP_MAXSUPPLY"
+        >
+          Supply
+        </v-stepper-step>
+        <v-divider></v-divider>
+        <v-stepper-step
+          :complete="step > STEP_CUSTOMFEES"
+          :step="STEP_CUSTOMFEES"
+        >
+          Custom Fees
+        </v-stepper-step>
+        <v-divider></v-divider>
         <v-stepper-step :complete="step > STEP_KYC" :step="STEP_KYC">
           KYC
         </v-stepper-step>
@@ -150,6 +164,118 @@
           </v-row>
         </v-stepper-content>
 
+        <v-stepper-content :step="STEP_MAXSUPPLY">
+          <v-card class="mb-12" :height="cardHeight" flat>
+            <v-card-text>
+              <v-form ref="supplyForm" v-model="supplyValid">
+                <v-row>
+                  <v-col cols="12">
+                    The maximum number of NFTs that can be minted.
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="8">
+                    <v-text-field
+                      label="Maximum Supply*"
+                      :rules="supplyRules"
+                      v-model="maxSupply"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-form>
+            </v-card-text>
+          </v-card>
+          <v-row>
+            <v-col>
+              <v-btn text @click="cancel"> Cancel </v-btn>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-btn color="primary" @click="nextStep" :disabled="!supplyValid">
+                Continue
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-stepper-content>
+
+        <v-stepper-content :step="STEP_CUSTOMFEES">
+          <v-card class="mb-12" :height="cardHeight" flat>
+            <v-card-text>
+              <v-form ref="customFeeForm" v-model="customFeeValid">
+                <v-row>
+                  <v-col cols="12">
+                    Custom fees are fees that are distributed to the specified
+                    accounts each time the token is transferred
+                    programmatically.
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="4">
+                    <v-radio-group v-model="customFeeSelected">
+                      <v-radio
+                        name="customFeeSelected"
+                        label="No Custom Fees"
+                        value=" "
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
+                        label="Fixed"
+                        value="fixed"
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
+                        label="Royalty"
+                        value="royalty"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                  <v-col cols="5">
+                    <v-text-field
+                      v-if="customFeeSelected === 'fixed'"
+                      label="Fixed Fee*"
+                      :rules="customFeeRules"
+                      v-model="customFees"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      v-if="customFeeSelected === 'royalty'"
+                      label="numerator*"
+                      required
+                      v-model="customFeeNumerator"
+                      :rules="numeratorRules"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      v-if="customFeeSelected === 'royalty'"
+                      label="denominator*"
+                      required
+                      v-model="customFeeDenominator"
+                      :rules="denominatorRules"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-form> 
+            </v-card-text>
+          </v-card>
+          <v-row>
+            <v-col>
+              <v-btn text @click="cancel"> Cancel </v-btn>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-btn
+                color="primary"
+                @click="nextStep"
+                :disabled="!customFeeValid"
+              >
+                Continue
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-stepper-content>
+
         <v-stepper-content :step="STEP_KYC">
           <v-card class="mb-12" :height="cardHeight" flat>
             <v-card-text>
@@ -235,26 +361,31 @@
 <script>
 import { EventBus } from "../eventBus";
 import { getAccountDetails } from "@/utils";
-import { PrivateKey } from "@hashgraph/sdk";
+import { PrivateKey, TokenType } from "@hashgraph/sdk";
 import { tokenCreate } from "@/service/tokenService";
 import VJsf from "@koumoul/vjsf/lib/VJsf.js";
 import "@koumoul/vjsf/lib/VJsf.css";
 import "@koumoul/vjsf/lib/deps/third-party.js";
 import { fileCreate } from "@/service/fileService";
 import { loadTokenTemplates } from "@/service/tokenProperties";
+import { tokenMint } from "../service/tokenService";
 
 export default {
   name: "NonFungibleComposer",
   components: { VJsf },
-  data: function() {
+  data: function () {
     return {
       STEP_NAME: 1,
       STEP_TEMPLATE: 2,
       STEP_PROPERTIES: 3,
-      STEP_KYC: 4,
-      STEP_FREEZABLE: 5,
-      STEP_CREATE: 6,
+      STEP_MAXSUPPLY: 4,
+      STEP_CUSTOMFEES: 5,
+      STEP_KYC: 6,
+      STEP_FREEZABLE: 7,
+      STEP_CREATE: 8,
       nameValid: false,
+      customFeeValid: false,
+      supplyValid: false,
       step: 1,
       kyc: "no",
       freeze: "no",
@@ -263,10 +394,33 @@ export default {
       cardHeight: 300,
       NFT_STORAGE_API_KEY: process.env.VUE_APP_NFT_STORAGE_API_KEY,
       nameRules: [
-        v => !!v || "Input required",
-        v => v.length <= 100 || "Max length 100"
+        (v) => !!v || "Input required",
+        (v) => v.length <= 100 || "Max length 100",
       ],
+      customFeeRules: [
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a number",
+      ],
+      numeratorRules: [
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a valid number less than the denominator",
+      ],
+      denominatorRules: [
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a valid number less than the denominator"
+      ],
+      supplyRules: [
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a number",
+      ],
+      customFeeOptions: ["Fixed", "Royalty"],
+      selectedFeeOption: "",
       name: "",
+      customFees: 0,
+      customFeeSelected: "fixed",
+      customFeeNumerator: 0,
+      customFeeDenominator: 0,
+      maxSupply: 0,
       symbol: "",
       defaultFreezeStatus: false,
       ///
@@ -274,11 +428,11 @@ export default {
       model: {},
       schema: {
         type: "object",
-        properties: {}
+        properties: {},
       },
       tokenTemplates: {},
       tokenTemplate: "",
-      tokenTemplatesForSelection: []
+      tokenTemplatesForSelection: [],
     };
   },
   created() {
@@ -290,20 +444,28 @@ export default {
   computed: {
     imageData() {
       return this.imageBase64();
-    }
+    },
   },
   methods: {
     init() {
       this.nameValid = false;
+      this.customFeeValid = false;
+      this.supplyValid = false;
       this.kyc = "no";
       this.freeze = "no";
       this.step = 1;
       //
       this.name = "";
-      this.symbol = "";
+      (this.tokenType = TokenType.NonFungibleUnique), (this.symbol = "");
       this.defaultFreezeStatus = false;
       this.template = "";
+      this.metadata = "";
       this.photoSize = 0;
+      this.customFees = 0;
+      this.customFeeNumerator = 0;
+      this.customFeeDenominator = 0;
+      this.customFeesSelected = "";
+      this.maxSupply = 0;
       this.tokenTemplates = loadTokenTemplates();
       this.tokenTemplatesForSelection = [];
       for (const templateItem in this.tokenTemplates) {
@@ -317,7 +479,7 @@ export default {
       if (this.tokenTemplate === "") {
         this.schema = {
           type: "object",
-          properties: {}
+          properties: {},
         };
       } else {
         this.schema = this.tokenTemplates[this.tokenTemplate];
@@ -378,20 +540,38 @@ export default {
           symbol:
             (this.model.Storage === "HEDERA" ? "hedera://" : "ipfs://") +
             fileId,
+          customFees: this.customFees,
+          customFeeNumerator: this.customFeeNumerator,
+          customFeeDenominator: this.customFeeDenominator,
+          customFeeSelected: this.customFeeSelected,
+          maxSupply: this.maxSupply,
           decimals: 0,
-          initialSupply: 1,
+          initialSupply: 0,
           adminKey: undefined,
+          tokenType: TokenType.NonFungibleUnique,
           kycKey: this.kyc === "yes" ? privateKey.toString() : undefined,
           freezeKey: this.freeze === "yes" ? privateKey.toString() : undefined,
           wipeKey: undefined,
-          supplyKey: undefined,
+          supplyKey: privateKey.toString(),
           defaultFreezeStatus: this.defaultFreezeStatus,
           autoRenewAccount: issuerAccount.accountId,
           treasury: issuerAccount.accountId,
           deleted: false,
-          key: privateKey.toString()
+          key: privateKey.toString(),
+          schema: this.schema,
         };
-        const newToken = await tokenCreate(token);
+
+        let newToken = await tokenCreate(token);
+
+        newToken.isNFT =
+          newToken.symbol.includes("HEDERA://") ||
+          newToken.symbol.includes("IPFS://");
+
+        if (newToken.isNFT) {
+          let tokenInfo = await tokenMint(token);
+          newToken.serialNumber = tokenInfo.serialNumber;
+        }
+
         if (typeof newToken.tokenId !== "undefined") {
           this.$store.commit("setToken", newToken);
           EventBus.$emit("dialogClose");
@@ -436,8 +616,8 @@ export default {
     tokenDetails() {
       let details = "It will be non-fractional with a fixed supply of 1.";
       return details;
-    }
-  }
+    },
+  },
 };
 </script>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

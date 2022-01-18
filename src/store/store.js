@@ -177,6 +177,7 @@ export default new Vuex.Store({
           return;
         }
         const token = state.tokens[key];
+        
         const tokenUpdate = await tokenGetInfo(token);
         commit("setToken", tokenUpdate);
       }

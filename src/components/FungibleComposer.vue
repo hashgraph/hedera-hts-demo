@@ -5,15 +5,16 @@
         Name
       </v-stepper-step>
       <v-divider></v-divider>
-      <v-stepper-step
-        :complete="step > STEP_FRACTIONAL"
-        :step="STEP_FRACTIONAL"
-      >
+      <v-stepper-step :complete="step > STEP_FRACTIONAL" :step="STEP_FRACTIONAL">
         Fractional
       </v-stepper-step>
       <v-divider></v-divider>
       <v-stepper-step :complete="step > STEP_SUPPLY" :step="STEP_SUPPLY">
         Supply
+      </v-stepper-step>
+      <v-divider></v-divider>
+      <v-stepper-step :complete="step > STEP_CUSTOMFEES" :step="STEP_CUSTOMFEES">
+        Custom Fees
       </v-stepper-step>
       <v-divider></v-divider>
       <v-stepper-step :complete="step > STEP_MUTABLE" :step="STEP_MUTABLE">
@@ -184,6 +185,88 @@
         </v-row>
       </v-stepper-content>
 
+      <v-stepper-content :step="STEP_CUSTOMFEES">
+          <v-card class="mb-12" :height="cardHeight" flat>
+            <v-card-text>
+              <v-form ref="customFeeForm" v-model="customFeeValid">
+                <v-row>
+                  <v-col cols="12">
+                    Custom fees are fees that are distributed to the specified
+                    accounts each time the token is transferred
+                    programmatically.
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="4">
+                    <v-radio-group v-model="customFeeSelected">
+                      <v-radio
+                        name="customFeeSelected"
+                        label="No Custom Fees"
+                        value="none"
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
+                        label="Fixed"
+                        value="fixed"
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
+                        label="Fractional"
+                        value="fractional"
+                      ></v-radio>
+                      <v-radio
+                        name="customFeeSelected"
+                        label="Royalty"
+                        value="royalty"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-col>
+                  <v-col cols="5">
+                    <v-text-field
+                      v-if="customFeeSelected === 'fixed'"
+                      label="Fixed Fee*"
+                      :rules="customFeeRules"
+                      v-model="customFees"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      v-if="customFeeSelected === 'royalty' || customFeeSelected === 'fractional'"
+                      label="numerator*"
+                      required
+                      v-model="customFeeNumerator"
+                      :rules="numeratorRules"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                      v-if="customFeeSelected === 'royalty' || customFeeSelected === 'fractional'"
+                      label="denominator*"
+                      required
+                      v-model="customFeeDenominator"
+                      :rules="denominatorRules"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-form> 
+            </v-card-text>
+          </v-card>
+          <v-row>
+            <v-col>
+              <v-btn text @click="cancel"> Cancel </v-btn>
+            </v-col>
+            <v-spacer></v-spacer>
+            <v-col>
+              <v-btn
+                color="primary"
+                @click="nextStep"
+              >
+                Continue
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-stepper-content>
+
       <v-stepper-content :step="STEP_MUTABLE">
         <v-card class="mb-12" height="200px" flat>
           <v-card-text>
@@ -308,7 +391,7 @@
       <v-stepper-content :step="STEP_CREATE">
         <v-card class="mb-12" height="200px" flat>
           <v-card-title>
-            You're about to create a fungible token named {{ name }} ({{
+            You're about to create a fungible common token named {{ name }} ({{
               symbol.toUpperCase()
             }})
           </v-card-title>
@@ -347,7 +430,7 @@
 <script>
 import { EventBus } from "../eventBus";
 import { getAccountDetails } from "@/utils";
-import { PrivateKey } from "@hashgraph/sdk";
+import { PrivateKey, TokenType } from "@hashgraph/sdk";
 import { tokenCreate } from "@/service/tokenService";
 
 export default {
@@ -357,12 +440,14 @@ export default {
       STEP_NAME: 1,
       STEP_FRACTIONAL: 2,
       STEP_SUPPLY: 3,
-      STEP_MUTABLE: 4,
-      STEP_KYC: 5,
-      STEP_WIPEABLE: 6,
-      STEP_FREEZABLE: 7,
-      STEP_CREATE: 8,
+      STEP_CUSTOMFEES: 4,
+      STEP_MUTABLE: 5,
+      STEP_KYC: 6,
+      STEP_WIPEABLE: 7,
+      STEP_FREEZABLE: 8,
+      STEP_CREATE: 9,
       nameValid: false,
+      customFeeValid: false,
       decimalsValid: false,
       supplyValid: false,
       step: 1,
@@ -379,12 +464,19 @@ export default {
         v => !!v || "Input required",
         v => v.length <= 100 || "Max length 100"
       ],
+      customFeeRules: [
+        (n) => !!n || "Please enter an integer",
+        (n) => !isNaN(parseInt(n)) || "Please enter a number",
+      ],
       symbolRules: [
         v => !!v || "Input required",
         v => v.length <= 100 || "Max length 100"
-        // v => /^[a-zA-Z]*$/.test(v) || "Only letters are allowed"
       ],
       name: "",
+      customFees: 0,
+      customFeeSelected: "fixed",
+      customFeeNumerator: 0,
+      customFeeDenominator: 0,
       symbol: "",
       decimals: "",
       initialSupply: 0,
@@ -401,6 +493,7 @@ export default {
   methods: {
     init() {
       this.nameValid = false;
+      this.customFeeValid = false;
       this.decimalsValid = false;
       this.supplyValid = false;
       this.fractional = "no";
@@ -412,10 +505,15 @@ export default {
       this.step = 1;
       //
       this.name = "";
+      this.tokenType = TokenType.FungibleCommon,
       this.symbol = "";
       this.decimals = "";
       this.initialSupply = "0";
       this.defaultFreezeStatus = false;
+      this.customFees = 0;
+      this.customFeeNumerator = 0;
+      this.customFeeDenominator = 0;
+      this.customFeesSelected = "";
     },
     nextStep() {
       this.step = this.step + 1;
@@ -460,9 +558,14 @@ export default {
       const issuerAccount = getAccountDetails("Issuer");
       const token = {
         name: this.name,
+        tokenType: TokenType.FungibleCommon,
         symbol: this.symbol,
         decimals: this.decimals === "" ? 0 : this.decimals,
         initialSupply: this.initialSupply,
+        customFees: this.customFees,
+        customFeeNumerator: this.customFeeNumerator,
+        customFeeDenominator: this.customFeeDenominator,
+        customFeeSelected: this.customFeeSelected,
         adminKey: this.mutable === "yes" ? privateKey.toString() : undefined,
         kycKey: this.kyc === "yes" ? privateKey.toString() : undefined,
         freezeKey: this.freeze === "yes" ? privateKey.toString() : undefined,

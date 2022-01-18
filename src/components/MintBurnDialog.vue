@@ -5,8 +5,7 @@
         <v-card>
           <v-card-title>
             <span v-if="operation === 'mint'" class="headline"
-              >Mint additional tokens</span
-            >
+              >Mint additional tokens</span>
             <span v-else class="headline">Burn tokens</span>
           </v-card-title>
           <v-card-text>
@@ -34,8 +33,7 @@
               text
               @click="mint"
               :disabled="!valid"
-              v-if="operation === 'mint'"
-            >
+              v-if="operation === 'mint'">
               Mint
             </v-btn>
             <v-btn
@@ -43,8 +41,7 @@
               text
               @click="burn"
               :disabled="!valid"
-              v-if="operation === 'burn'"
-            >
+              v-if="operation === 'burn'">
               Burn
             </v-btn>
           </v-card-actions>
