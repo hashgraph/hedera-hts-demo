@@ -26,7 +26,7 @@ _Note: This is purely for demonstration purposes and should not be used as-is in
 
 ## Prerequisites
 
-* A testnet or mainnet account
+* A testnet or mainnet account (head to https://portal.hedera.com to create an account if you don't have one)
 * Node.js v14.9.0
 * Yarn 1.22.10
 * Docker 

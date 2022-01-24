@@ -22,6 +22,7 @@
     <LoyaltyComposerDialog />
     <RedemptionItemComposer />
     <TransactionsDrawer />
+    <ErrorNoEnvFilePopup />
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
       <v-card flat tile width="100%" :class="footerColor">
         <v-card-text :class="textColor">
@@ -45,12 +46,14 @@ import TransactionsDrawer from "@/components/TransactionsDrawer";
 import ComposerDialog from "../components/ComposerDialog";
 import LoyaltyComposerDialog from "../components/LoyaltyComposerDialog";
 import RedemptionItemComposer from "../components/RedemptionItemComposer";
+import ErrorNoEnvFilePopup from "@/components/ErrorNoEnvFilePopup";
 
 let timer;
 
 export default {
   name: "Dashboard",
   components: {
+    ErrorNoEnvFilePopup,
     TransactionsDrawer,
     ComposerDialog,
     TransferDialog,
