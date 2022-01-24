@@ -89,8 +89,8 @@
 </template>
 
 <script>
-import { EventBus } from "../eventBus";
-import { tokenTransfer } from "../service/tokenService";
+import { EventBus } from "@/eventBus";
+import { tokenTransfer } from "@/service/tokenService";
 import { getAccountDetails, getUserAccountsWithNames } from "@/utils";
 
 export default {

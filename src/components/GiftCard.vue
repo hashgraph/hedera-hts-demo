@@ -134,11 +134,6 @@ export default {
       this.token = this.$store.getters.getTokens[this.tokenId];
       this.tokenMirrorURL = this.mirrorURL.concat(this.tokenId);
       this.isDeleted = this.token.isDeleted;
-
-      if (this.isDeleted) {
-        this.headingColor = "red";
-      }
-
       this.totalSupply = amountWithDecimals(
         this.token.totalSupply,
         this.token.decimals

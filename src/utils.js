@@ -64,7 +64,10 @@ export function getPrivateKeyForAccount(accountId) {
 export function getAccountDetails(account) {
   if (state.getters.numberOfAccounts !== 0) {
     for (const key in state.getters.getAccounts) {
-      if (state.getters.getAccounts[key].account.wallet === account) {
+      if (
+        state.getters.getAccounts[key].account.wallet === account ||
+        state.getters.getAccounts[key].accountId === account
+      ) {
         return {
           accountId: key,
           privateKey: state.getters.getAccounts[key].account.privateKey

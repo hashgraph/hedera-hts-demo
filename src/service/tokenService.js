@@ -36,8 +36,11 @@ export async function tokenGetInfo(token) {
       .setTokenId(token.tokenId)
       .execute(client);
 
+    console.log(info);
+
     tokenResponse.totalSupply = info.totalSupply;
     tokenResponse.expiry = info.expirationTime.toDate();
+    tokenResponse.isDeleted = info.isDeleted;
   } catch (err) {
     notifyError(err.message);
   }
@@ -140,7 +143,7 @@ export async function tokenCreate(token) {
         adminKey: token.adminKey,
         supplyKey: token.supplyKey,
         expiry: tokenInfo.expiry,
-        isDeleted: false,
+        isDeleted: tokenInfo.isDeleted,
         treasury: issuerAccount
       };
 
@@ -619,6 +622,7 @@ export async function tokenTransfer(
 ) {
   const account = getAccountDetails(user);
   const client = hederaClientForUser(user);
+
   try {
     const tx = await new TransferTransaction();
     tx.addTokenTransfer(tokenId, account.accountId, -quantity);
@@ -638,6 +642,7 @@ export async function tokenTransfer(
     const transactionReceipt = await result.getReceipt(client);
 
     if (transactionReceipt.status !== Status.Success) {
+      console.log(transactionReceipt);
       notifyError(transactionReceipt.status.toString());
       return false;
     } else {
@@ -661,6 +666,7 @@ export async function tokenTransfer(
       return true;
     }
   } catch (err) {
+    console.log(err);
     notifyError(err.message);
     return false;
   }

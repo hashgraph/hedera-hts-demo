@@ -5,31 +5,8 @@
         Name
       </v-stepper-step>
       <v-divider></v-divider>
-      <v-stepper-step
-        :complete="step > STEP_FRACTIONAL"
-        :step="STEP_FRACTIONAL"
-      >
-        Fractional
-      </v-stepper-step>
-      <v-divider></v-divider>
       <v-stepper-step :complete="step > STEP_SUPPLY" :step="STEP_SUPPLY">
         Supply
-      </v-stepper-step>
-      <v-divider></v-divider>
-      <v-stepper-step :complete="step > STEP_MUTABLE" :step="STEP_MUTABLE">
-        Mutable
-      </v-stepper-step>
-      <v-divider></v-divider>
-      <v-stepper-step :complete="step > STEP_KYC" :step="STEP_KYC">
-        KYC
-      </v-stepper-step>
-      <v-divider></v-divider>
-      <v-stepper-step :complete="step > STEP_WIPEABLE" :step="STEP_WIPEABLE">
-        Wipeable
-      </v-stepper-step>
-      <v-divider></v-divider>
-      <v-stepper-step :complete="step > STEP_FREEZABLE" :step="STEP_FREEZABLE">
-        Freezable
       </v-stepper-step>
       <v-divider></v-divider>
       <v-stepper-step :complete="step > STEP_CREATE" :step="STEP_CREATE">
@@ -42,6 +19,11 @@
         <v-card class="mb-12" height="200px" flat>
           <v-card-text>
             <v-form ref="nameForm" v-model="nameValid">
+              <v-row>
+                <v-col cols="12">
+                  Hi there and welcome to the Loyalty Token creation demo.
+                </v-col>
+              </v-row>
               <v-row>
                 <v-col cols="12">
                   <v-text-field
@@ -74,60 +56,6 @@
           <v-spacer></v-spacer>
           <v-col>
             <v-btn color="primary" @click="nextStep" :disabled="!nameValid">
-              Continue
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-stepper-content>
-
-      <v-stepper-content :step="STEP_FRACTIONAL">
-        <v-card class="mb-12" height="200px" flat>
-          <v-card-text>
-            <v-form ref="decimalsForm" v-model="decimalsValid">
-              <v-radio-group v-model="fractional">
-                <v-radio
-                  name="fractional"
-                  label="Whole"
-                  value="no"
-                  @click="validateDecimals()"
-                ></v-radio>
-                <v-radio
-                  name="fractional"
-                  label="Fractional"
-                  value="yes"
-                  @click="validateDecimals()"
-                ></v-radio>
-              </v-radio-group>
-              <v-row>
-                <v-col cols="4">
-                  <v-text-field
-                    v-if="fractional === 'yes'"
-                    label="Decimals*"
-                    required
-                    v-model="decimals"
-                    :rules="integerRules"
-                  ></v-text-field>
-                </v-col>
-              </v-row>
-            </v-form>
-          </v-card-text>
-        </v-card>
-        <v-row>
-          <v-col>
-            <v-btn text @click="cancel">
-              Cancel
-            </v-btn>
-          </v-col>
-          <v-spacer></v-spacer>
-          <v-col>
-            <v-btn text class="mr-2" @click="backStep">
-              Back
-            </v-btn>
-            <v-btn
-              color="primary"
-              @click="nextStep"
-              :disabled="!decimalsValid && fractional === 'yes'"
-            >
               Continue
             </v-btn>
           </v-col>
@@ -184,127 +112,6 @@
         </v-row>
       </v-stepper-content>
 
-      <v-stepper-content :step="STEP_MUTABLE">
-        <v-card class="mb-12" height="200px" flat>
-          <v-card-text>
-            <v-radio-group v-model="mutable">
-              <v-radio name="admin" label="No" value="no"></v-radio>
-              <v-radio name="admin" label="Yes" value="yes"></v-radio>
-            </v-radio-group>
-          </v-card-text>
-        </v-card>
-
-        <v-row>
-          <v-col>
-            <v-btn text @click="cancel">
-              Cancel
-            </v-btn>
-          </v-col>
-          <v-spacer></v-spacer>
-          <v-col>
-            <v-btn text class="mr-2" @click="backStep">
-              Back
-            </v-btn>
-            <v-btn color="primary" @click="nextStep">
-              Continue
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-stepper-content>
-
-      <v-stepper-content :step="STEP_KYC">
-        <v-card class="mb-12" height="200px" flat>
-          <v-card-text>
-            <v-radio-group v-model="kyc">
-              <v-radio name="kyc" label="No" value="no"></v-radio>
-              <v-radio name="kyc" label="Yes" value="yes"></v-radio>
-            </v-radio-group>
-          </v-card-text>
-        </v-card>
-
-        <v-row>
-          <v-col>
-            <v-btn text @click="cancel">
-              Cancel
-            </v-btn>
-          </v-col>
-          <v-spacer></v-spacer>
-          <v-col>
-            <v-btn text class="mr-2" @click="backStep">
-              Back
-            </v-btn>
-            <v-btn color="primary" @click="nextStep">
-              Continue
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-stepper-content>
-
-      <v-stepper-content :step="STEP_WIPEABLE">
-        <v-card class="mb-12" height="200px" flat>
-          <v-card-text>
-            <v-radio-group v-model="wipe">
-              <v-radio name="wipe" label="No" value="no"></v-radio>
-              <v-radio name="wipe" label="Yes" value="yes"></v-radio>
-            </v-radio-group>
-          </v-card-text>
-        </v-card>
-
-        <v-row>
-          <v-col>
-            <v-btn text @click="cancel">
-              Cancel
-            </v-btn>
-          </v-col>
-          <v-spacer></v-spacer>
-          <v-col>
-            <v-btn text class="mr-2" @click="backStep">
-              Back
-            </v-btn>
-            <v-btn color="primary" @click="nextStep">
-              Continue
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-stepper-content>
-
-      <v-stepper-content :step="STEP_FREEZABLE">
-        <v-card class="mb-12" height="200px" flat>
-          <v-card-text>
-            <v-radio-group v-model="freeze">
-              <v-radio name="freeze" label="No" value="no"></v-radio>
-              <v-radio name="freeze" label="Yes" value="yes"></v-radio>
-            </v-radio-group>
-            <v-row>
-              <v-col cols="6">
-                <v-checkbox
-                  v-model="defaultFreezeStatus"
-                  :disabled="freeze === 'no'"
-                  label="Default"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-          </v-card-text>
-        </v-card>
-
-        <v-row>
-          <v-col>
-            <v-btn text @click="cancel">
-              Cancel
-            </v-btn>
-          </v-col>
-          <v-spacer></v-spacer>
-          <v-col>
-            <v-btn text class="mr-2" @click="backStep">
-              Back
-            </v-btn>
-            <v-btn color="primary" @click="nextStep">
-              Continue
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-stepper-content>
-
       <v-stepper-content :step="STEP_CREATE">
         <v-card class="mb-12" height="200px" flat>
           <v-card-title>
@@ -350,17 +157,12 @@ import { PrivateKey } from "@hashgraph/sdk";
 import { tokenCreate } from "@/service/tokenService";
 
 export default {
-  name: "FungibleComposer",
+  name: "FungibleLoyaltyComposer",
   data: function() {
     return {
       STEP_NAME: 1,
-      STEP_FRACTIONAL: 2,
-      STEP_SUPPLY: 3,
-      STEP_MUTABLE: 4,
-      STEP_KYC: 5,
-      STEP_WIPEABLE: 6,
-      STEP_FREEZABLE: 7,
-      STEP_CREATE: 8,
+      STEP_SUPPLY: 2,
+      STEP_CREATE: 3,
       nameValid: false,
       decimalsValid: false,
       supplyValid: false,
@@ -392,7 +194,7 @@ export default {
   },
   created() {
     this.init();
-    EventBus.$on("tokenCompose", () => {
+    EventBus.$on("tokenCreateLoyalty", () => {
       this.init();
     });
   },

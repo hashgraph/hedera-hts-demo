@@ -46,10 +46,16 @@ function hederaClientLocal(operatorAccount, operatorPrivateKey) {
       throw new Error('VUE_APP_NETWORK must be "testnet" or "mainnet"');
   }
   client.setOperator(operatorAccount, operatorPrivateKey);
-  if ((typeof(process.env.VUE_APP_MAX_TX_FEE) !== undefined) && (process.env.VUE_APP_MAX_TX_FEE !== "")) {
+  if (
+    typeof process.env.VUE_APP_MAX_TX_FEE !== undefined &&
+    process.env.VUE_APP_MAX_TX_FEE !== ""
+  ) {
     client.setMaxTransactionFee(new Hbar(process.env.VUE_APP_MAX_TX_FEE));
   }
-  if ((typeof(process.env.VUE_APP_MAX_QUERY_PAYMENT) !== undefined) && (process.env.VUE_APP_MAX_QUERY_PAYMENT !== "")) {
+  if (
+    typeof process.env.VUE_APP_MAX_QUERY_PAYMENT !== undefined &&
+    process.env.VUE_APP_MAX_QUERY_PAYMENT !== ""
+  ) {
     client.setMaxQueryPayment(new Hbar(process.env.VUE_APP_MAX_QUERY_PAYMENT));
   }
   return client;

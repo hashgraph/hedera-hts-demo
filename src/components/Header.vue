@@ -10,7 +10,7 @@
         width="40"
       />
     </div>
-    <div>Hedera Token Service Demo</div>
+    <div>Hedera Token Service Loyalty Demo</div>
 
     <v-spacer></v-spacer>
 
@@ -45,11 +45,11 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn icon @click="showCreate()">
-      <v-icon>mdi-plus</v-icon>
+    <v-btn icon @click="showCreateLoyalty()">
+      <v-icon>mdi-wallet-giftcard</v-icon>
     </v-btn>
-    <v-btn icon @click="showCompose()">
-      <v-icon>mdi-music</v-icon>
+    <v-btn icon @click="showCreateRedeemableItem()">
+      <v-icon>mdi-shopping</v-icon>
     </v-btn>
     <v-btn icon @click="showTransactions()">
       <v-icon>mdi-download-network</v-icon>
@@ -104,6 +104,12 @@ export default {
     },
     showCreate() {
       EventBus.$emit("tokenCreate", "");
+    },
+    showCreateLoyalty() {
+      EventBus.$emit("tokenCreateLoyalty", "");
+    },
+    showCreateRedeemableItem() {
+      EventBus.$emit("redeemableItemDialog", "");
     },
     showUI(ui) {
       switch (ui) {

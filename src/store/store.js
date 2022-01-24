@@ -1,11 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
-import { accountCreate } from "../service/accountCreate";
-import { accountGetInfo } from "../service/accountGetInfo";
-import { tokenGetInfo } from "../service/tokenService";
-import { notifySuccess } from "../utils";
-import { EventBus } from "../eventBus";
+import { accountCreate } from "@/service/accountCreate";
+import { accountGetInfo } from "@/service/accountGetInfo";
+import { tokenGetInfo } from "@/service/tokenService";
+import { notifySuccess } from "@/utils";
+import { EventBus } from "@/eventBus";
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
@@ -14,6 +15,8 @@ export default new Vuex.Store({
     tokens: {},
     accounts: {},
     bids: {},
+    redeemableItems: {},
+    userOwnedRedeemableItems: {},
     currentTokenId: undefined,
     enablePoll: false
   },
@@ -42,10 +45,29 @@ export default new Vuex.Store({
     deleteBid(state, bid) {
       Vue.delete(state.bids, bid.tokenId);
     },
+    addRedeemableItem(state, redeemableItem) {
+      Vue.set(state.redeemableItems, redeemableItem.itemName, redeemableItem);
+    },
+    addRedeemableItemToUser(state, data) {
+      const { accountId, itemName } = data;
+      if (state.userOwnedRedeemableItems[accountId]) {
+        state.userOwnedRedeemableItems[accountId][itemName]
+          ? state.userOwnedRedeemableItems[accountId][itemName]++
+          : (state.userOwnedRedeemableItems[accountId][itemName] = 1);
+      } else {
+        state.userOwnedRedeemableItems[accountId] = {};
+        state.userOwnedRedeemableItems[accountId][itemName] = 1;
+      }
+    },
+    deleteRedeemableItem(state, redeemableItem) {
+      Vue.delete(state.redeemableItems, redeemableItem.itemName);
+    },
     reset(state) {
       state.accounts = {};
       state.tokens = {};
       state.bids = {};
+      state.redeemableItems = {};
+      state.userOwnedRedeemableItems = {};
       state.currentTokenId = undefined;
     },
     wipeAccount(state, wipeInstruction) {
@@ -96,6 +118,13 @@ export default new Vuex.Store({
         return state.bids;
       }
     },
+    getRedeemableItems(state) {
+      if (typeof state.redeemableItems === "undefined") {
+        return {};
+      } else {
+        return state.redeemableItems;
+      }
+    },
     currentTokenId(state) {
       return state.currentTokenId;
     },
@@ -117,6 +146,13 @@ export default new Vuex.Store({
         return {};
       } else {
         return state.accounts;
+      }
+    },
+    getUserOwnedRedeemableItems(state) {
+      if (typeof state.userOwnedRedeemableItems === "undefined") {
+        return {};
+      } else {
+        return state.userOwnedRedeemableItems;
       }
     }
   },
@@ -160,8 +196,7 @@ export default new Vuex.Store({
           return;
         }
         let account = state.accounts[key];
-        const accountDetails = await accountGetInfo(key);
-        account.tokenRelationships = accountDetails;
+        account.tokenRelationships = await accountGetInfo(key);
         commit("setAccount", account);
       }
     },

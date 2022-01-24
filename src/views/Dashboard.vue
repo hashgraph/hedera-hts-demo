@@ -19,6 +19,8 @@
     <MintBurnDialog />
     <TransferDialog />
     <ComposerDialog />
+    <LoyaltyComposerDialog />
+    <RedemptionItemComposer />
     <TransactionsDrawer />
     <ErrorNoEnvFilePopup />
     <v-footer :color="footerColor" absolute class="font-weight-medium" padless>
@@ -42,6 +44,8 @@ import TokenCreateDialog from "../components/TokenCreateDialog";
 import TransferDialog from "../components/TransferDialog";
 import TransactionsDrawer from "@/components/TransactionsDrawer";
 import ComposerDialog from "../components/ComposerDialog";
+import LoyaltyComposerDialog from "../components/LoyaltyComposerDialog";
+import RedemptionItemComposer from "../components/RedemptionItemComposer";
 import ErrorNoEnvFilePopup from "@/components/ErrorNoEnvFilePopup";
 
 let timer;
@@ -58,7 +62,9 @@ export default {
     TokenCreateDialog,
     Tokens,
     Accounts,
-    Wallet
+    Wallet,
+    LoyaltyComposerDialog,
+    RedemptionItemComposer
   },
   computed: {
     currentTokenId() {

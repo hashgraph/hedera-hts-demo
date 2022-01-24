@@ -1,5 +1,5 @@
 tasks:
-  - name: HTS demo
+  - name: Loyalty Demo
     before: cp -n .env.sample .env
     init: yarn
     command: yarn run serve --host 0.0.0.0 --disable-host-check
