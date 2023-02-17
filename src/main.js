@@ -6,6 +6,8 @@ import vuetify from "./plugins/vuetify";
 
 Vue.config.productionTip = false;
 Vue.config.productionTip = false;
+// Vue.http.headers.common['Access-Control-Allow-Origin'] = '*'
+// Vue.http.headers.common['Access-Control-Allow-Origin'] = true
 
 void store.dispatch("setup");
 void store.dispatch("fetch");

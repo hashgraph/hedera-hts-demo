@@ -14,33 +14,40 @@
 
     <v-spacer></v-spacer>
 
-    <v-btn
-      class="ma-2"
-      rounded
-      :color="issuerButtonColor"
-      @click="showUI('Issuer')"
-    >
-      Issuer ({{ walletIssuer }})
-    </v-btn>
-    <div v-if="numberOfAccounts !== 0">
+    <div>
       <v-btn
-        class="ma-2"
-        rounded
-        :color="aliceButtonColor"
-        :disabled="numberOfTokens === 0"
-        @click="showUI('Alice')"
+          rounded
+          :color="issuerButtonColor"
+          @click="showUI('Issuer')"
       >
-        Alice ({{ walletId1 }})
+        Issuer ({{ walletIssuer }})
       </v-btn>
-      <v-btn
-        class="ma-2"
-        rounded
-        :color="bobButtonColor"
-        :disabled="numberOfTokens === 0"
-        @click="showUI('Bob')"
-      >
-        Bob ({{ walletId2 }})
-      </v-btn>
+      <a class="mr-2" v-bind:href="'https://hashscan.io/' +  network + '/account/' + walletIssuer"
+         target="_blank"><v-icon>mdi-open-in-new</v-icon></a>
+    </div>
+
+    <div v-if="numberOfAccounts !== 0" class="ma-2">
+        <v-btn
+            rounded
+            :color="aliceButtonColor"
+            :disabled="numberOfTokens === 0"
+            @click="showUI('Alice')"
+        >
+          Alice ({{ walletId1 }})
+        </v-btn>
+        <a class="mr-2" v-bind:href="'https://hashscan.io/' +  network + '/account/' + walletId1"
+           target="_blank"><v-icon>mdi-open-in-new</v-icon></a>
+
+        <v-btn
+          rounded
+          :color="bobButtonColor"
+          :disabled="numberOfTokens === 0"
+          @click="showUI('Bob')"
+        >
+          Bob ({{ walletId2 }})
+        </v-btn>
+        <a v-bind:href="'https://hashscan.io/' +  network + '/account/' + walletId2"
+           target="_blank"><v-icon>mdi-open-in-new</v-icon></a>
     </div>
 
     <v-spacer></v-spacer>
@@ -76,7 +83,8 @@ export default {
       interval: undefined,
       issuerButtonColor: "success",
       aliceButtonColor: "primary",
-      bobButtonColor: "primary"
+      bobButtonColor: "primary",
+      network: process.env.VUE_APP_NETWORK
     };
   },
   created() {
