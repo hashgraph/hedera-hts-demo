@@ -19,7 +19,7 @@ The Hedera HTS Demo accepts contributions via GitHub pull requests. This documen
 Whether you are a user or contributor, official support channels include:
 
 - [Issues](https://github.com/hashgraph/hedera-hts-demo/issues)
-- [Discord](https://discordapp.com/invite/FFb9YFX)
+- [Discord](https://hedera.com/discord)
 
 Before opening a new issue or submitting a new pull request, it's helpful to search the project -
 it's likely that another user has already reported the issue you're facing, or it's a known issue
